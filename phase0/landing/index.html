@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://peak-pay.vercel.app" />
 
-  <!-- Social preview (usar raíz porque /public se sirve en /) -->
+  <!-- Social preview -->
   <meta property="og:image" content="https://peak-pay.vercel.app/peak1.PNG" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
@@ -22,7 +22,7 @@
   <meta name="twitter:description" content="Desbloquea mosaicos con privacidad y gamificación. Únete a la lista de espera." />
   <meta name="twitter:image" content="https://peak-pay.vercel.app/peak1.PNG" />
 
-  <!-- Favicon (desde raíz) -->
+  <!-- Favicon -->
   <link rel="icon" href="/favicon.ico">
 
   <!-- Analytics (opcional: Plausible) -->
@@ -179,8 +179,8 @@
         });
 
         if (res.ok) {
-          form.reset();
-          showMessage('¡Listo! Te avisaremos por email muy pronto.', true);
+          // Redirección a página de gracias (mejor UX/medición)
+          window.location.href = './gracias.html';
         } else {
           showMessage('Hubo un problema. Intenta de nuevo en unos minutos.', false);
         }
