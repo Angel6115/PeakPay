@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PeakPay — Unlock the Grid</title>
-  <!-- Favicon (pondrás el archivo en public/favicon.ico) -->
   <link rel="icon" href="./public/favicon.ico">
   <style>
     body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:#0b1020;color:#fff}
@@ -36,7 +35,6 @@
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
 
-      <!-- FORMULARIO (usa fetch hacia Formspree) -->
       <form id="waitlist" class="cta">
         <input type="email" name="email" placeholder="Tu email" required />
         <select name="rol" required>
@@ -54,7 +52,7 @@
   </div>
 
   <script>
-    // Reemplaza 'TU_ENDPOINT' por el ID que te da Formspree (ej. f/abcd1234)
+    // Reemplaza TU_ENDPOINT por tu ID de Formspree (ej: f/abcd1234) cuando lo tengas
     const FORMSPREE = 'https://formspree.io/f/TU_ENDPOINT';
 
     const form = document.getElementById('waitlist');
@@ -64,6 +62,13 @@
       e.preventDefault();
       const data = new FormData(form);
       try {
+        if (FORMSPREE.includes('TU_ENDPOINT')) {
+          msg.textContent = 'Recibimos tu interés. Pronto activaremos el formulario oficial. ¡Gracias!';
+          msg.classList.remove('err'); msg.classList.add('ok');
+          msg.style.display = 'block';
+          form.reset();
+          return;
+        }
         const res = await fetch(FORMSPREE, {
           method: 'POST',
           headers: { 'Accept': 'application/json' },
