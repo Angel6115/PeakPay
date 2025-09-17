@@ -3,40 +3,127 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PeakPay — Unlock the Grid</title>
+  <title>PeekPay — Unblur your curiosity</title>
+
+  <!-- SEO / Social (temporal) -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta property="og:title" content="PeekPay — Unblur your curiosity" />
+  <meta property="og:description" content="Lista de espera. Desbloquea mosaicos con privacidad y gamificación." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://peak-pay.vercel.app" />
+  <meta property="og:image" content="./public/peak1.PNG" />
+
+  <!-- Favicon + Logo -->
   <link rel="icon" href="./public/favicon.ico">
+
+  <!-- Analytics (opcional: Plausible) -->
+  <!-- <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script> -->
+
   <style>
-    body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:#0b1020;color:#fff}
-    .wrap{max-width:960px;margin:0 auto;padding:48px 20px}
-    .hero{display:grid;gap:16px}
-    .badge{display:inline-block;background:#111a3a;color:#9ed0ff;padding:6px 10px;border-radius:999px;font-size:12px}
-    h1{font-size:40px; line-height:1.05; margin:8px 0 12px}
-    p{opacity:.9; font-size:18px}
-    .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
-    input,button,select{padding:12px 14px;border-radius:10px;border:1px solid #2b3358;background:#0f1733;color:#fff}
-    button{border:0;background:#3a7bfd;cursor:pointer}
-    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:28px 0 8px}
-    .tile{aspect-ratio:1/1;background:#1b2244;filter:blur(6px);border-radius:6px}
-    .footer{opacity:.65; font-size:13px; margin-top:28px}
-    .ok{color:#9ef5bf}.err{color:#ffadad}
+    :root{
+      --bg:#ffffff;
+      --text:#0b1020;
+      --muted:#475569; /* slate-600 */
+      --card:#f8fafc;  /* slate-50 */
+      --primary:#111827; /* near-black for text buttons */
+      --ring:#e2e8f0;  /* slate-200 */
+      --tile:#e9eef7;  /* light tiles */
+      --tile-border:#d7deeb;
+      --cta:#111827;
+      --cta-text:#ffffff;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
+      margin:0;background:var(--bg);color:var(--text);
+    }
+    .wrap{max-width:1024px;margin:0 auto;padding:48px 20px}
+    header{
+      display:flex;align-items:center;gap:16px;margin-bottom:24px
+    }
+    header img{width:56px;height:auto;border-radius:14px}
+    .brand h1{font-size:20px;margin:0}
+    .brand p{margin:0;color:var(--muted);font-size:13px}
+    .hero{
+      background:var(--card);
+      border:1px solid var(--ring);
+      border-radius:16px;
+      padding:28px;
+      display:grid;
+      gap:16px;
+    }
+    .hero-title{
+      display:flex;align-items:center;gap:14px;flex-wrap:wrap
+    }
+    .hero-title img{width:150px;height:auto}
+    h2{font-size:40px;line-height:1.05;margin:0}
+    p.lead{opacity:.9;font-size:18px;margin:6px 0 0}
+    ul.points{margin:0;padding-left:18px;color:var(--muted);font-size:16px;line-height:1.6}
+    .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    input,button,select{
+      padding:12px 14px;border-radius:10px;border:1px solid var(--ring);
+      background:#fff;color:var(--text);outline:none
+    }
+    input:focus,select:focus{box-shadow:0 0 0 3px #dbeafe;border-color:#93c5fd}
+    button{
+      border:1px solid var(--cta);background:var(--cta);color:var(--cta-text);cursor:pointer
+    }
+
+    /* Grid de mosaicos (claro) */
+    .grid{
+      display:grid;grid-template-columns:repeat(4,1fr);
+      gap:8px;margin:8px 0 8px
+    }
+    .tile{
+      aspect-ratio:1/1;background:var(--tile);
+      border:1px solid var(--tile-border);
+      border-radius:10px;filter:blur(4px)
+    }
+
+    .subtle{font-size:12px;color:var(--muted)}
+    .footer{opacity:.85;font-size:13px;margin-top:16px;color:var(--muted)}
+
+    /* sección inferior */
+    .section{max-width:1024px;margin:36px auto 60px;padding:0 20px}
+    .faq h3{margin:0 0 8px}
+    .ok{color:#059669} .err{color:#b91c1c}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <span class="badge">Fase 0 — SFW</span>
-    <div class="hero">
-      <h1>PeakPay — Desbloquea mosaicos. Juega con la curiosidad.</h1>
-      <p>Lista de espera para acceso temprano. Sin explícito por ahora. Construimos la experiencia más segura y anónima para creadores y fans.</p>
+    <header>
+      <img src="./public/peak1.PNG" alt="PeekPay logo">
+      <div class="brand">
+        <h1>PeekPay</h1>
+        <p class="subtle">Unblur your curiosity</p>
+      </div>
+    </header>
 
-      <div class="grid">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-title">
+        <img src="./public/peak1.PNG" alt="PeekPay badge">
+        <div>
+          <h2 id="hero-title">Desbloquea mosaicos. Juega con la curiosidad.</h2>
+          <p class="lead">Lista de espera para acceso temprano. Descubre contenido por <b>mosaicos</b>, con <b>anonimato</b> y <b>gamificación</b>.</p>
+        </div>
+      </div>
+
+      <ul class="points">
+        <li>Vista previa difuminada gratis</li>
+        <li>Compras por mosaico o packs</li>
+        <li>Anonimato y protección anti-filtrado</li>
+      </ul>
+
+      <div class="grid" aria-hidden="true">
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
 
-      <form id="waitlist" class="cta">
-        <input type="email" name="email" placeholder="Tu email" required />
+      <!-- Formulario -->
+      <form id="waitlist" class="cta" novalidate>
+        <input type="email" name="email" placeholder="Tu email" autocomplete="email" required />
         <select name="rol" required>
           <option value="" disabled selected>Quiero…</option>
           <option value="usuario">Ser usuario</option>
@@ -47,47 +134,65 @@
       </form>
       <p id="msg" class="footer" style="display:none;"></p>
 
-      <p class="footer">Al unirte aceptas recibir emails de PeakPay (puedes darte de baja en cualquier momento). No compartimos tus datos con terceros.</p>
-    </div>
+      <p class="footer">Al unirte aceptas recibir emails de PeekPay (puedes darte de baja en cualquier momento). No compartimos tus datos con terceros.</p>
+    </section>
+  </div>
+
+  <!-- Mini-FAQ -->
+  <div class="section faq">
+    <h3>FAQ</h3>
+    <p><b>¿Es contenido explícito?</b> No en esta fase (SFW). El acceso temprano es para probar la mecánica y escuchar a la comunidad.</p>
+    <p><b>¿Cuándo lanzan?</b> Invitaciones a beta privada por etapas. Únete a la lista para prioridad.</p>
+    <p><b>¿Privacidad?</b> Diseñamos anonimato desde cero y protección anti-filtrado. Más detalles pronto.</p>
   </div>
 
   <script>
-    // Reemplaza TU_ENDPOINT por tu ID de Formspree (ej: f/abcd1234) cuando lo tengas
+    // Reemplaza TU_ENDPOINT por tu ID de Formspree (ej: f/abcd1234)
     const FORMSPREE = 'https://formspree.io/f/TU_ENDPOINT';
 
     const form = document.getElementById('waitlist');
     const msg  = document.getElementById('msg');
 
+    function showMessage(text, ok=true){
+      msg.textContent = text;
+      msg.classList.toggle('ok', ok);
+      msg.classList.toggle('err', !ok);
+      msg.style.display = 'block';
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const email = form.elements.email.value.trim();
+      const rol   = form.elements.rol.value;
+      if (!email || !rol){
+        showMessage('Completa email y rol, por favor.', false);
+        return;
+      }
+
       const data = new FormData(form);
+
       try {
         if (FORMSPREE.includes('TU_ENDPOINT')) {
-          msg.textContent = 'Recibimos tu interés. Pronto activaremos el formulario oficial. ¡Gracias!';
-          msg.classList.remove('err'); msg.classList.add('ok');
-          msg.style.display = 'block';
+          showMessage('Recibimos tu interés. Pronto activaremos el formulario oficial. ¡Gracias!', true);
           form.reset();
           return;
         }
+
         const res = await fetch(FORMSPREE, {
           method: 'POST',
           headers: { 'Accept': 'application/json' },
           body: data
         });
+
         if (res.ok) {
           form.reset();
-          msg.textContent = '¡Listo! Te avisaremos por email muy pronto.';
-          msg.classList.remove('err'); msg.classList.add('ok');
-          msg.style.display = 'block';
+          showMessage('¡Listo! Te avisaremos por email muy pronto.', true);
         } else {
-          msg.textContent = 'Hubo un problema. Intenta de nuevo en unos minutos.';
-          msg.classList.remove('ok'); msg.classList.add('err');
-          msg.style.display = 'block';
+          showMessage('Hubo un problema. Intenta de nuevo en unos minutos.', false);
         }
       } catch {
-        msg.textContent = 'Sin conexión. Intenta nuevamente.';
-        msg.classList.remove('ok'); msg.classList.add('err');
-        msg.style.display = 'block';
+        showMessage('Sin conexión. Intenta nuevamente.', false);
       }
     });
   </script>
