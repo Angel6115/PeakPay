@@ -12,18 +12,18 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://peak-pay.vercel.app" />
 
-  <!-- Social preview (URL absoluta) -->
-  <meta property="og:image" content="https://peak-pay.vercel.app/public/peak1.PNG" />
+  <!-- Social preview (usar raíz porque /public se sirve en /) -->
+  <meta property="og:image" content="https://peak-pay.vercel.app/peak1.PNG" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="PeekPay — Unblur your curiosity" />
   <meta name="twitter:description" content="Desbloquea mosaicos con privacidad y gamificación. Únete a la lista de espera." />
-  <meta name="twitter:image" content="https://peak-pay.vercel.app/public/peak1.PNG" />
+  <meta name="twitter:image" content="https://peak-pay.vercel.app/peak1.PNG" />
 
-  <!-- Favicon -->
-  <link rel="icon" href="./public/favicon.ico">
+  <!-- Favicon (desde raíz) -->
+  <link rel="icon" href="/favicon.ico">
 
   <!-- Analytics (opcional: Plausible) -->
   <!-- <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script> -->
@@ -81,12 +81,13 @@
     .section{max-width:1024px;margin:36px auto 60px;padding:0 20px}
     .faq h3{margin:0 0 8px}
     .ok{color:#059669}.err{color:#b91c1c}
+    .footer a{color:inherit;text-decoration:underline}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <img src="./public/peak1.PNG" alt="PeekPay logo">
+      <img src="/peak1.PNG" alt="PeekPay logo">
       <div class="brand">
         <h1>PeekPay</h1>
         <p class="subtle">Unblur your curiosity</p>
@@ -95,7 +96,7 @@
 
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-title">
-        <img src="./public/peak1.PNG" alt="PeekPay badge">
+        <img src="/peak1.PNG" alt="PeekPay badge">
         <div>
           <h2 id="hero-title">Desbloquea mosaicos. Juega con la curiosidad.</h2>
           <p class="lead">Lista de espera para acceso temprano. Descubre contenido por <b>mosaicos</b>, con <b>anonimato</b> y <b>gamificación</b>.</p>
@@ -129,6 +130,10 @@
       <p id="msg" class="footer" style="display:none;"></p>
 
       <p class="footer">Al unirte aceptas recibir emails de PeekPay (puedes darte de baja en cualquier momento). No compartimos tus datos con terceros.</p>
+      <p class="footer">
+        <a href="./privacy.html">Privacidad</a> ·
+        <a href="./terms.html">Términos</a>
+      </p>
     </section>
   </div>
 
@@ -136,7 +141,7 @@
   <div class="section faq">
     <h3>FAQ</h3>
     <p><b>¿Es contenido explícito?</b> No en esta fase (SFW). El acceso temprano es para probar la mecánica y escuchar a la comunidad.</p>
-    <p><b>¿Cuándo lanzan?</b> Invitaciones a beta privada por etapas. Únete a la lista para prioridad.</p>
+    <p><b>¿Cuándo lanzan?</b> Invitaciones a la beta privada por etapas. Únete a la lista para prioridad.</p>
     <p><b>¿Privacidad?</b> Diseñamos anonimato desde cero y protección anti-filtrado. Más detalles pronto.</p>
   </div>
 

@@ -1,12 +1,12 @@
 {
-  "name": "peakpay-landing",
+  "name": "peekpay-landing",
   "version": "1.0.0",
   "private": true,
-  "description": "Landing SFW de PeakPay (Fase 0)",
+  "description": "Landing SFW de PeekPay (Fase 0)",
   "scripts": {
-    "dev": "live-server --port=5173 ."
+    "dev": "vite"
   },
   "devDependencies": {
-    "live-server": "^1.2.2"
+    "vite": "^6.3.6"
   }
 }
