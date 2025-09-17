@@ -12,70 +12,46 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://peak-pay.vercel.app" />
 
-  <!-- Social preview (archivos de /public se sirven desde raíz /) -->
-  <meta property="og:image" content="https://peak-pay.vercel.app/peak1.PNG" />
+  <!-- Social preview (en Vercel estático, usar /public/...) -->
+  <meta property="og:image" content="https://peak-pay.vercel.app/public/peak1.PNG" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="PeekPay — Unblur your curiosity" />
   <meta name="twitter:description" content="Desbloquea mosaicos con privacidad y gamificación. Únete a la lista de espera." />
-  <meta name="twitter:image" content="https://peak-pay.vercel.app/peak1.PNG" />
+  <meta name="twitter:image" content="https://peak-pay.vercel.app/public/peak1.PNG" />
 
-  <!-- Favicon (desde raíz) -->
-  <link rel="icon" href="/favicon.ico">
+  <!-- Favicon (desde /public) -->
+  <link rel="icon" href="/public/favicon.ico">
 
   <!-- Analytics (Plausible) -->
   <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
 
   <style>
     :root{
-      --bg:#ffffff;
-      --text:#0b1020;
-      --muted:#475569;
-      --card:#f8fafc;
-      --ring:#e2e8f0;
-      --tile:#e9eef7;
-      --tile-border:#d7deeb;
-      --cta:#111827;
-      --cta-text:#ffffff;
+      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --tile:#e9eef7; --tile-border:#d7deeb; --cta:#111827; --cta-text:#ffffff;
     }
     *{box-sizing:border-box}
-    body{
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
-      margin:0;background:var(--bg);color:var(--text);
-    }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
     .wrap{max-width:1024px;margin:0 auto;padding:48px 20px}
     header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
     header img{width:56px;height:auto;border-radius:14px}
     .brand h1{font-size:20px;margin:0}
     .brand p{margin:0;color:var(--muted);font-size:13px}
-
-    .hero{
-      background:var(--card);
-      border:1px solid var(--ring);
-      border-radius:16px;
-      padding:28px;
-      display:grid;
-      gap:16px;
-    }
+    .hero{background:var(--card);border:1px solid var(--ring);border-radius:16px;padding:28px;display:grid;gap:16px}
     .hero-title{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .hero-title img{width:150px;height:auto}
     h2{font-size:40px;line-height:1.05;margin:0}
     p.lead{opacity:.9;font-size:18px;margin:6px 0 0}
     ul.points{margin:0;padding-left:18px;color:var(--muted);font-size:16px;line-height:1.6}
-
     .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
-    input,button,select{
-      padding:12px 14px;border-radius:10px;border:1px solid var(--ring);
-      background:#fff;color:var(--text);outline:none
-    }
+    input,button,select{padding:12px 14px;border-radius:10px;border:1px solid var(--ring);background:#fff;color:var(--text);outline:none}
     input:focus,select:focus{box-shadow:0 0 0 3px #dbeafe;border-color:#93c5fd}
     button{border:1px solid var(--cta);background:var(--cta);color:var(--cta-text);cursor:pointer}
-
     .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 8px}
     .tile{aspect-ratio:1/1;background:var(--tile);border:1px solid var(--tile-border);border-radius:10px;filter:blur(4px)}
-
     .subtle{font-size:12px;color:var(--muted)}
     .footer{opacity:.85;font-size:13px;margin-top:16px;color:var(--muted)}
     .section{max-width:1024px;margin:36px auto 60px;padding:0 20px}
@@ -87,7 +63,7 @@
 <body>
   <div class="wrap">
     <header>
-      <img src="/peak1.PNG" alt="PeekPay logo">
+      <img src="/public/peak1.PNG" alt="PeekPay logo">
       <div class="brand">
         <h1>PeekPay</h1>
         <p class="subtle">Unblur your curiosity</p>
@@ -96,7 +72,7 @@
 
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-title">
-        <img src="/peak1.PNG" alt="PeekPay badge">
+        <img src="/public/peak1.PNG" alt="PeekPay badge">
         <div>
           <h2 id="hero-title">Desbloquea mosaicos. Juega con la curiosidad.</h2>
           <p class="lead">Lista de espera para acceso temprano. Descubre contenido por <b>mosaicos</b>, con <b>anonimato</b> y <b>gamificación</b>.</p>
@@ -146,9 +122,7 @@
   </div>
 
   <script>
-    // Endpoint real de Formspree
     const FORMSPREE = 'https://formspree.io/f/mldwynnv';
-
     const form = document.getElementById('waitlist');
     const msg  = document.getElementById('msg');
 
@@ -161,32 +135,16 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const email = form.elements.email.value.trim();
       const rol   = form.elements.rol.value;
-      if (!email || !rol){
-        showMessage('Completa email y rol, por favor.', false);
-        return;
-      }
+      if (!email || !rol){ showMessage('Completa email y rol, por favor.', false); return; }
 
       const data = new FormData(form);
-
       try {
-        const res = await fetch(FORMSPREE, {
-          method: 'POST',
-          headers: { 'Accept': 'application/json' },
-          body: data
-        });
-
-        if (res.ok) {
-          // Redirección a página de gracias (mejor UX/medición)
-          window.location.href = './gracias.html';
-        } else {
-          showMessage('Hubo un problema. Intenta de nuevo en unos minutos.', false);
-        }
-      } catch {
-        showMessage('Sin conexión. Intenta nuevamente.', false);
-      }
+        const res = await fetch(FORMSPREE, { method:'POST', headers:{ 'Accept':'application/json' }, body:data });
+        if (res.ok) { form.reset(); window.location.href = './gracias.html'; }
+        else { showMessage('Hubo un problema. Intenta de nuevo en unos minutos.', false); }
+      } catch { showMessage('Sin conexión. Intenta nuevamente.', false); }
     });
   </script>
 </body>
