@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PeakPay — Unlock the Grid</title>
+  <!-- Favicon (pondrás el archivo en public/favicon.ico) -->
+  <link rel="icon" href="./public/favicon.ico">
   <style>
     body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:#0b1020;color:#fff}
     .wrap{max-width:960px;margin:0 auto;padding:48px 20px}
@@ -17,6 +19,7 @@
     .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:28px 0 8px}
     .tile{aspect-ratio:1/1;background:#1b2244;filter:blur(6px);border-radius:6px}
     .footer{opacity:.65; font-size:13px; margin-top:28px}
+    .ok{color:#9ef5bf}.err{color:#ffadad}
   </style>
 </head>
 <body>
@@ -25,13 +28,16 @@
     <div class="hero">
       <h1>PeakPay — Desbloquea mosaicos. Juega con la curiosidad.</h1>
       <p>Lista de espera para acceso temprano. Sin explícito por ahora. Construimos la experiencia más segura y anónima para creadores y fans.</p>
+
       <div class="grid">
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
         <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
-      <form class="cta" action="#" method="post">
+
+      <!-- FORMULARIO (usa fetch hacia Formspree) -->
+      <form id="waitlist" class="cta">
         <input type="email" name="email" placeholder="Tu email" required />
         <select name="rol" required>
           <option value="" disabled selected>Quiero…</option>
@@ -41,8 +47,44 @@
         </select>
         <button type="submit">Unirme a la lista</button>
       </form>
-      <p class="footer">Al unirte aceptas recibir actualizaciones. 100% SFW en esta fase.</p>
+      <p id="msg" class="footer" style="display:none;"></p>
+
+      <p class="footer">Al unirte aceptas recibir emails de PeakPay (puedes darte de baja en cualquier momento). No compartimos tus datos con terceros.</p>
     </div>
   </div>
+
+  <script>
+    // Reemplaza 'TU_ENDPOINT' por el ID que te da Formspree (ej. f/abcd1234)
+    const FORMSPREE = 'https://formspree.io/f/TU_ENDPOINT';
+
+    const form = document.getElementById('waitlist');
+    const msg  = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      try {
+        const res = await fetch(FORMSPREE, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: data
+        });
+        if (res.ok) {
+          form.reset();
+          msg.textContent = '¡Listo! Te avisaremos por email muy pronto.';
+          msg.classList.remove('err'); msg.classList.add('ok');
+          msg.style.display = 'block';
+        } else {
+          msg.textContent = 'Hubo un problema. Intenta de nuevo en unos minutos.';
+          msg.classList.remove('ok'); msg.classList.add('err');
+          msg.style.display = 'block';
+        }
+      } catch {
+        msg.textContent = 'Sin conexión. Intenta nuevamente.';
+        msg.classList.remove('ok'); msg.classList.add('err');
+        msg.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>
