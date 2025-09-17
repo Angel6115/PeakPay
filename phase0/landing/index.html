@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeakPay — Unlock the Grid</title>
+  <style>
+    body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:#0b1020;color:#fff}
+    .wrap{max-width:960px;margin:0 auto;padding:48px 20px}
+    .hero{display:grid;gap:16px}
+    .badge{display:inline-block;background:#111a3a;color:#9ed0ff;padding:6px 10px;border-radius:999px;font-size:12px}
+    h1{font-size:40px; line-height:1.05; margin:8px 0 12px}
+    p{opacity:.9; font-size:18px}
+    .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
+    input,button,select{padding:12px 14px;border-radius:10px;border:1px solid #2b3358;background:#0f1733;color:#fff}
+    button{border:0;background:#3a7bfd;cursor:pointer}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:28px 0 8px}
+    .tile{aspect-ratio:1/1;background:#1b2244;filter:blur(6px);border-radius:6px}
+    .footer{opacity:.65; font-size:13px; margin-top:28px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="badge">Fase 0 — SFW</span>
+    <div class="hero">
+      <h1>PeakPay — Desbloquea mosaicos. Juega con la curiosidad.</h1>
+      <p>Lista de espera para acceso temprano. Sin explícito por ahora. Construimos la experiencia más segura y anónima para creadores y fans.</p>
+      <div class="grid">
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+      </div>
+      <form class="cta" action="#" method="post">
+        <input type="email" name="email" placeholder="Tu email" required />
+        <select name="rol" required>
+          <option value="" disabled selected>Quiero…</option>
+          <option value="usuario">Ser usuario</option>
+          <option value="creador">Monetizar como creador/a</option>
+          <option value="ambos">Ambos</option>
+        </select>
+        <button type="submit">Unirme a la lista</button>
+      </form>
+      <p class="footer">Al unirte aceptas recibir actualizaciones. 100% SFW en esta fase.</p>
+    </div>
+  </div>
+</body>
+</html>
