@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="/public/styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Wallet</title>
+
+  <link rel="icon" href="/public/favicon.ico">
+  <style>
+    :root{
+      /* Base claros */
+      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c;
+
+      /* Marca (alineado con peek.html) */
+      --indigo:#4f46e5; --indigo-ink:#3730a3; --indigo-soft:#eef2ff;
+      --blue:#2563eb; --mint:#10b981; --mint-soft:#ecfdf5; --pink:#ec4899;
+
+      /* Componentes */
+      --cta: var(--indigo);
+      --cta-text:#fff;
+      --badge-bg: var(--indigo-soft);
+      --badge-ring:#c7d2fe;
+      --badge-text:#1e1b4b;
+    }
+
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    .wrap{max-width:940px;margin:0 auto;padding:28px 16px 56px}
+
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    header .back{
+      border:1px solid transparent;
+      background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
+      color:#fff;border-radius:10px;padding:8px 12px;text-decoration:none;
+      box-shadow: 0 6px 16px rgba(79,70,229,.25);
+    }
+    header .back:hover{ filter: brightness(1.05) }
+
+    .panel{
+      border:1px solid var(--ring);
+      background: var(--card);
+      border-radius:16px;
+      padding:14px;margin-top:12px;
+      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    }
+
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+    .badge{
+      font-size:12px;border:1px solid var(--badge-ring);background:var(--badge-bg);color:var(--badge-text);
+      border-radius:10px;padding:6px 10px;line-height:1
+    }
+    .muted{color:var(--muted);font-size:12px}
+    .h2{font-weight:700;margin:0 0 8px 0}
+
+    .btn{
+      border:0;background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
+      color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;
+      box-shadow: 0 6px 16px rgba(79,70,229,.25);
+    }
+    .btn:hover{ filter: brightness(1.05) }
+    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .pack{
+      border:1px solid var(--ring);
+      background:#fff; color:var(--text); border-radius:14px; padding:14px; cursor:pointer; text-align:center;
+      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+      transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .pack:hover{ transform: translateY(-1px); box-shadow: 0 12px 32px rgba(79,70,229,.10); border-color: color-mix(in srgb, var(--indigo) 30%, var(--ring)); }
+    .pack small{ display:block; opacity:.75 }
+
+    .msg{margin-top:8px;font-size:13px;min-height:18px}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+
+    /* Historial */
+    .hist{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+    .item{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      border:1px solid var(--ring); background:#fff; border-radius:12px; padding:12px;
+      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    }
+    .left{display:flex;flex-direction:column;gap:2px}
+    .title{font-weight:600}
+    .sub{font-size:12px;color:var(--muted)}
+    .pill{
+      display:inline-block;font-size:11px;border:1px solid #e5e7eb;background:#f8fafc;color:#0b1020;
+      border-radius:999px;padding:3px 8px;margin-right:6px
+    }
+    .cr-pos{color:var(--ok);font-weight:700}
+    .cr-neg{color:var(--err);font-weight:700}
+
+    /* Racha / progreso */
+    .streak{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .bar{flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;min-width:160px}
+    .bar>span{display:block;height:100%;background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);width:0%}
+    .streak .tips{font-size:12px;color:var(--muted)}
+
+    @media (max-width: 720px){ .grid{ grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 style="margin:0;font-size:18px">Wallet</h1>
+      <a id="backBtn" class="back" href="#">Volver al Peek</a>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <div class="badge">Peak Credits: <b id="credits">0</b> <span id="creditsUsd" class="muted" style="margin-left:6px">≈ $0.00</span></div>
+        <div class="badge">Puntos: <b id="points">0</b></div>
+        <div class="badge">Racha: <b id="streak">—</b></div>
+      </div>
+
+      <div class="streak">
+        <div class="bar" aria-label="Progreso racha 7 días"><span id="streakBar"></span></div>
+        <button id="claimBtn" class="btn">Reclamar bono diario</button>
+        <button id="weeklyBtn" class="btn secondary">Bono semanal</button>
+        <span id="streakHint" class="tips"></span>
+        <span id="weeklyHint" class="tips"></span>
+      </div>
+
+      <div class="muted" style="margin-top:8px">
+        UID: <span id="uid">—</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="h2">Recargas <small class="muted">(alpha)</small></h2>
+      <div class="grid">
+        <button class="pack" data-pack="5">
+          $5 → <b>+20</b> créditos
+          <small>1 punto por $1</small>
+        </button>
+        <button class="pack" data-pack="10">
+          $10 → <b>+50</b> créditos
+          <small>1 punto por $1</small>
+        </button>
+        <button class="pack" data-pack="20">
+          $20 → <b>+120</b> créditos
+          <small>1 punto por $1</small>
+        </button>
+      </div>
+      <div id="msg" class="msg"></div>
+    </section>
+
+    <section class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 class="h2" style="margin:0">Historial <small class="muted">(recargas, desbloqueos y bonos)</small></h2>
+        <div class="row">
+          <button id="exportBtn" class="btn secondary">Exportar</button>
+          <button id="importBtn" class="btn secondary" disabled>Importar</button>
+        </div>
+      </div>
+      <div id="hist" class="hist"></div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+
+    /* ===== Config / unificación con peek ===== */
+    const API_BASE = (localStorage.getItem('pp_api_base')||'').replace(/\/+$/,'');
+    const PP_UID   = localStorage.getItem('pp_uid') || 'test-user-123';
+    localStorage.setItem('pp_uid', PP_UID);
+
+    // mismas claves y tasa que peek.html
+    const CREDIT_KEY    = 'pp_demo_balance';
+    const POINTS_KEY    = 'pp_points';
+    const CREDIT_TO_USD = 0.25;
+
+    const fmtMoney = (v)=> Number(v).toLocaleString(
+      'en-US',
+      {style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2}
+    );
+
+    // Normalizadores (idénticos a peek.html)
+    function pickCredits(obj){
+      if (!obj) return 0;
+      if (typeof obj.credits === 'number') return obj.credits;
+      if (typeof obj.balance === 'number') return obj.balance;
+      if (obj.balance && typeof obj.balance.credits === 'number') return obj.balance.credits;
+      return 0;
+    }
+    function pickPoints(obj){
+      if (!obj) return 0;
+      if (typeof obj.points === 'number') return obj.points;
+      if (obj.balance && typeof obj.balance.points === 'number') return obj.balance.points;
+      return 0;
+    }
+
+    // Storage helpers
+    const getLocalCredits = ()=> Number(localStorage.getItem(CREDIT_KEY)||'0')||0;
+    const setLocalCredits = (n)=>{
+      const v = Math.max(0, Math.floor(Number(n||0)));
+      localStorage.setItem(CREDIT_KEY, String(v));
+      updateTopUI();
+    };
+    const getLocalPoints = ()=> Number(localStorage.getItem(POINTS_KEY)||'0')||0;
+    const setLocalPoints = (n)=>{
+      const v = Math.max(0, Math.floor(Number(n||0)));
+      localStorage.setItem(POINTS_KEY, String(v));
+      updateTopUI();
+    };
+
+    /* ===== UI helpers ===== */
+    function setMsg(text, kind){
+      const el = $('#msg');
+      el.textContent = text || '';
+      el.className = 'msg ' + (kind||'');
+    }
+
+    function updateTopUI(){
+      const cr = getLocalCredits();
+      const pt = getLocalPoints();
+      $('#credits').textContent = cr.toLocaleString('en-US');
+      $('#creditsUsd').textContent = '≈ ' + fmtMoney(cr * CREDIT_TO_USD);
+      $('#points').textContent = pt.toLocaleString('en-US');
+      $('#uid').textContent = PP_UID;
+    }
+
+    function updateWeeklyHint(streakDays){
+      const h = $('#weeklyHint');
+      const mod = streakDays % 7;
+      if (streakDays > 0 && mod === 0){
+        h.textContent = '¡Listo para reclamar el bono semanal!';
+      } else {
+        const restan = 7 - (mod || 7);
+        h.textContent = 'Te faltan ' + restan + ' día(s) para el bono semanal.';
+      }
+    }
+
+    function updateStreakUI(streak_days, claimed_today){
+      const daysNum = Number(streak_days || localStorage.getItem('pp_streak_days') || 0);
+      $('#streak').textContent = String(daysNum);
+
+      const within7 = (daysNum % 7) || (daysNum>0 ? 7 : 0);
+      $('#streakBar').style.width = String((within7/7)*100) + '%';
+
+      const btn = $('#claimBtn');
+      const hint = $('#streakHint');
+      if (claimed_today){
+        btn.disabled = true;
+        btn.textContent = 'Bono de hoy reclamado';
+        hint.textContent = 'Vuelve mañana para seguir la racha.';
+        setClaimedTodayLocal();
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Reclamar bono diario';
+        hint.textContent = '1 punto por día con actividad.';
+      }
+      localStorage.setItem('pp_streak_days', String(daysNum));
+      updateWeeklyHint(daysNum);
+    }
+
+    /* ===== API helpers ===== */
+    function apiGet(path){
+      if (!API_BASE) return Promise.reject(new Error('API base no configurada'));
+      return fetch(API_BASE + path, { headers:{ 'X-PP-UID': PP_UID }})
+        .then(r=>{ if(!r.ok) throw new Error('GET '+path+' '+r.status); return r.json(); });
+    }
+    function apiPost(path, body){
+      if (!API_BASE) return Promise.reject(new Error('API base no configurada'));
+      return fetch(API_BASE + path, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'X-PP-UID': PP_UID },
+        body: JSON.stringify(body||{})
+      }).then(async (r)=>{
+        const j = await r.json().catch(()=>({}));
+        if (!r.ok){ const e=new Error(j?.error||('HTTP '+r.status)); e.status=r.status; e.payload=j; throw e; }
+        return j;
+      });
+    }
+
+    /* ===== Balance ===== */
+    async function refreshBalance(){
+      if (!API_BASE){
+        updateTopUI(); // local
+        return;
+      }
+      try{
+        const j = await apiGet('/api/credits/balance');
+        setLocalCredits(pickCredits(j));
+        setLocalPoints(pickPoints(j));
+      }catch{
+        updateTopUI(); // fallback local
+      }
+    }
+
+    /* ===== Historial ===== */
+    const fmtWhen = (ts)=>{ try{ return new Date(ts).toLocaleString(); }catch{ return String(ts||''); } };
+
+    function renderHistory(items){
+      const cont = $('#hist');
+      cont.innerHTML = '';
+      if (!items || !items.length){
+        cont.innerHTML = '<div class="muted">Sin movimientos recientes.</div>';
+        return;
+      }
+      for (const it of items){
+        const row = document.createElement('div'); row.className='item';
+        const left = document.createElement('div'); left.className='left';
+        const right = document.createElement('div');
+
+        const when  = fmtWhen(it.ts);
+        const meta  = it.meta || {};
+        const pts   = Number(it.points||0);
+
+        let title = '', sub = '', rightHTML = '';
+        if (it.type === 'topup'){
+          title = `<span class="pill">Recarga</span> Pack $${Number(it.usd||0).toFixed(2)}`;
+          sub   = `${when} · +${it.credits} cr${pts?` · +${pts} pts`:''}`;
+          rightHTML = `<span class="cr-pos">+${it.credits} cr</span>`;
+        } else if (it.type === 'unlock'){
+          title = `<span class="pill">Desbloqueo</span> 1 celda`;
+          sub   = when;
+          rightHTML = `<span class="cr-neg">${it.credits||-1} cr</span>`;
+        } else if (it.type === 'streak_bonus'){
+          title = `<span class="pill">Bono diario</span>`;
+          sub   = `${when} · +${pts} pts`;
+          rightHTML = `<span class="cr-pos">+${pts} pts</span>`;
+        } else if (it.type === 'weekly_streak_bonus'){
+          const c = Number(it.credits||0);
+          title = `<span class="pill">Bono semanal</span> racha ${meta.streak_days||''} días`;
+          sub   = `${when} · +${pts} pts · +${c} cr`;
+          rightHTML = `<div style="text-align:right"><div class="cr-pos">+${c} cr</div><div class="sub">+${pts} pts</div></div>`;
+        } else {
+          title = `<span class="pill">Otro</span>`;
+          sub   = when;
+        }
+
+        left.innerHTML = `<div class="title">${title}</div><div class="sub">${sub}</div>`;
+        right.innerHTML = rightHTML;
+
+        row.appendChild(left); row.appendChild(right);
+        cont.appendChild(row);
+      }
+    }
+    async function fetchHistory(limit=20){
+      try{
+        const j = await apiGet('/api/credits/history?limit='+limit);
+        return j?.items || [];
+      }catch{ return []; }
+    }
+    async function refreshHistory(){ renderHistory(await fetchHistory(20)); }
+
+    /* ===== Puntos / Racha ===== */
+    async function refreshPoints(){
+      try{
+        const data = await apiGet('/api/credits/points');
+        const totalPts = Number(data?.points ?? getLocalPoints());
+        setLocalPoints(totalPts); // updateTopUI dentro
+        const sd = Number(data?.streak_days ?? localStorage.getItem('pp_streak_days') ?? 0);
+        const ct = !!data?.claimed_today;
+        updateStreakUI(sd, ct);
+      }catch{
+        const sd2 = Number(localStorage.getItem('pp_streak_days')||0);
+        updateStreakUI(sd2, false);
+      }
+    }
+
+    const todayKey = ()=> new Date().toISOString().slice(0,10);
+    const hasClaimedTodayLocal = ()=> localStorage.getItem('pp_streak_last_claim_date') === todayKey();
+    const setClaimedTodayLocal = ()=> localStorage.setItem('pp_streak_last_claim_date', todayKey());
+    const mkReasonMsg = (r)=>{
+      if (r==='already_granted') return 'Ya reclamaste el bono de hoy.';
+      if (r==='no_activity_today') return 'Aún no hay actividad hoy. Desbloquea un Peek y vuelve.';
+      if (r==='not_multiple_of_7') return 'Aún no completas 7 días seguidos.';
+      return 'Bono no disponible por ahora.';
+    };
+
+    async function onClaimDaily(){
+      const btn = $('#claimBtn');
+      if (hasClaimedTodayLocal()){
+        setMsg('Ya reclamaste el bono de hoy.','err');
+        updateStreakUI(localStorage.getItem('pp_streak_days')||0, true);
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'Reclamando…'; setMsg('');
+      try{
+        const res = await apiPost('/api/credits/streak-bonus',{});
+        if (res?.ok && res.granted){
+          setLocalPoints(getLocalPoints() + Number(res.points_awarded ?? 1));
+          setClaimedTodayLocal();
+          setMsg(`¡Bono diario reclamado! +${Number(res.points_awarded ?? 1)} punto(s) 🎉`,'ok');
+        }else{
+          const reason = res?.reason || 'not_granted';
+          if (reason==='already_granted') setClaimedTodayLocal();
+          setMsg(mkReasonMsg(reason),'err');
+        }
+      }catch(err){
+        if (err?.status===409){
+          const reason2 = err.payload?.reason || 'already_granted';
+          if (reason2==='already_granted') setClaimedTodayLocal();
+          setMsg(mkReasonMsg(reason2),'err');
+        }else{
+          setMsg('No se pudo reclamar el bono hoy.','err');
+        }
+      }finally{
+        await Promise.all([refreshBalance(), refreshHistory(), refreshPoints()]);
+        btn.disabled = hasClaimedTodayLocal();
+        btn.textContent = hasClaimedTodayLocal() ? 'Bono de hoy reclamado' : 'Reclamar bono diario';
+      }
+    }
+
+    async function onClaimWeekly(){
+      const b = $('#weeklyBtn');
+      b.disabled = true; b.textContent = 'Reclamando…';
+      try{
+        const r = await apiPost('/api/credits/weekly-streak-bonus',{});
+        if (r?.ok && r.granted){
+          setMsg(`¡Bono semanal! +${r.points_awarded} pts y +${r.credits_awarded} cr 🎉`,'ok');
+        }else{
+          setMsg(mkReasonMsg(r?.reason),'err');
+        }
+      }catch{
+        setMsg('No se pudo reclamar el bono semanal.','err');
+      }finally{
+        await Promise.all([refreshBalance(), refreshHistory(), refreshPoints()]);
+        b.disabled=false; b.textContent='Bono semanal';
+      }
+    }
+
+    /* ===== Export CSV ===== */
+    function toCSV(rows){
+      const esc=(v)=>{ if(v==null) return ''; const s=String(v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; };
+      return rows.map(r=>r.map(esc).join(',')).join('\n');
+    }
+    async function onExport(){
+      setMsg('Generando CSV…');
+      try{
+        const items = await fetchHistory(1000);
+        const header = ['id','type','credits','usd','points','ts','source'];
+        const rows = [header, ...items.map(it=>[
+          it.id||'',
+          it.type||'',
+          (typeof it.credits==='number'?it.credits:''),
+          (typeof it.usd==='number'?it.usd:''),
+          (typeof it.points==='number'?it.points:''),
+          it.ts||'',
+          (it.meta && it.meta.source) || ''
+        ])];
+        const csv = toCSV(rows);
+        const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+        const url = URL.createObjectURL(blob);
+        const a=document.createElement('a');
+        a.href=url; a.download='wallet-history-'+PP_UID+'-'+new Date().toISOString().slice(0,10)+'.csv';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        setMsg('CSV exportado ✔️','ok');
+      }catch{
+        setMsg('No se pudo exportar el historial.','err');
+      }
+    }
+
+    /* ===== Recargas ===== */
+    async function onTopupClick(e){
+      const pack = Number(e.currentTarget.getAttribute('data-pack'));
+      if (![5,10,20].includes(pack)){ setMsg('Pack inválido.','err'); return; }
+      setMsg('Procesando recarga…');
+      try{
+        const res = await apiPost('/api/credits/topup', { pack });
+        const newBal = pickCredits(res);
+        if (Number.isFinite(newBal)) setLocalCredits(newBal);
+        if (Number.isFinite(res?.points)) setLocalPoints(getLocalPoints()+Number(res.points||0));
+        await Promise.all([refreshHistory(), refreshPoints()]);
+        setMsg(`Recarga exitosa: +${res.added||0} cr (${fmtMoney(res.usd||pack)}).`, 'ok');
+      }catch{
+        setMsg('No se pudo completar la recarga. Intenta de nuevo.','err');
+      }
+    }
+
+    /* ===== Back ===== */
+    (function(){
+      const p = new URLSearchParams(location.search);
+      const ret = p.get('return');
+      $('#backBtn').href = ret || './peek.html';
+    })();
+
+    /* ===== Auto-refresh (debe ir ANTES de init) ===== */
+    const BASE_REFRESH_MS = 60*1000;
+    const MAX_REFRESH_MS  = 5*60*1000;
+    let refreshTimer=null, currentDelay=BASE_REFRESH_MS;
+
+    function scheduleNext(){
+      clearTimeout(refreshTimer);
+      const jitter = Math.floor(Math.random()*10000);
+      refreshTimer = setTimeout(runRefreshTick, currentDelay + jitter);
+    }
+    async function runRefreshTick(){
+      if (document.hidden){ scheduleNext(); return; }
+      try{
+        await Promise.all([refreshBalance(), refreshPoints(), refreshHistory()]);
+        currentDelay = BASE_REFRESH_MS;
+      }catch{
+        currentDelay = Math.min(MAX_REFRESH_MS, currentDelay*2);
+      }finally{ scheduleNext(); }
+    }
+    function startAutoRefresh(){ currentDelay = BASE_REFRESH_MS; scheduleNext(); }
+    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ currentDelay=BASE_REFRESH_MS; runRefreshTick(); }});
+    window.addEventListener('focus', ()=>{ currentDelay=BASE_REFRESH_MS; runRefreshTick(); });
+
+    /* ===== Wire UI ===== */
+    document.querySelectorAll('.pack').forEach(el=> el.addEventListener('click', onTopupClick));
+    $('#exportBtn').onclick = onExport;
+    $('#importBtn').onclick = function(){};
+    $('#claimBtn').onclick = onClaimDaily;
+    $('#weeklyBtn').onclick = onClaimWeekly;
+
+    /* ===== Init ===== */
+    (function init(){
+      updateTopUI();
+      Promise.all([refreshBalance(), refreshHistory(), refreshPoints()]);
+      startAutoRefresh();
+      if (hasClaimedTodayLocal()){
+        const b = $('#claimBtn'); b.disabled = true; b.textContent = 'Bono de hoy reclamado';
+      }
+    })();
+  </script>
+</body>
+</html>

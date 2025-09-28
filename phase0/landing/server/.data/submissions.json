@@ -1,0 +1,59 @@
+[
+  {
+    "id": "sub_20250919153900_0ekb",
+    "createdAt": "2025-09-19T15:39:00.991Z",
+    "status": "pending",
+    "autoReview": {
+      "score": 70,
+      "verdict": "manual_review",
+      "notes": []
+    },
+    "account": {
+      "email": "angeleniel@gmail.com",
+      "emailVerified": true,
+      "phone": "",
+      "phoneVerified": true,
+      "handle": "qws",
+      "locale": "es"
+    },
+    "identity": {
+      "firstName": "Angel",
+      "lastName": "Hernandez",
+      "country": "PUERTO RICO",
+      "dob": "1981-09-06",
+      "idDoc": {
+        "type": "driver-license",
+        "front": "wsws",
+        "back": "wsww"
+      },
+      "selfie": "wssw"
+    },
+    "profile": {
+      "displayName": "wws",
+      "bio": "dvvvvvv",
+      "categories": [
+        "cosplay"
+      ],
+      "links": []
+    },
+    "payouts": {
+      "method": "bank",
+      "country": "PUERTO RICO",
+      "currency": "USD",
+      "status": "verified"
+    },
+    "security": {
+      "twoFA": "sms"
+    },
+    "agreements": {
+      "tosAccepted": true,
+      "contentAccepted": true,
+      "revShareAccepted": true,
+      "revSharePct": 20
+    },
+    "meta": {
+      "createdAt": "2025-09-19T15:39:00.975Z",
+      "source": "onboarding-local"
+    }
+  }
+]

@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="/public/styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Perfil</title>
+  <link rel="icon" href="/public/favicon.ico">
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+
+  <style>
+    :root{
+      /* Base claros (alineado con wallet) */
+      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c;
+
+      /* Marca */
+      --indigo:#4f46e5; --indigo-ink:#3730a3; --blue:#2563eb; --mint:#10b981; --pink:#ec4899;
+      --indigo-soft:#eef2ff;
+
+      /* UI */
+      --cta: var(--indigo); --cta-text:#fff;
+      --shimmer1:#eef2f7; --shimmer2:#e6ebf2; --shimmer3:#f4f6fa;
+
+      --toast:#111827; --toast-text:#fff;
+
+      /* (nuevo) micro-solape anti-gutter subpíxel */
+      --bleed:.5px;
+    }
+
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    a{color:inherit}
+    .wrap{max-width:1024px;margin:0 auto;padding:28px 16px 56px}
+
+    /* Top / migas */
+    header{display:flex;gap:10px;align-items:center}
+    header img{width:36px;border-radius:8px;box-shadow:0 6px 14px rgba(79,70,229,.12)}
+    .brand{font-size:12px;color:var(--muted)}
+    .brand .crumbs a{opacity:.95}
+    .brand .crumbs a:hover{text-decoration:underline}
+
+    /* Panel */
+    .panel{
+      border:1px solid var(--ring);
+      background: var(--card);
+      border-radius:16px;
+      padding:16px;margin-top:12px;
+      box-shadow:0 6px 14px rgba(79,70,229,.06)
+    }
+
+    .h-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .avatar{width:64px;height:64px;border-radius:14px;object-fit:cover;border:1px solid var(--ring);background:#fff}
+    .name{font-size:18px;font-weight:700}
+    .badge-verified{
+      font-size:11px;background:var(--indigo-soft);color:#1e1b4b;border:1px solid #c7d2fe;border-radius:999px;padding:3px 8px;margin-left:8px
+    }
+    .meta-line{font-size:12px;color:var(--muted)}
+
+    /* Chips / stats */
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .chip{font-size:12px;border:1px solid var(--ring);background:#fff;padding:6px 10px;border-radius:999px}
+    .chip b{font-weight:700}
+
+    /* Wallet */
+    .wallet{margin-left:auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .badge-wallet{border:1px solid #c7d2fe; background:var(--indigo-soft); color:#1e1b4b; border-radius:10px; padding:6px 10px; font-size:12px; line-height:1}
+    .wallet a{
+      border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff;
+      padding:8px 12px; border-radius:10px; text-decoration:none; font-size:12px;
+      box-shadow:0 6px 16px rgba(79,70,229,.25)
+    }
+    .hint{border:1px solid #fecaca; background:#fee2e2; color:#7f1d1d; border-radius:999px; padding:4px 10px; font-size:12px; display:none}
+    .hint.show{display:inline-block; animation: fade 2.2s ease}
+    @keyframes fade{ 0%{opacity:0; transform:translateY(-2px)} 10%{opacity:1; transform:none} 90%{opacity:1} 100%{opacity:0} }
+
+    /* Controles packs */
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .btn{
+      border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff;
+      padding:10px 14px; border-radius:10px; cursor:pointer; box-shadow:0 6px 16px rgba(79,70,229,.25)
+    }
+    .btn.secondary{background:#fff;color:var(--indigo);border:1px solid var(--ring);box-shadow:none}
+
+    /* Progreso */
+    .progress{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
+    .bar{flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+    .bar span{display:block;height:100%;background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);width:0%}
+
+    /* Grid (imagen continua) */
+    .frame{border:0;border-radius:12px;overflow:hidden;background:transparent;margin-top:12px}
+    .grid{
+      --cols:4;--gap:0px;
+      display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:var(--gap);
+      align-items:stretch; justify-items:stretch;
+      contain: layout paint;
+      backface-visibility: hidden;
+    }
+    .cell{
+      position:relative;aspect-ratio:1/1;cursor:pointer;overflow:hidden;-webkit-tap-highlight-color:transparent;
+      background:transparent;
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    .cell .img{
+      position:absolute; inset: calc(var(--bleed) * -1);
+      background-repeat:no-repeat;
+      background-size: calc(var(--cols) * 100%) calc(var(--cols) * 100%);
+      background-origin: border-box;
+      background-clip: border-box;
+      image-rendering: auto;
+      will-change: background-position, opacity, filter, transform;
+      transition:filter .2s ease, transform .2s ease, opacity .2s ease; opacity:1;
+    }
+    .cell .img.alt{
+      position:absolute; inset: calc(var(--bleed) * -1);
+      background-repeat:no-repeat;
+      background-size:inherit; background-position:inherit;
+      background-origin:border-box; background-clip:border-box;
+      opacity:0; transition:opacity .25s ease;
+    }
+    .cell .img.loading{
+      background: linear-gradient(90deg, var(--shimmer1), var(--shimmer2), var(--shimmer3));
+      background-size: 200% 100%; animation: shimmer 1.1s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .cell.locked .img{filter:blur(10px);transform:scale(1.02)}
+    .cell.unlocked .img{filter:blur(0)}
+    .cell.preview.locked .img{filter:blur(2px)!important}
+
+    /* Badges de celdas */
+    .badge{
+      position:absolute;right:8px;top:8px;font-size:11px;padding:4px 8px;border-radius:999px;color:#fff;border:1px solid rgba(255,255,255,.25)
+    }
+    .cell .badge{box-shadow:0 6px 14px rgba(0,0,0,.18)}
+    .badge.free{background: linear-gradient(90deg, var(--mint) 0%, #34d399 100%)}
+    .badge.lock{background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%)}
+
+    .watermark{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(45deg,rgba(0,0,0,0) 0 24px,rgba(0,0,0,.05) 24px 32px);mix-blend-mode:multiply;opacity:.22}
+
+    .desc{margin-top:8px;font-size:14px;color:var(--muted)}
+    .msg{font-size:13px;margin-top:8px}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+
+    /* Revelado completo */
+    .grid--reveal{display:block}
+    .grid--reveal img.full{display:block;width:100%;height:auto;border-radius:12px}
+
+    /* Crédito final */
+    .credit{margin-top:12px;padding:12px;border:1px solid var(--ring);background:#fff;border-radius:12px;font-size:13px;color:var(--text);display:none}
+
+    /* Debug row */
+    .debug-row{margin-top:8px}
+
+    /* Toast */
+    .toast{
+      position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+      background:var(--toast); color:var(--toast-text);
+      border:1px solid rgba(255,255,255,.15);
+      box-shadow:0 10px 24px rgba(0,0,0,.2);
+      padding:10px 14px; border-radius:12px; font-size:13px; opacity:0; pointer-events:none;
+      transition:opacity .25s ease, transform .25s ease;
+      display:flex; align-items:center; gap:8px;
+    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast .pill{background:#16a34a; color:#fff; border-radius:999px; padding:2px 8px; font-weight:700; font-size:12px}
+
+    .cell.unlocking{ animation: pop .18s ease-out }
+    @keyframes pop{ 0%{transform:scale(.98)} 100%{transform:scale(1)} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- migas -->
+    <header>
+      <img src="/public/peak1.PNG" alt="PeekPay">
+      <div class="brand">
+        <div class="crumbs"><a href="./index.html">Inicio</a> / <a href="./creators.html">Creadores</a></div>
+        <div>Desbloqueo por mosaicos</div>
+      </div>
+    </header>
+
+    <section class="panel">
+      <!-- Cabecera del creador -->
+      <div class="h-row">
+        <img id="avatar" class="avatar" src="/public/peak1.PNG" alt="Avatar" loading="lazy" width="64" height="64">
+        <div>
+          <div class="name">
+            <span id="c-name">—</span>
+            <span id="c-verified" class="badge-verified" style="display:none">Verified</span>
+          </div>
+          <div class="meta-line">
+            <span id="c-handle">@peek</span>
+            · <b id="set-title">—</b>
+            · Grid <b id="gridN">4×4</b>
+            · <span id="c-country">—</span>
+          </div>
+          <div class="chips">
+            <span class="chip">Rating <b id="c-rating">4.9</b> (<span id="c-reviews">200</span>)</span>
+            <span class="chip">Peeks revelados: <b id="c-revealed">0</b></span>
+            <span class="chip">Subs: <b id="c-subs">0</b></span>
+            <span class="chip">Posts: <b id="c-posts">0</b></span>
+            <span class="chip">Likes: <b id="c-likes">0</b></span>
+          </div>
+        </div>
+
+        <!-- Wallet / Peak Credits + Points -->
+        <div class="wallet" style="margin-left:auto">
+          <div class="badge-wallet" aria-live="polite">Peak Credits: <b id="credits">0</b> <span id="creditsUsd" style="opacity:.7;margin-left:6px">≈ $0.00</span></div>
+          <div class="badge-wallet">Puntos: <b id="points">0</b></div>
+          <span id="walletHint" class="hint" role="status" aria-live="polite"></span>
+          <a href="./wallet.html">Wallet</a>
+        </div>
+      </div>
+
+      <!-- Descripción teaser -->
+      <p id="c-desc" class="desc">—</p>
+
+      <!-- Controles -->
+      <div class="controls">
+        <button class="btn" data-pack="1">Desbloquear 1 (1 crédito)</button>
+        <button class="btn" data-pack="3">Pack 3 (3 créditos)</button>
+        <button class="btn secondary" data-pack="9">Pack 9 (9 créditos)</button>
+      </div>
+
+      <!-- Progreso -->
+      <div class="progress">
+        <div>Progreso</div>
+        <div class="bar"><span id="bar"></span></div>
+        <div><b id="count">0</b>/<span id="total">0</span></div>
+      </div>
+
+      <!-- Grid -->
+      <div class="frame"><div id="grid" class="grid"></div></div>
+
+      <div id="msg" class="msg"></div>
+      <div id="credit" class="credit"></div>
+
+      <div class="debug-row">
+        <button id="resetProgress" class="btn secondary" style="background:#fff;color:#b91c1c;border-color:#ef4444">Reset progreso (debug)</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span class="pill" id="toastPill">+1</span>
+    <span id="toastText">Punto de racha conseguido</span>
+  </div>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+    const params = new URLSearchParams(location.search);
+    const slug = params.get('creator') || params.get('u') || 'ink-aria';
+    const setParam = params.get('s');
+    const SET_ID = params.get('sid') || '697dc6d3-4008-4221-8259-4a7779c2a0ea'; // usado SOLO si hay sid
+    let GRID = parseInt(params.get('g')||'4',10);
+    if (![3,4,5].includes(GRID)) GRID = 4;
+
+    /* ===== API base & UID ===== */
+    const API_BASE = (localStorage.getItem('pp_api_base')||'').replace(/\/+$/,'');
+    let PP_UID = localStorage.getItem('pp_uid') || 'test-user-123';
+    localStorage.setItem('pp_uid', PP_UID);
+
+    /* ===== Normalizadores ===== */
+    function pickCredits(obj){
+      if (!obj) return 0;
+      if (typeof obj.credits === 'number') return obj.credits;
+      if (typeof obj.balance === 'number') return obj.balance;
+      if (obj.balance && typeof obj.balance.credits === 'number') return obj.balance.credits;
+      return 0;
+    }
+    function pickPoints(obj){
+      if (!obj) return 0;
+      if (typeof obj.points === 'number') return obj.points;
+      if (obj.balance && typeof obj.balance.points === 'number') return obj.balance.points;
+      return 0;
+    }
+
+    /* ===== Wallet / créditos & puntos ===== */
+    const CREDIT_KEY = 'pp_demo_balance'; // unificada con wallet
+    const POINTS_KEY = 'pp_points';
+    const getLocalCredits = ()=> Number(localStorage.getItem(CREDIT_KEY)||'0')||0;
+    const setLocalCredits = (n)=>{
+      const v = Math.max(0, Math.floor(Number(n||0)));
+      localStorage.setItem(CREDIT_KEY, String(v));
+      updateCreditsUI();
+    };
+    const getLocalPoints = ()=> Number(localStorage.getItem(POINTS_KEY)||0);
+    const setLocalPoints = (n)=>{
+      const v = Math.max(0, Math.floor(Number(n||0)));
+      localStorage.setItem(POINTS_KEY, String(v));
+      updatePointsUI();
+    };
+    const fmtMoney = (v)=> Number(v).toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+
+    async function fetchBalance(){
+      if (!API_BASE) return getLocalCredits();
+      try{
+        const r = await fetch(`${API_BASE}/api/credits/balance`, { headers:{ 'X-PP-UID': PP_UID }});
+        if(!r.ok) throw new Error('balance http '+r.status);
+        const j = await r.json();
+        setLocalCredits(pickCredits(j));
+        setLocalPoints(pickPoints(j));
+        return pickCredits(j);
+      }catch(e){
+        console.warn('balance fallback local:', e.message||e);
+        return getLocalCredits();
+      }
+    }
+    function updateCreditsUI(){
+      const cr = getLocalCredits();
+      $('#credits').textContent = cr.toLocaleString('en-US');
+      $('#creditsUsd').textContent = '≈ ' + fmtMoney(cr*0.25);
+    }
+    function updatePointsUI(){
+      $('#points').textContent = getLocalPoints().toLocaleString('en-US');
+    }
+    function showDeficit(def){
+      const n = Math.max(1, def|0);
+      const el = $('#walletHint');
+      el.textContent = `Faltan ${n} crédito${n>1?'s':''}`;
+      el.classList.add('show');
+      clearTimeout(showDeficit._t);
+      showDeficit._t = setTimeout(()=>el.classList.remove('show'), 2100);
+    }
+
+    /* ===== Toast ===== */
+    function showToast(pillText, bodyText){
+      const t = $('#toast');
+      $('#toastPill').textContent = pillText || '+1';
+      $('#toastText').textContent = bodyText || 'Punto de racha conseguido';
+      t.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(()=> t.classList.remove('show'), 2000);
+    }
+
+    /* ===== Bonus de racha (silencioso) ===== */
+    async function tryGrantStreakBonus(){
+      if (!API_BASE) return;
+      try{
+        const r = await fetch(`${API_BASE}/api/credits/streak-bonus`, { method:'POST', headers:{ 'X-PP-UID': PP_UID }});
+        if (r.ok){
+          const j = await r.json().catch(()=>null);
+          const awarded = Number(j?.points_awarded ?? j?.points ?? 1);
+          setLocalPoints(getLocalPoints() + awarded);
+          showToast(`+${awarded}`, 'Punto de racha conseguido');
+        }
+      }catch(e){ console.warn('[streak-bonus] error', e.message||e); }
+    }
+
+    async function chargeServer(count, pack=count, mode='button'){
+      if (!API_BASE) {
+        const have = getLocalCredits();
+        if (have < count) { showDeficit(count - have); return {ok:false, balance:have}; }
+        setLocalCredits(have - count);
+        tryGrantStreakBonus();
+        return {ok:true, balance:getLocalCredits(), revealed:null};
+      }
+      const url = `${API_BASE}/api/unlock?set_id=${encodeURIComponent(SET_ID)}&count=${count}&pack=${pack}&mode=${mode}&idem=web-${Date.now()}`;
+      const r = await fetch(url, { headers:{ 'X-PP-UID': PP_UID }});
+      if (r.status===402){
+        await r.json().catch(()=>{});
+        showDeficit(count);
+        return {ok:false, balance:getLocalCredits(), err:'insufficient'};
+      }
+      if (!r.ok){ console.warn('unlock error', r.status); return {ok:false, balance:getLocalCredits()}; }
+      const j = await r.json();
+      const newBal = pickCredits(j);
+      if (Number.isFinite(newBal)) setLocalCredits(newBal);
+      tryGrantStreakBonus();
+      return {ok:true, balance:newBal, revealed:j.revealed};
+    }
+
+    /* ===== Progreso por set ===== */
+    const progressKey = (creator, setSlug)=> `pp_progress::${creator}::${setSlug||'default'}::${SET_ID}`;
+    const loadProgress = (creator, setSlug)=>{ try{ return new Set(JSON.parse(localStorage.getItem(progressKey(creator,setSlug))||'[]')); }catch{ return new Set(); } };
+    const saveProgress = (creator, setSlug, setOfIdx)=>{ try{ localStorage.setItem(progressKey(creator,setSlug), JSON.stringify([...setOfIdx])); }catch{} };
+
+    /* ===== Legacy paths (sin peeks.json) ===== */
+    function legacyPaths(){
+      const base = setParam ? `/public/photos/${slug}/sets/${setParam}` : `/public/photos/${slug}`;
+      return { full:`${base}/full.webp`, cover:`${base}/cover.webp`, avatar:`${base}/cover.webp`, grid:GRID, desc:'' };
+    }
+
+    async function loadData(){
+      try{ const r = await fetch('/public/peeks.json?ts='+Date.now()); if(!r.ok) return null; return await r.json(); }
+      catch{ return null; }
+    }
+    function findCreatorDetail(data, slug){
+      if (data?.creatorsDetail?.[slug]) return data.creatorsDetail[slug];
+      const k = Object.keys(data?.creatorsDetail||{}).find(key => key.endsWith('/'+slug));
+      return k ? data.creatorsDetail[k] : null;
+    }
+    function pickSet(detail, setParam){
+      if (!detail || !Array.isArray(detail.sets) || !detail.sets.length) return null;
+      if (!setParam) return detail.sets[0];
+      return detail.sets.find(s => s.slug === setParam) || detail.sets[0];
+    }
+    function setHeader(detail, setInfo){
+      const name = detail?.name || slug.replace(/[-_]/g,' ');
+      const handle = detail?.handle || '@' + slug.replace(/-/g,'.');
+      const country = detail?.country || 'Mundo';
+      const verified = !!detail?.verified;
+      const stats = detail?.stats || {};
+
+      $('#c-name').textContent = name;
+      $('#c-handle').textContent = handle;
+      $('#c-country').textContent = country;
+      $('#set-title').textContent = setInfo?.title || '—';
+      $('#c-desc').textContent = setInfo?.blurb || (detail?.desc || 'Peeks que insinúan más de lo que muestran. Desbloquea y arma la historia.');
+      $('#gridN').textContent = `${GRID}×${GRID}`;
+
+      $('#c-rating').textContent = (stats.rating ?? 4.9).toFixed(1);
+      $('#c-reviews').textContent = stats.reviews ?? 0;
+      $('#c-subs').textContent = (stats.subs ?? 0).toLocaleString('en-US');
+      $('#c-posts').textContent = stats.posts ?? 0;
+      $('#c-likes').textContent = (stats.likes ?? 0).toLocaleString('en-US');
+      $('#c-revealed').textContent = (stats.revealed ?? 0).toLocaleString('en-US');
+
+      if (verified) $('#c-verified').style.display = 'inline-block';
+
+      const avatar = setInfo?.cover;
+      if (avatar){
+        const i=new Image();
+        i.onload=()=>$('#avatar').src=avatar;
+        i.onerror=()=>$('#avatar').src='/public/peak1.PNG';
+        i.loading='lazy';
+        i.src=avatar;
+      }
+    }
+
+    /* Preload helper */
+    const preloadDecode = (url, priority='high')=> new Promise((resolve,reject)=>{
+      const img = new Image(); img.decoding='async';
+      try{ img.fetchPriority = priority; }catch{}
+      img.onload = ()=> resolve(img);
+      img.onerror= ()=> reject(new Error('img load error'));
+      img.src = url;
+      if (img.decode) { img.decode().then(()=>resolve(img)).catch(()=>resolve(img)); }
+    });
+    function hintPreload(url){
+      const l = document.createElement('link'); l.rel='preload'; l.as='image'; l.href=url; l.setAttribute('fetchpriority','high');
+      document.head.appendChild(l);
+    }
+
+    /* === Obtener full firmado desde API (solo si hay sid) === */
+    async function getSignedFull(){
+      if (!API_BASE) return null;
+      try{
+        const u = `${API_BASE}/api/sets/signed-full?id=${encodeURIComponent(SET_ID)}&u=${encodeURIComponent(slug)}&set=${encodeURIComponent(setParam||'default')}&ttl=900`;
+        const r = await fetch(u, { headers:{ 'X-PP-UID': PP_UID }});
+        if (!r.ok) throw new Error('signed '+r.status);
+        const j = await r.json();
+        return j?.url || null;
+      }catch(e){ console.warn('signed-full fallback to legacy', e); return null; }
+    }
+
+    /* === crossfade helper === */
+    function crossfadeCellBG(cell, newUrl){
+      const base = cell.querySelector('.img');
+      if (!base) return;
+      const alt = document.createElement('div');
+      alt.className = 'img alt';
+      alt.style.backgroundSize     = base.style.backgroundSize;
+      alt.style.backgroundPosition = base.style.backgroundPosition;
+      alt.style.backgroundImage    = `url("${newUrl}")`;
+      cell.appendChild(alt);
+      requestAnimationFrame(()=>{ alt.style.opacity='1'; });
+      setTimeout(()=>{ base.style.backgroundImage = `url("${newUrl}")`; alt.remove(); }, 260);
+    }
+
+    /* Grid */
+    function buildGrid(fullUrl){
+      const $grid=$('#grid'), $bar=$('#bar'), $cnt=$('#count'), $msg=$('#msg');
+      $grid.className='grid'; $grid.style.setProperty('--cols', GRID);
+      $('#total').textContent = GRID*GRID;
+
+      const setSlug = (new URLSearchParams(location.search).get('s')) || 'default';
+      const TOTAL = GRID*GRID, PREVIEW = Math.max(1, Math.round(TOTAL*0.2));
+
+      const unlocked = loadProgress(slug, setSlug);
+      const previewSet = new Set();
+      const cells=[];
+      $grid.innerHTML='';
+
+      const order = Array.from({length:TOTAL},(_,i)=>i);
+      for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+      for(const i of order){
+        if (previewSet.size >= PREVIEW) break;
+        if (!unlocked.has(i)) previewSet.add(i);
+      }
+
+      for (let r=0;r<GRID;r++){
+        for (let c=0;c<GRID;c++){
+          const idx=r*GRID+c;
+          const cell=document.createElement('div'); cell.className='cell locked'; cell.dataset.idx=idx;
+
+          const img=document.createElement('div'); img.className='img loading';
+          img.style.backgroundSize=`${GRID*100}% ${GRID*100}%`;
+
+          const px = GRID===1 ? 0 : Number((c/(GRID-1)*100).toFixed(6));
+          const py = GRID===1 ? 0 : Number((r/(GRID-1)*100).toFixed(6));
+          img.dataset.px = px; img.dataset.py = py;
+
+          const wm=document.createElement('div'); wm.className='watermark';
+          const badge=document.createElement('div');
+
+          if (unlocked.has(idx)){
+            cell.classList.remove('locked'); cell.classList.add('unlocked');
+          } else if (previewSet.has(idx)){
+            cell.classList.add('preview','locked'); badge.className='badge free'; badge.textContent='FREE';
+          } else {
+            badge.className='badge lock'; badge.textContent='LOCK';
+          }
+
+          cell.appendChild(img); cell.appendChild(wm);
+          if (!unlocked.has(idx)) cell.appendChild(badge);
+          $grid.appendChild(cell); cells.push(cell);
+        }
+      }
+      updateProgress();
+
+      (async ()=>{
+        hintPreload(fullUrl);
+        try { await preloadDecode(fullUrl,'high'); } catch {}
+        for (const cell of cells){
+          const img = cell.querySelector('.img');
+          const px = img.dataset.px, py = img.dataset.py;
+          img.style.backgroundImage = `url("${fullUrl}")`;
+          img.style.backgroundPosition = `${px}% ${py}%`;
+          img.classList.remove('loading');
+        }
+      })();
+
+      async function revealCell(cell, idx, charged){
+        cell.classList.add('unlocking');
+        cell.classList.remove('locked','preview'); cell.classList.add('unlocked');
+        cell.querySelectorAll('.badge').forEach(b=>b.remove());
+        unlocked.add(idx);
+        saveProgress(slug, setSlug, unlocked);
+        afterUnlock(1, charged ? 'tap' : 'free');
+        setTimeout(()=>cell.classList.remove('unlocking'), 180);
+      }
+
+      $grid.addEventListener('click', onGridClick);
+      async function onGridClick(e){
+        const cell=e.target.closest('.cell'); if(!cell) return;
+        const idx=+cell.dataset.idx;
+
+        if (cell.classList.contains('unlocked')) return;
+
+        if (cell.classList.contains('preview')){
+          await revealCell(cell, idx, false);
+          return;
+        }
+
+        if (unlocked.has(idx)) { await revealCell(cell, idx, false); return; }
+
+        const r = await chargeServer(1,1,'tap');
+        if (!r.ok){
+          $msg.innerHTML = `No tienes créditos suficientes. <a href="./wallet.html">Ir a Wallet</a>`;
+          $msg.className='msg err';
+          return;
+        }
+        await revealCell(cell, idx, true);
+      }
+
+      document.querySelectorAll('.btn[data-pack]').forEach(btn=>{
+        btn.onclick=async ()=>{
+          const want=+btn.dataset.pack;
+          const candidates=[];
+          for(let i=0;i<TOTAL;i++){
+            const cell=cells[i];
+            const isLocked = cell.classList.contains('locked') || cell.classList.contains('preview');
+            if (isLocked && !unlocked.has(i)) candidates.push(i);
+          }
+          if(!candidates.length){
+            $msg.textContent='Ya revelaste todos los Peeks 🎉'; $msg.className='msg ok'; return;
+          }
+          const toOpen = Math.min(want, candidates.length);
+          const r = await chargeServer(toOpen,toOpen,'button');
+          if (!r.ok){
+            $msg.innerHTML = `No tienes créditos suficientes para este pack. <a href="./wallet.html">Recargar</a>`;
+            $msg.className='msg err'; return;
+          }
+          for (let i=0;i<toOpen;i++){
+            const idx=candidates[i];
+            const cell=cells[idx];
+            cell.classList.add('unlocking');
+            cell.classList.remove('locked','preview'); cell.classList.add('unlocked');
+            cell.querySelectorAll('.badge').forEach(b=>b.remove());
+            unlocked.add(idx);
+            setTimeout(()=>cell.classList.remove('unlocking'), 180);
+          }
+          saveProgress(slug, setSlug, unlocked);
+          afterUnlock(toOpen,'button',toOpen);
+        };
+      });
+
+      function afterUnlock(n,source,pack=1){
+        updateCreditsUI();
+        updatePointsUI();
+        updateProgress();
+        $msg.textContent=`Desbloqueaste ${n} Peek${n>1?'s':''}.`;
+        $msg.className='msg ok';
+        const base = Number(($('#c-revealed').textContent||'0').replace(/,/g,'')) || 0;
+        $('#c-revealed').textContent = (base + n).toLocaleString('en-US');
+        setTimeout(()=>{$msg.textContent='';}, 1500);
+        try{ window.plausible && plausible('unlock',{props:{mode:source,pack:String(pack),u:slug}});}catch{}
+
+        if (!document.querySelector('.cell.locked, .cell.preview')){
+          revealFull(fullUrl);
+        }
+      }
+
+      function updateProgress(){
+        const n=unlocked.size; $cnt.textContent=n; $bar.style.width=(Math.round(n/TOTAL*100))+'%';
+        if(n===TOTAL){
+          const $c=$('#credit');
+          $c.style.display='block';
+          $c.textContent = `Gracias por revelar este arte de ${$('#c-name').textContent}. Tu apoyo impulsa nuevos Peeks y contenido.`;
+        }
+      }
+
+      async function revealFull(fullUrl){
+        $grid.classList.add('grid--reveal');
+        try { await preloadDecode(fullUrl,'high'); } catch {}
+        $grid.innerHTML = `<img src="${fullUrl}" alt="Imagen completa" class="full" loading="eager" decoding="async" fetchpriority="high">`;
+        $grid.removeEventListener('click', onGridClick);
+      }
+
+      /* === Auto-refresh suave del full firmado cada ~14 min (solo si partimos con signedFull) === */
+      let lastSigned = fullUrl;
+      const REFRESH_MS = 14*60*1000;
+      (async function refreshLoop(){
+        try{
+          const next = params.get('sid') ? await getSignedFull() : null;
+          if (next && next !== lastSigned){
+            try{ await preloadDecode(next,'high'); }catch{}
+            if (!$grid.classList.contains('grid--reveal')){
+              for (const cell of cells){ crossfadeCellBG(cell, next); }
+            } else {
+              const full = $grid.querySelector('img.full');
+              if (full){
+                const tmp = new Image(); tmp.decoding='async'; tmp.src = next;
+                try{ await tmp.decode(); }catch{}
+                full.src = next;
+              }
+            }
+            lastSigned = next;
+          }
+        }catch(e){ /* silencio */ }
+        finally{ setTimeout(refreshLoop, REFRESH_MS); }
+      })();
+    }
+
+    document.getElementById('resetProgress').onclick = ()=>{
+      if (confirm('¿Borrar progreso de este set?')) {
+        const setSlug = (new URLSearchParams(location.search).get('s')) || 'default';
+        localStorage.removeItem(progressKey(slug, setSlug));
+        location.reload();
+      }
+    };
+
+    /* ===== Auto-refresh pasivo del saldo (sin recargar la página) ===== */
+    (function startPassiveBalanceRefresh(){
+      function jitter(ms, spread){ return ms + Math.floor(Math.random()*spread); }
+      async function tick(){
+        await fetchBalance();
+        setTimeout(tick, jitter(60000, 15000)); // 45–75s
+      }
+      setTimeout(tick, 2000);
+      window.addEventListener('focus', ()=> setTimeout(fetchBalance, 500));
+      document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) fetchBalance(); });
+    })();
+
+    (async function init(){
+      updateCreditsUI();
+      updatePointsUI();
+      await fetchBalance().then(()=>{ updateCreditsUI(); updatePointsUI(); });
+
+      // ⭐ Nueva lógica: solo usar Storage firmado si hay sid=...
+      let signedFull = null;
+      if (params.get('sid')) {
+        signedFull = await getSignedFull();
+      }
+
+      if (!signedFull){
+        const data = await loadData();
+        if (data){
+          const detail = findCreatorDetail(data, slug);
+          const setInfo = pickSet(detail, setParam);
+          if (detail && setInfo && setInfo.full){
+            if (!params.get('g')) GRID = Number(setInfo.grid || GRID) || 4;
+            $('#grid').style.setProperty('--cols', GRID);
+            setHeader(detail, setInfo);
+            buildGrid(setInfo.full);
+            try{ window.plausible && plausible('preview_shown',{props:{u:slug,set:setInfo.slug,grid:String(GRID)}});}catch{}
+            return;
+          }
+        }
+        const legacy = legacyPaths();
+        $('#grid').style.setProperty('--cols', legacy.grid);
+        $('#set-title').textContent = '(set)';
+        $('#c-desc').textContent = legacy.desc || 'Peeks que insinúan más de lo que muestran. Desbloquea y arma la historia.';
+        const av=new Image(); av.onload=()=>$('#avatar').src=legacy.cover; av.onerror=()=>{}; av.loading='lazy'; av.src=legacy.cover;
+
+        const test=new Image();
+        test.onload=()=>{ buildGrid(legacy.full); try{ window.plausible && plausible('preview_shown',{props:{u:slug,set:setParam||'default',grid:String(GRID)}});}catch{} };
+        test.onerror=()=>{ const $msg=$('#msg'); $msg.textContent='Aún no hay imagen base. Sube full.webp para este creador/set.'; $msg.className='msg err'; };
+        test.src = legacy.full;
+        return;
+      }
+
+      $('#grid').style.setProperty('--cols', GRID);
+      $('#set-title').textContent = 'Set (API)';
+      $('#c-desc').textContent = 'Peeks desde Storage firmado.';
+      try{ window.plausible && plausible('preview_shown',{props:{u:slug,set:setParam||'default',grid:String(GRID)}});}catch{}
+      buildGrid(signedFull);
+    })();
+  </script>
+</body>
+</html>

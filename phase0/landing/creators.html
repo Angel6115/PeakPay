@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="/public/styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Creadores</title>
+
+  <link rel="icon" href="/public/favicon.ico">
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+
+  <style>
+    :root{
+      /* mismos tokens que wallet.html */
+      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c;
+      --indigo:#4f46e5; --blue:#2563eb; --indigo-soft:#eef2ff;
+      --badge-ring:#c7d2fe; --badge-text:#1e1b4b;
+    }
+
+    *{ box-sizing:border-box }
+    body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
+    .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 56px }
+
+    /* Top */
+    .top{ margin-bottom:12px }
+    .head{ display:flex; align-items:center; gap:10px; }
+    header{ display:flex; align-items:center; gap:10px }
+    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    .brand h1{ margin:0; font-size:18px }
+    .brand p{ margin:0; color:var(--muted); font-size:12px }
+
+    /* Botones (idénticos a wallet) */
+    .btn{
+      border:0;
+      background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
+      color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none;
+      box-shadow: 0 6px 16px rgba(79,70,229,.25); white-space:nowrap;
+    }
+    .btn:hover{ filter: brightness(1.05) }
+    .btn[disabled]{ opacity:.6; cursor:not-allowed }
+
+    /* fila de botones debajo del logo */
+    .nav-row{
+      display:flex; gap:8px; flex-wrap:wrap;
+      margin-top:8px; margin-left:54px; /* alinear con texto tras icono de 44px + 10px gap */
+    }
+    @media (max-width:520px){
+      .nav-row{ margin-left:0 }
+    }
+
+    /* Panel */
+    .panel{
+      border:1px solid var(--ring); background:var(--card);
+      border-radius:16px; padding:14px; margin-top:12px;
+      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    }
+    .panel h2{ margin:0 0 8px; font-size:clamp(18px,4.6vw,20px) }
+    .panel p{ margin:0; color:var(--muted); font-size:14px }
+
+    /* Filtros */
+    .filters{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0 6px }
+    .input, .select{
+      border:1px solid var(--ring); background:#fff; color:var(--text);
+      border-radius:12px; padding:10px 14px; font-size:14px;
+      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    }
+    .select{
+      min-width: 230px;
+      appearance: none; -webkit-appearance: none; -moz-appearance:none;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7l5 5 5-5' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position: right 12px center; background-size:14px;
+      padding-right: 38px;
+    }
+    .input:focus, .select:focus{ outline:2px solid #bfdbfe; outline-offset:2px }
+    .results{ margin-left:auto; color:var(--muted); font-size:12px }
+
+    /* Grid */
+    .grid{ display:grid; gap:14px }
+    @media (min-width:560px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (min-width:900px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (min-width:1100px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+
+    /* Cards */
+    .card{
+      position:relative; overflow:hidden; border-radius:14px; border:1px solid var(--ring);
+      background:#fff; box-shadow: 0 6px 14px rgba(79,70,229,.06);
+      display:block; text-decoration:none; color:inherit; aspect-ratio:4/3;
+      transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .card:hover{ transform:translateY(-1px); box-shadow: 0 12px 32px rgba(79,70,229,.10); border-color: color-mix(in srgb, var(--indigo) 30%, var(--ring)); }
+    .card img{
+      position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 35%;
+      filter:brightness(.98);
+    }
+    .overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.38) 100%); pointer-events:none; }
+    .info{ position:absolute; left:0; right:0; bottom:0; padding:12px; color:#fff }
+    .name{ font-weight:600; text-shadow: 0 1px 2px rgba(0,0,0,.35) }
+    .muted{ opacity:.9; font-size:12px }
+
+    .badge{
+      position:absolute; top:10px; left:10px; z-index:2; font-size:11px; color:#fff;
+      background: linear-gradient(90deg, #059669, #22c55e);
+      border:1px solid rgba(255,255,255,.55); padding:4px 8px; border-radius:999px;
+      box-shadow:0 6px 14px rgba(79,70,229,.06);
+    }
+
+    .empty{ color:var(--muted); padding:24px 8px }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="head">
+        <header>
+          <img src="/public/peak1.PNG" alt="PeekPay logo">
+          <div class="brand">
+            <h1>PeekPay</h1>
+            <p>Perfil de creadores</p>
+          </div>
+        </header>
+      </div>
+      <!-- fila de botones debajo del logo -->
+      <nav class="nav-row" aria-label="Atajos">
+        <a class="btn" href="./categories.html">Categorías</a>
+        <a class="btn" href="./index.html">Inicio</a>
+        <a class="btn" href="./wallet.html">Wallet</a>
+      </nav>
+    </div>
+
+    <section class="panel">
+      <h2 id="title">Creadores</h2>
+      <p id="subtitle">Selecciona un perfil para ver y desbloquear peeks.</p>
+    </section>
+
+    <div class="filters">
+      <input id="q" class="input" type="search" placeholder="Buscar por nombre o @usuario…" aria-label="Buscar creadores">
+      <select id="sort" class="select" aria-label="Ordenar por">
+        <option value="default">Orden recomendado</option>
+        <option value="likes">Más likes</option>
+        <option value="posts">Más posts</option>
+        <option value="revealed">Más peeks revelados</option>
+      </select>
+      <div class="results"><span id="count">0</span> resultados</div>
+    </div>
+
+    <div id="grid" class="grid" aria-live="polite"></div>
+    <p id="empty" class="empty" hidden>— No hay coincidencias.</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const cat = (params.get('cat') || '').trim().toLowerCase();
+
+    const $title   = document.getElementById('title');
+    const $subtitle= document.getElementById('subtitle');
+    const $grid    = document.getElementById('grid');
+    const $empty   = document.getElementById('empty');
+    const $q       = document.getElementById('q');
+    const $sort    = document.getElementById('sort');
+    const $count   = document.getElementById('count');
+
+    const CAT_LABEL = {
+      lenceria:'Lencería Sensual (SFW)',
+      fitness:'Fitness SFW',
+      arte:'Arte Corporal',
+      cosplay:'Cosplay Fantasía',
+      artistico:'Artístico (SFW)'
+    };
+
+    if (cat) {
+      $title.textContent = `Creadores — ${CAT_LABEL[cat] || cat}`;
+      $subtitle.textContent = 'Perfiles compatibles con esta categoría.';
+    }
+
+    let ALL = [];
+
+    function mkCard(c){
+      const a = document.createElement('a');
+      a.href = c.profile || `./peek.html?creator=${encodeURIComponent(c.id)}`;
+      a.className = 'card';
+      a.setAttribute('aria-label', c.name);
+
+      const img = document.createElement('img');
+      img.loading = 'lazy'; img.decoding = 'async';
+      img.alt = `${c.name} thumb`; img.src = c.thumb || '/public/peak1.PNG';
+      if (c.focalY != null) img.style.objectPosition = `center ${c.focalY}%`;
+
+      const overlay = document.createElement('div'); overlay.className = 'overlay';
+
+      const stats = c.stats || {};
+      const quick = typeof stats.likes === 'number' ? `${stats.likes.toLocaleString('en-US')} likes`
+                   : typeof stats.posts === 'number' ? `${stats.posts} posts`
+                   : typeof stats.revealed === 'number' ? `${stats.revealed.toLocaleString('en-US')} peeks`
+                   : 'Nuevo';
+      const badge = document.createElement('div'); badge.className='badge'; badge.textContent=quick;
+
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.innerHTML = `<div class="name">${c.name}</div><div class="muted">@${c.id}</div>`;
+
+      a.appendChild(img); a.appendChild(overlay); a.appendChild(badge); a.appendChild(info);
+      return a;
+    }
+
+    function render(list){
+      $grid.innerHTML = '';
+      if (!list.length){ $empty.hidden = false; $count.textContent='0'; return; }
+      $empty.hidden = true; $count.textContent = String(list.length);
+      list.forEach(c => $grid.appendChild(mkCard(c)));
+    }
+
+    function applyFilters(){
+      const term = ($q.value || '').trim().toLowerCase();
+      let rows = ALL;
+
+      if (term){
+        rows = rows.filter(c =>
+          (c.name || '').toLowerCase().includes(term) ||
+          (c.id || '').toLowerCase().includes(term)
+        );
+      }
+
+      const sort = $sort.value;
+      if (sort === 'likes') rows = rows.slice().sort((a,b)=>(b.stats?.likes||0)-(a.stats?.likes||0));
+      else if (sort === 'posts') rows = rows.slice().sort((a,b)=>(b.stats?.posts||0)-(a.stats?.posts||0));
+      else if (sort === 'revealed') rows = rows.slice().sort((a,b)=>(b.stats?.revealed||0)-(a.stats?.revealed||0));
+
+      render(rows);
+    }
+
+    fetch('/public/peeks.json?ts='+Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const base = cat ? (data.categories?.[cat] || []) : (data.creators || []);
+        ALL = Array.isArray(base) ? base : [];
+        render(ALL);
+      })
+      .catch(err => {
+        console.error('peeks.json error', err);
+        ALL = []; render(ALL);
+      });
+
+    $q.addEventListener('input', applyFilters);
+    $sort.addEventListener('change', applyFilters);
+  </script>
+</body>
+</html>

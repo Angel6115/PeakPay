@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Creator Studio (Fase 0)</title>
+  <link rel="icon" href="/public/favicon.ico">
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+
+  <!-- Libs para ZIP y descarga -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+  <style>
+    :root{--bg:#fff;--text:#0b1020;--muted:#475569;--card:#f8fafc;--ring:#e2e8f0;--cta:#111827;--cta-text:#fff;--ok:#059669;--err:#b91c1c}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    a{color:inherit}
+    .wrap{max-width:1024px;margin:0 auto;padding:28px 16px 56px}
+    header{display:flex;gap:10px;align-items:center}
+    header img{width:36px;border-radius:8px}
+    .brand{font-size:12px;color:var(--muted)}
+    .panel{border:1px solid var(--ring);background:var(--card);border-radius:16px;padding:16px;margin-top:12px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media (max-width:720px){.row{grid-template-columns:1fr}}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input[type="text"], select, textarea{
+      width:100%;padding:10px;border:1px solid var(--ring);border-radius:10px;background:#fff;font-size:14px
+    }
+    textarea{min-height:90px;resize:vertical}
+    .help{font-size:12px;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .btn{border:1px solid var(--cta);background:var(--cta);color:var(--cta-text);padding:10px 14px;border-radius:10px;cursor:pointer}
+    .btn.ghost{background:#fff;color:var(--cta);border-color:var(--ring)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .drop{border:1.5px dashed var(--ring);border-radius:12px;padding:16px;background:#fff}
+    .preview{margin-top:8px;font-size:12px;color:var(--muted)}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+    .code{background:#0b1020;color:#e5e7eb;border-radius:10px;padding:12px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="/public/peak1.PNG" alt="PeekPay">
+      <div class="brand">
+        <div style="font-weight:600;color:#0b1020">Creator Studio (Fase 0)</div>
+        <div class="muted">Prepara tu set y descarga un ZIP listo para subir al proyecto</div>
+      </div>
+      <a class="btn ghost" style="margin-left:auto" href="./index.html">Inicio</a>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <div>
+          <label>Slug del creador (minúsculas, guiones)</label>
+          <input id="creator" type="text" placeholder="p.ej. ink-aria" />
+          <div class="help">Coincide con la carpeta <code>public/photos/&lt;creator&gt;</code>.</div>
+        </div>
+        <div>
+          <label>Slug del set (minúsculas, guiones)</label>
+          <input id="set" type="text" placeholder="p.ej. car-show-01" />
+          <div class="help">Se creará como <code>public/photos/&lt;creator&gt;/sets/&lt;set&gt;/</code>.</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <div>
+          <label>Título del set</label>
+          <input id="title" type="text" placeholder="Nombre que verán los fans" />
+        </div>
+        <div>
+          <label>Grid</label>
+          <select id="grid">
+            <option value="3">3×3</option>
+            <option value="4" selected>4×4</option>
+            <option value="5">5×5</option>
+          </select>
+          <div class="help">Solo 3/4/5 son válidos.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Descripción (teaser)</label>
+        <textarea id="blurb" placeholder="Breve descripción del set (opcional)"></textarea>
+      </div>
+
+      <div class="row" style="margin-top:16px">
+        <div class="drop" id="drop-full">
+          <b>Imagen FULL (obligatoria)</b>
+          <div class="help">JPG/PNG — la convertiremos a <code>full.jpg</code>.</div>
+          <input id="file-full" type="file" accept="image/*" style="margin-top:8px">
+          <div id="prev-full" class="preview"></div>
+        </div>
+        <div class="drop" id="drop-cover">
+          <b>Cover (opcional)</b>
+          <div class="help">Si no subes, generamos <code>cover.jpg</code> a partir de la FULL.</div>
+          <input id="file-cover" type="file" accept="image/*" style="margin-top:8px">
+          <div id="prev-cover" class="preview"></div>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top:16px">
+        <button id="btn-zip" class="btn">Descargar ZIP del set</button>
+        <button id="btn-clear" class="btn ghost">Limpiar</button>
+      </div>
+
+      <div id="msg" style="margin-top:10px" class="muted"></div>
+
+      <div id="howto" style="margin-top:16px;display:none">
+        <div style="font-weight:700;margin-bottom:6px">Cómo integrarlo</div>
+        <ol class="muted" style="margin-top:0">
+          <li>Descomprime el ZIP en la raíz del proyecto (respeta las carpetas <code>public/photos/…</code>).</li>
+          <li>En consola ejecuta: <code>npm run gen</code></li>
+          <li>Abre el preview: <code>peek.html?creator=&lt;creator&gt;&amp;s=&lt;set&gt;</code></li>
+        </ol>
+        <div class="code" id="cmd"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const $$ = s => [...document.querySelectorAll(s)];
+
+    // Helpers
+    const slugify = s => (s||'')
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'');
+
+    function setMsg(txt, ok=false){
+      const m = $('#msg');
+      m.textContent = txt;
+      m.className = ok ? 'ok' : 'err';
+      if (!txt) m.className = 'muted';
+    }
+
+    function filePreview(input, target){
+      const f = input.files?.[0];
+      if (!f) { target.textContent=''; return; }
+      target.innerHTML = `${f.name} — ${(f.size/1024/1024).toFixed(2)} MB`;
+    }
+
+    $('#file-full').addEventListener('change', e=>filePreview(e.target, $('#prev-full')));
+    $('#file-cover').addEventListener('change', e=>filePreview(e.target, $('#prev-cover')));
+    $('#btn-clear').addEventListener('click', ()=>{
+      $$('#creator,#set,#title,#blurb').forEach(el=>el.value='');
+      $$('#file-full,#file-cover').forEach(el=>el.value='');
+      $$('#prev-full,#prev-cover').forEach(el=>el.textContent='');
+      setMsg('');
+      $('#howto').style.display='none';
+    });
+
+    async function toJPEGBlob(file, maxW=null){
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = URL.createObjectURL(file);
+      await img.decode();
+
+      const w = maxW ? Math.min(maxW, img.width) : img.width;
+      const h = Math.round(img.height * (w / img.width));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      return new Promise(res=>canvas.toBlob(b=>{
+        URL.revokeObjectURL(img.src);
+        res(b);
+      }, 'image/jpeg', 0.9));
+    }
+
+    function bufFromBlob(blob){ return new Response(blob).arrayBuffer(); }
+
+    $('#btn-zip').addEventListener('click', async ()=>{
+      try{
+        setMsg('');
+        const creator = slugify($('#creator').value);
+        const set     = slugify($('#set').value);
+        const title   = ($('#title').value || '').trim();
+        const blurb   = ($('#blurb').value || '').trim();
+        const grid    = parseInt($('#grid').value, 10);
+
+        if (!creator || !set) return setMsg('Completa slug de creador y slug de set.');
+        if (![3,4,5].includes(grid)) return setMsg('Grid inválido. Usa 3, 4 o 5.');
+
+        const fFull = $('#file-full').files?.[0];
+        if (!fFull) return setMsg('Debes seleccionar la imagen FULL.');
+
+        // Convertir a JPG (y opcional cover)
+        const fullBlob  = await toJPEGBlob(fFull);                 // tamaño original
+        let coverFile   = $('#file-cover').files?.[0];
+        const coverBlob = coverFile ? await toJPEGBlob(coverFile, 1600)
+                                    : await toJPEGBlob(fFull, 1600); // auto-cover
+
+        // Preparar ZIP con estructura final
+        const zip = new JSZip();
+        const base = `public/photos/${creator}/sets/${set}/`;
+        zip.file(base + 'full.jpg',  await bufFromBlob(fullBlob));
+        zip.file(base + 'cover.jpg', await bufFromBlob(coverBlob));
+
+        const meta = {
+          title: title || set.replace(/-/g,' '),
+          blurb, grid
+        };
+        zip.file(base + 'meta.json', JSON.stringify(meta, null, 2));
+
+        const blob = await zip.generateAsync({type:'blob'});
+        saveAs(blob, `${creator}__${set}.zip`);
+
+        // Mostrar instrucciones
+        $('#howto').style.display='block';
+        $('#cmd').textContent =
+`# 1) Descomprime en la raíz del proyecto
+unzip ${creator}__${set}.zip
+
+# 2) Genera peeks.json
+npm run gen
+
+# 3) Vista previa
+http://localhost:5173/peek.html?creator=${creator}&s=${set}`;
+        setMsg('ZIP generado. Sigue los pasos de “Cómo integrarlo”.', true);
+        try{ window.plausible && plausible('studio_zip_created',{props:{creator,set,grid:String(grid)}});}catch{}
+      }catch(err){
+        console.error(err);
+        setMsg('Ocurrió un error preparando el ZIP.');
+      }
+    });
+
+    // Prefill opcional por query (?creator=...&set=...)
+    (function prefill(){
+      const p = new URLSearchParams(location.search);
+      if (p.get('creator')) $('#creator').value = slugify(p.get('creator'));
+      if (p.get('set'))     $('#set').value     = slugify(p.get('set'));
+      if (p.get('title'))   $('#title').value   = p.get('title');
+      if (p.get('grid'))    $('#grid').value    = ['3','4','5'].includes(p.get('grid')) ? p.get('grid') : '4';
+    })();
+  </script>
+</body>
+</html>

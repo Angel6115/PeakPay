@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Config</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:#fff;color:#0b1020}
+    .wrap{max-width:780px;margin:0 auto;padding:28px 16px 56px}
+    .panel{border:1px solid #e2e8f0;background:#f8fafc;border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 6px 14px rgba(79,70,229,.06)}
+    .row{display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:center;margin-bottom:10px}
+    input[type="text"],input[type="url"],input[type="number"]{width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:10px}
+    .btn{border:0;background:linear-gradient(90deg,#4f46e5 0%,#2563eb 100%);color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;box-shadow:0 6px 16px rgba(79,70,229,.25)}
+    .btn.secondary{background:#fff;color:#4f46e5;border:1px solid #e2e8f0;box-shadow:none}
+    .muted{color:#475569;font-size:12px}
+    .list{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="margin:0 0 8px">Panel de Configuración</h1>
+    <div class="muted">Usa esta página para preparar demos, QA y soporte.</div>
+
+    <section class="panel">
+      <h3>Base de API & Usuario</h3>
+      <div class="row"><label>API Base</label><input id="api" type="url" placeholder="http://localhost:4000"></div>
+      <div class="row"><label>UID</label><input id="uid" type="text" placeholder="test-user-123"></div>
+      <div class="row"><label></label><button id="save" class="btn">Guardar</button></div>
+      <div class="muted">Claves: <code>pp_api_base</code>, <code>pp_uid</code></div>
+    </section>
+
+    <section class="panel">
+      <h3>Saldo & Puntos (local)</h3>
+      <div class="row"><label>Credits</label><input id="cr" type="number" min="0" step="1"></div>
+      <div class="row"><label>Points</label><input id="pt" type="number" min="0" step="1"></div>
+      <div class="row"><label></label>
+        <button id="applyBal" class="btn">Aplicar</button>
+        <button id="zeroBal" class="btn secondary" style="margin-left:8px">Poner en 0</button>
+      </div>
+      <div class="muted">Claves: <code>pp_demo_balance</code>, <code>pp_points</code></div>
+    </section>
+
+    <section class="panel">
+      <h3>Progreso / Debug</h3>
+      <div class="row"><label>Creator</label><input id="creator" type="text" placeholder="sasha-dance"></div>
+      <div class="row"><label>Set</label><input id="set" type="text" placeholder="set-01"></div>
+      <div class="row"><label></label>
+        <button id="resetSet" class="btn secondary">Reset progreso del set</button>
+      </div>
+      <div class="row"><label></label>
+        <button id="wipeAll" class="btn secondary">Borrar TODO localStorage</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>LocalStorage (vista rápida)</h3>
+      <div id="dump" class="list"></div>
+      <div style="margin-top:8px">
+        <button id="refreshDump" class="btn secondary">Refrescar</button>
+        <button id="exportLS" class="btn secondary" style="margin-left:8px">Exportar JSON</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Atajos</h3>
+      <div class="row"><label></label>
+        <div>
+          <a class="btn secondary" href="./creators.html">Creadores</a>
+          <a class="btn secondary" href="./wallet.html" style="margin-left:8px">Wallet</a>
+          <a class="btn secondary" href="./peek.html?creator=sasha-dance&s=set-01" style="margin-left:8px">Peek demo</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const CREDIT_KEY='pp_demo_balance', POINTS_KEY='pp_points';
+
+    function dumpLS(){
+      const out=[];
+      for (let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        out.push(k+': '+localStorage.getItem(k));
+      }
+      $('#dump').textContent = out.sort().join('\n');
+    }
+    function progressKey(creator,setSlug,SET_ID='697dc6d3-4008-4221-8259-4a7779c2a0ea'){
+      return `pp_progress::${creator}::${setSlug||'default'}::${SET_ID}`;
+    }
+
+    // init
+    $('#api').value = (localStorage.getItem('pp_api_base')||'').replace(/\/+$/,'');
+    $('#uid').value = localStorage.getItem('pp_uid')||'test-user-123';
+    $('#cr').value  = localStorage.getItem(CREDIT_KEY)||'0';
+    $('#pt').value  = localStorage.getItem(POINTS_KEY)||'0';
+    dumpLS();
+
+    $('#save').onclick = ()=>{
+      const api=($('#api').value||'').replace(/\/+$/,'');
+      const uid=$('#uid').value||'test-user-123';
+      localStorage.setItem('pp_api_base', api);
+      localStorage.setItem('pp_uid', uid);
+      alert('Guardado ✓');
+      dumpLS();
+    };
+    $('#applyBal').onclick = ()=>{
+      localStorage.setItem(CREDIT_KEY, String(Math.max(0,parseInt($('#cr').value||'0',10)||0)));
+      localStorage.setItem(POINTS_KEY, String(Math.max(0,parseInt($('#pt').value||'0',10)||0)));
+      alert('Saldo aplicado ✓'); dumpLS();
+    };
+    $('#zeroBal').onclick = ()=>{
+      localStorage.setItem(CREDIT_KEY,'0'); localStorage.setItem(POINTS_KEY,'0');
+      alert('Saldo en 0 ✓'); dumpLS();
+    };
+    $('#resetSet').onclick = ()=>{
+      const c=$('#creator').value.trim(), s=$('#set').value.trim();
+      if(!c||!s){ alert('Indica creator y set'); return; }
+      localStorage.removeItem(progressKey(c,s));
+      alert('Progreso borrado ✓'); dumpLS();
+    };
+    $('#wipeAll').onclick = ()=>{
+      if(confirm('¿Borrar TODO localStorage?')){ localStorage.clear(); alert('Wipe ✓'); dumpLS(); }
+    };
+    $('#refreshDump').onclick = dumpLS;
+    $('#exportLS').onclick = ()=>{
+      const obj={}; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); obj[k]=localStorage.getItem(k); }
+      const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a');
+      a.href=url; a.download='peekpay-localstorage.json'; a.click(); URL.revokeObjectURL(url);
+    };
+  </script>
+</body>
+</html>

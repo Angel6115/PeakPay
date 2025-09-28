@@ -4,9 +4,21 @@
   "private": true,
   "description": "Landing SFW de PeekPay (Fase 0)",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "gen": "node scripts/gen-peeks.mjs",
+    "publish": "node scripts/publish-approved.mjs && npm run gen",
+    "mock": "PORT=8787 FRONT_ORIGIN=http://localhost:5173 ADMIN_TOKEN=dev-admin node server/mock-api.mjs",
+    "build": "vite build",
+    "preview": "vite preview --port 5174",
+    "thumbs": "node scripts/make-thumbs.mjs && npm run gen"
   },
   "devDependencies": {
+    "nodemon": "^3.1.10",
     "vite": "^6.3.6"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "sharp": "^0.34.4"
   }
 }

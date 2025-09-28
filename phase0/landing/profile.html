@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Perfil</title>
+
+  <link rel="icon" href="/public/favicon.ico">
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+
+  <style>
+    :root{
+      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e5e7eb;
+      --cta:#111827; --cta-text:#fff; --ok:#059669; --err:#b91c1c;
+    }
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1120px;margin:0 auto;padding:28px 16px 48px}
+
+    header{display:flex;align-items:center;gap:12px}
+    header img.logo{width:44px;height:auto;border-radius:10px}
+    .brand h1{font-size:18px;margin:0}
+    .brand p{margin:0;color:var(--muted);font-size:12px}
+
+    .topbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+    .btn{border:1px solid var(--cta);background:var(--cta);color:var(--cta-text);padding:8px 12px;border-radius:10px;text-decoration:none;font-size:14px}
+    .btn.ghost{background:#fff;color:var(--cta);border-color:var(--ring)}
+    .crumbs{font-size:12px;color:var(--muted)}
+    .crumbs a{color:inherit}
+
+    .panel{border:1px solid var(--ring);background:var(--card);border-radius:16px;padding:20px;margin:12px 0 16px;display:grid;gap:16px}
+    .creator{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .avatar{width:64px;height:64px;border-radius:14px;object-fit:cover;border:1px solid var(--ring);background:#fff}
+    .meta{color:var(--muted);font-size:13px}
+    .statline{display:flex;gap:12px;flex-wrap:wrap}
+    .pill{background:#fff;border:1px solid var(--ring);padding:6px 10px;border-radius:999px;font-size:12px}
+
+    /* Selector de sets */
+    .sets{display:flex;gap:12px;overflow:auto;padding-bottom:4px}
+    .set-card{
+      min-width:180px;border:1px solid var(--ring);border-radius:12px;background:#fff;cursor:pointer;
+      display:grid;gap:8px;padding:8px
+    }
+    .set-card img{width:100%;height:120px;object-fit:cover;border-radius:8px}
+    .set-card.active{outline:2px solid #111827}
+    .set-title{font-weight:600;font-size:14px}
+    .set-blurb{font-size:12px;color:var(--muted);min-height:2.6em}
+
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .controls .pack{border:1px solid var(--cta);background:var(--cta);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .controls .pack.secondary{background:#fff;color:var(--cta);border-color:var(--ring)}
+    .price{font-weight:600}
+
+    .progress{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);margin-top:8px}
+    .bar{flex:1;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden}
+    .bar span{display:block;height:100%;background:#111827;width:0%}
+
+    /* GRID sin bordes negros ni gaps */
+    .grid{display:grid; gap:0; grid-template-columns: repeat(var(--cols,4), minmax(0,1fr));}
+    .cell{aspect-ratio:1/1; position:relative; overflow:hidden; background:#0000; display:flex; align-items:center; justify-content:center; user-select:none;}
+    .cell .img{position:absolute; inset:0; background-repeat:no-repeat; background-size:cover; transition:filter .25s ease, transform .25s ease;}
+    .cell.locked .img{ filter: blur(12px) brightness(0.95); transform: scale(1.02); }
+    .cell.unlocked .img{ filter: none; transform: none; }
+    .cell.preview .img{ filter: blur(2px) !important; }
+
+    .badge{position:absolute; right:8px; top:8px; font-size:11px; padding:4px 8px; border-radius:999px; background:rgba(17,24,39,.85); color:#fff; border:1px solid rgba(255,255,255,.2)}
+    .badge.free{background:rgba(5,150,105,.9)}
+
+    .reveal{margin-top:12px;border:1px solid var(--ring);background:#fff;border-radius:12px;padding:8px}
+    .reveal img{width:100%;height:auto;border-radius:8px;display:block}
+
+    .credit{margin-top:8px;font-size:12px;color:var(--muted)}
+    .msg{font-size:13px;margin-top:6px}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+    .footer{margin-top:22px;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <header>
+        <img class="logo" src="/public/peak1.PNG" alt="PeekPay logo">
+        <div class="brand">
+          <h1>PeekPay</h1>
+          <p>Desbloquea Peeks por mosaicos</p>
+        </div>
+      </header>
+      <a class="btn ghost" href="./categories.html">Categorías</a>
+      <a class="btn ghost" href="./creators.html">Creadores</a>
+      <a class="btn" href="./index.html">Inicio</a>
+    </div>
+
+    <div class="crumbs" id="crumbs"></div>
+
+    <section class="panel">
+      <div class="creator">
+        <img id="avatar" class="avatar" src="" alt="Avatar creador">
+        <div>
+          <div id="c-name" style="font-weight:700">—</div>
+          <div id="c-handle" class="meta">—</div>
+          <div class="statline">
+            <span class="pill" id="c-cat">—</span>
+            <span class="pill" id="c-country">—</span>
+            <span class="pill" id="c-verified">—</span>
+          </div>
+          <div class="statline">
+            <span class="pill" id="st-rating">Rating —</span>
+            <span class="pill" id="st-revealed">Peeks revelados —</span>
+            <span class="pill" id="st-subs">Subs —</span>
+            <span class="pill" id="st-posts">Posts —</span>
+            <span class="pill" id="st-likes">Likes —</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector de sets -->
+      <div id="sets" class="sets"></div>
+
+      <div class="controls">
+        <button class="pack" data-pack="1">Desbloquear 1 <span class="price">($0.99)</span></button>
+        <button class="pack secondary" data-pack="3">Pack 3 <span class="price">($2.49)</span></button>
+        <span class="meta">Vista previa: ~20% gratis</span>
+      </div>
+
+      <!-- Progreso -->
+      <div class="progress">
+        <div>Progreso</div>
+        <div class="bar"><span id="bar"></span></div>
+        <div><b id="count">0</b>/<span id="total">0</span></div>
+      </div>
+
+      <!-- Grid -->
+      <div id="grid" class="grid"></div>
+
+      <!-- Obra completa + crédito -->
+      <div id="reveal" class="reveal" style="display:none">
+        <img id="fullImg" alt="Obra completa">
+        <div class="credit" id="credit"></div>
+      </div>
+
+      <div class="msg" id="msg"></div>
+    </section>
+
+    <p class="footer">Fase 0 — SFW · Usa imágenes en <code>/public/photos/&lt;cat&gt;/&lt;creator&gt;/sets/&lt;set&gt;/{cover,main,full}.webp</code>. Cada <b>Peek</b> es un mosaico del grid. </p>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const params = new URLSearchParams(location.search);
+    const cat  = params.get('cat') || 'cosplay';
+    const creator = params.get('creator') || 'ink-aria';
+    let setSlug = params.get('set') || null;
+
+    // Estado
+    let CREATOR = null;   // detalle del creador (desde peeks.json)
+    let SET = null;       // set activo
+    let GRID = 4;
+    let baseImageUrl = null;
+
+    const $crumbs = $('#crumbs');
+    const $avatar = $('#avatar');
+    const $sets   = $('#sets');
+    const $grid   = $('#grid');
+    const $bar    = $('#bar');
+    const $count  = $('#count');
+    const $total  = $('#total');
+    const $msg    = $('#msg');
+    const $reveal = $('#reveal');
+    const $fullImg= $('#fullImg');
+    const $credit = $('#credit');
+
+    function plausibleSafe(event, opts){ try{ window.plausible && window.plausible(event, opts); }catch{} }
+
+    async function loadData(){
+      const res = await fetch('/public/peeks.json?_=' + Date.now());
+      if (!res.ok) throw new Error('peeks.json not found');
+      const all = await res.json();
+      const key = `${cat}/${creator}`;
+      CREATOR = all.creatorsDetail[key];
+      if (!CREATOR) throw new Error('Creator not found in peeks.json');
+      if (!setSlug && CREATOR.sets?.length) setSlug = CREATOR.sets[0].slug;
+      SET = CREATOR.sets.find(s => s.slug === setSlug) || CREATOR.sets[0];
+
+      // Header
+      $crumbs.innerHTML = `<a href="./index.html">Inicio</a> / <a href="./categories.html">Categorías</a> / <a href="./creators.html?cat=${encodeURIComponent(cat)}">Creadores</a> / <b>${CREATOR.name}</b>`;
+      $('#c-name').textContent = CREATOR.name;
+      $('#c-handle').textContent = CREATOR.handle || '';
+      $('#c-cat').textContent = CREATOR.label || cat;
+      $('#c-country').textContent = CREATOR.country ? `País: ${CREATOR.country}` : 'País: —';
+      $('#c-verified').textContent = CREATOR.verified ? 'Verificado' : 'No verificado';
+      $('#st-rating').textContent   = `Rating ${CREATOR.stats.rating} (${CREATOR.stats.reviews})`;
+      $('#st-revealed').textContent = `Peeks revelados ${CREATOR.stats.revealed}`;
+      $('#st-subs').textContent     = `Subs: ${CREATOR.stats.subs}`;
+      $('#st-posts').textContent    = `Posts: ${CREATOR.stats.posts}`;
+      $('#st-likes').textContent    = `Likes: ${CREATOR.stats.likes}`;
+
+      // Avatar fallback
+      const avatarUrl = `/public/photos/${cat}/${creator}/avatar.webp`;
+      const coverUrl  = SET.cover;
+      const img = new Image();
+      img.onload = ()=> $avatar.src = avatarUrl;
+      img.onerror = ()=> { $avatar.src = coverUrl || '/public/peak1.PNG'; };
+      img.src = avatarUrl;
+
+      // Pintar sets
+      $sets.innerHTML = '';
+      (CREATOR.sets || []).forEach(s=>{
+        const card = document.createElement('div');
+        card.className = 'set-card' + (s.slug===SET.slug ? ' active':'');
+        card.innerHTML = `
+          <img src="${s.cover || ''}" alt="${s.title||s.slug}">
+          <div class="set-title">${s.title || s.slug}</div>
+          <div class="set-blurb">${s.blurb || ''}</div>
+          <div class="meta">Grid ${s.grid}×${s.grid}</div>
+        `;
+        card.onclick = ()=>{
+          const url = new URL(location.href);
+          url.searchParams.set('set', s.slug);
+          history.replaceState(null,'',url.toString());
+          switchSet(s);
+        };
+        $sets.appendChild(card);
+      });
+
+      switchSet(SET);
+    }
+
+    function switchSet(s){
+      SET = s;
+      GRID = Number(SET.grid || 4);
+      baseImageUrl = SET.main || null;
+
+      // Actualizar activo
+      $sets.querySelectorAll('.set-card').forEach(c=>c.classList.remove('active'));
+      const idx = (CREATOR.sets||[]).findIndex(x=>x.slug===SET.slug);
+      if (idx>=0) $sets.children[idx].classList.add('active');
+
+      // Reiniciar reveal y grid
+      $reveal.style.display = 'none';
+      $fullImg.src = '';
+      buildGrid();
+      plausibleSafe('preview_shown', {props:{u:creator, set:SET.slug, grid:String(GRID)}});
+    }
+
+    function buildGrid(){
+      const TOTAL = GRID*GRID;
+      $total.textContent = TOTAL;
+      $count.textContent = 0;
+      $bar.style.width = '0%';
+      $grid.style.setProperty('--cols', GRID);
+      $grid.innerHTML = '';
+
+      const unlocked = new Set();
+
+      // ~20% preview
+      const NPRE = Math.max(1, Math.round(TOTAL*0.2));
+      const idxs = Array.from({length:TOTAL}, (_,i)=>i).sort(()=>Math.random()-0.5);
+      const preview = new Set(idxs.slice(0, NPRE));
+
+      // Celdas
+      for (let r=0; r<GRID; r++){
+        for (let c=0; c<GRID; c++){
+          const i = r*GRID + c;
+          const cell = document.createElement('div');
+          cell.className = 'cell locked';
+          cell.dataset.idx = i;
+
+          const img = document.createElement('div');
+          img.className = 'img';
+          if (baseImageUrl){
+            img.style.backgroundImage = `url('${baseImageUrl}')`;
+            img.style.backgroundSize = `${GRID*100}% ${GRID*100}%`;
+            const px = GRID===1 ? 0 : (c/(GRID-1))*100;
+            const py = GRID===1 ? 0 : (r/(GRID-1))*100;
+            img.style.backgroundPosition = `${px}% ${py}%`;
+          }
+          cell.appendChild(img);
+
+          const badge = document.createElement('div');
+          badge.className = 'badge' + (preview.has(i)?' free':'');
+          badge.textContent = preview.has(i) ? 'FREE' : 'LOCK';
+          cell.appendChild(badge);
+
+          if (preview.has(i)){
+            cell.classList.remove('locked');
+            cell.classList.add('unlocked','preview');
+            unlocked.add(i);
+          }
+
+          $grid.appendChild(cell);
+        }
+      }
+
+      // Clicks
+      $grid.onclick = (e)=>{
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+        const i = Number(cell.dataset.idx);
+        if (cell.classList.contains('unlocked')) return;
+        unlock([i], 'tap');
+      };
+
+      function unlock(list, mode){
+        let n=0;
+        list.forEach(i=>{
+          if (!unlocked.has(i)){
+            unlocked.add(i);
+            const cell = $grid.children[i];
+            cell.classList.remove('locked','preview');
+            cell.classList.add('unlocked');
+            const b = cell.querySelector('.badge'); if (b) b.remove();
+            n++;
+          }
+        });
+        if (n){
+          const pct = Math.round((unlocked.size/TOTAL)*100);
+          $count.textContent = unlocked.size;
+          $bar.style.width = pct + '%';
+          $msg.textContent = `Desbloqueaste ${n} Peek${n>1?'s':''}.`;
+          $msg.className = 'msg ok';
+          setTimeout(()=>{$msg.textContent='';},1200);
+          plausibleSafe('unlock',{props:{pack:String(list.length), mode, set:SET.slug}});
+          // ¿Completado?
+          if (unlocked.size===TOTAL) showFull();
+        }
+      }
+
+      // Packs
+      document.querySelectorAll('.pack').forEach(btn=>{
+        btn.onclick = ()=>{
+          const pack = Number(btn.dataset.pack||'1');
+          const locked = [];
+          for (let i=0;i<TOTAL;i++) if (!unlocked.has(i)) locked.push(i);
+          if (locked.length===0) return showFull();
+          locked.sort(()=>Math.random()-0.5);
+          unlock(locked.slice(0,Math.min(pack,locked.length)), 'button');
+        };
+      });
+
+      function showFull(){
+        // Mostrar full.webp y crédito
+        if (SET.full){
+          $fullImg.src = SET.full;
+          $reveal.style.display = 'block';
+          $credit.textContent = `Gracias por revelar este arte de ${CREATOR.name}. Tu apoyo impulsa nuevos Peeks y contenido.`;
+        }
+      }
+    }
+
+    // Init
+    loadData().catch(err=>{
+      $msg.textContent = 'No se pudo cargar la información (peeks.json).';
+      $msg.className = 'msg err';
+      console.error(err);
+    });
+  </script>
+</body>
+</html>
