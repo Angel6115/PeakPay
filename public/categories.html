@@ -101,7 +101,7 @@
     <!-- TOP -->
     <div class="topbar">
       <header>
-        <img src="/peak1.PNG" alt="PeekPay logo">
+        <img src="/peak1.png" alt="PeekPay logo">
         <div class="brand">
           <h1>PeekPay</h1>
           <p>Elige una categoría para explorar Peeks</p>
@@ -173,9 +173,9 @@
       a.className = 'card';
       a.setAttribute('aria-label', meta.name);
 
-      const cover = await imgForCat(slug, firstThumb || '/public/peak1.PNG');
+      const cover = await imgForCat(slug, firstThumb || '/public/peak1.png');
 
-      if (cover !== '/public/peak1.PNG' || firstThumb){
+      if (cover !== '/public/peak1.png' || firstThumb){
         const img = document.createElement('img');
         img.className = 'thumb';
         img.alt = `${meta.name} cover`;
@@ -224,7 +224,7 @@
         for (const slug of present){
           const arr = cats[slug] || [];
           const first = arr[0];
-          const thumb = first?.thumb || first?.cover || '/public/peak1.PNG';
+          const thumb = first?.thumb || first?.cover || '/public/peak1.png';
           const card  = await buildCard(slug, thumb, arr.length);
           $grid.appendChild(card);
         }
