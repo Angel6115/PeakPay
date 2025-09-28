@@ -141,7 +141,7 @@
       <div class="msg" id="msg"></div>
     </section>
 
-    <p class="footer">Fase 0 — SFW · Usa imágenes en <code>/public/photos/&lt;cat&gt;/&lt;creator&gt;/sets/&lt;set&gt;/{cover,main,full}.webp</code>. Cada <b>Peek</b> es un mosaico del grid. </p>
+    <p class="footer">Fase 0 — SFW · Usa imágenes en <code>/photos/&lt;cat&gt;/&lt;creator&gt;/sets/&lt;set&gt;/{cover,main,full}.webp</code>. Cada <b>Peek</b> es un mosaico del grid. </p>
   </div>
 
   <script>
@@ -195,7 +195,7 @@
       $('#st-likes').textContent    = `Likes: ${CREATOR.stats.likes}`;
 
       // Avatar fallback
-      const avatarUrl = `/public/photos/${cat}/${creator}/avatar.webp`;
+      const avatarUrl = `/photos/${cat}/${creator}/avatar.webp`;
       const coverUrl  = SET.cover;
       const img = new Image();
       img.onload = ()=> $avatar.src = avatarUrl;

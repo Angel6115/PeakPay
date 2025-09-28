@@ -380,7 +380,7 @@
 
     /* ===== Legacy paths (sin peeks.json) ===== */
     function legacyPaths(){
-      const base = setParam ? `/public/photos/${slug}/sets/${setParam}` : `/public/photos/${slug}`;
+      const base = setParam ? `/photos/${slug}/sets/${setParam}` : `/photos/${slug}`;
       return { full:`${base}/full.webp`, cover:`${base}/cover.webp`, avatar:`${base}/cover.webp`, grid:GRID, desc:'' };
     }
 

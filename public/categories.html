@@ -151,8 +151,8 @@
     const $empty = document.getElementById('empty');
 
     const imgForCat = (slug, fallback) => {
-      const webp = `/public/photos/${slug}/cover.webp`;
-      const jpg  = `/public/photos/${slug}/cover.jpg`;
+      const webp = `/photos/${slug}/cover.webp`;
+      const jpg  = `/photos/${slug}/cover.jpg`;
       return new Promise(resolve=>{
         const im = new Image();
         im.onload = ()=>resolve(webp);
