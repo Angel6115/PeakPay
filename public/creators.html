@@ -184,7 +184,7 @@
 
       const img = document.createElement('img');
       img.loading = 'lazy'; img.decoding = 'async';
-      img.alt = `${c.name} thumb`; img.src = c.thumb || '/public/peak1.png';
+      img.alt = `${c.name} thumb`; img.src = c.thumb || '/peak1.png';
       if (c.focalY != null) img.style.objectPosition = `center ${c.focalY}%`;
 
       const overlay = document.createElement('div'); overlay.className = 'overlay';

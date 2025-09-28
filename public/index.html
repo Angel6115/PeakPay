@@ -230,7 +230,7 @@
         return new Promise(res=>{
           const im = new Image();
           im.onload = ()=>res(src);
-          im.onerror = ()=>res("/public/peak1.png");
+          im.onerror = ()=>res("/peak1.png");
           im.decoding = "async";
           im.src = src;
         });
