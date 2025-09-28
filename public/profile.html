@@ -172,7 +172,7 @@
     function plausibleSafe(event, opts){ try{ window.plausible && window.plausible(event, opts); }catch{} }
 
     async function loadData(){
-      const res = await fetch('/public/peeks.json?_=' + Date.now());
+      const res = await fetch('/peeks.json?_=' + Date.now());
       if (!res.ok) throw new Error('peeks.json not found');
       const all = await res.json();
       const key = `${cat}/${creator}`;
