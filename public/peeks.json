@@ -3,56 +3,56 @@
     {
       "id": "ink-aria",
       "name": "ink aria",
-      "thumb": "/public/photos/arte/ink-aria/sets/set-01/thumb.jpg",
+      "thumb": "/photos/arte/ink-aria/sets/set-01/thumb.jpg",
       "profile": "./peek.html?creator=ink-aria&s=set-01",
       "tags": []
     },
     {
       "id": "lina-fit",
       "name": "lina fit",
-      "thumb": "/public/photos/arte/lina-fit/sets/set-01/thumb.jpg",
+      "thumb": "/photos/arte/lina-fit/sets/set-01/thumb.jpg",
       "profile": "./peek.html?creator=lina-fit&s=set-01",
       "tags": []
     },
     {
       "id": "noa-lace",
       "name": "noa lace",
-      "thumb": "/public/photos/arte/noa-lace/sets/set-01/thumb.jpg",
+      "thumb": "/photos/arte/noa-lace/sets/set-01/thumb.jpg",
       "profile": "./peek.html?creator=noa-lace&s=set-01",
       "tags": []
     },
     {
       "id": "rio-out",
       "name": "rio out",
-      "thumb": "/public/photos/arte/rio-out/sets/set-01/thumb.jpg",
+      "thumb": "/photos/arte/rio-out/sets/set-01/thumb.jpg",
       "profile": "./peek.html?creator=rio-out&s=set-01",
       "tags": []
     },
     {
       "id": "sasha-dance",
       "name": "sasha dance",
-      "thumb": "/public/photos/arte/sasha-dance/sets/set-01/thumb.jpg",
+      "thumb": "/photos/arte/sasha-dance/sets/set-01/thumb.jpg",
       "profile": "./peek.html?creator=sasha-dance&s=set-01",
       "tags": []
     },
     {
       "id": "sol-light",
       "name": "sol light",
-      "thumb": "/public/photos/arte/sol-light/sets/set-01/thumb.jpg",
+      "thumb": "/photos/arte/sol-light/sets/set-01/thumb.jpg",
       "profile": "./peek.html?creator=sol-light&s=set-01",
       "tags": []
     },
     {
       "id": "val-cos",
       "name": "val cos",
-      "thumb": "/public/photos/arte/val-cos/sets/set-01/thumb.jpg",
+      "thumb": "/photos/arte/val-cos/sets/set-01/thumb.jpg",
       "profile": "./peek.html?creator=val-cos&s=set-01",
       "tags": []
     },
     {
       "id": "zen-well",
       "name": "zen well",
-      "thumb": "/public/photos/arte/zen-well/sets/set-01/thumb.jpg",
+      "thumb": "/photos/arte/zen-well/sets/set-01/thumb.jpg",
       "profile": "./peek.html?creator=zen-well&s=set-01",
       "tags": []
     }
@@ -79,9 +79,9 @@
           "blurb": "",
           "grid": 4,
           "tags": [],
-          "thumb": "/public/photos/arte/ink-aria/sets/set-01/thumb.jpg",
-          "cover": "/public/photos/arte/ink-aria/sets/set-01/cover.jpg",
-          "full": "/public/photos/arte/ink-aria/sets/set-01/full.jpg"
+          "thumb": "/photos/arte/ink-aria/sets/set-01/thumb.jpg",
+          "cover": "/photos/arte/ink-aria/sets/set-01/cover.jpg",
+          "full": "/photos/arte/ink-aria/sets/set-01/full.jpg"
         }
       ]
     },
@@ -106,9 +106,9 @@
           "blurb": "",
           "grid": 4,
           "tags": [],
-          "thumb": "/public/photos/arte/lina-fit/sets/set-01/thumb.jpg",
-          "cover": "/public/photos/arte/lina-fit/sets/set-01/cover.webp",
-          "full": "/public/photos/arte/lina-fit/sets/set-01/full.jpg"
+          "thumb": "/photos/arte/lina-fit/sets/set-01/thumb.jpg",
+          "cover": "/photos/arte/lina-fit/sets/set-01/cover.webp",
+          "full": "/photos/arte/lina-fit/sets/set-01/full.jpg"
         }
       ]
     },
@@ -133,9 +133,9 @@
           "blurb": "",
           "grid": 4,
           "tags": [],
-          "thumb": "/public/photos/arte/noa-lace/sets/set-01/thumb.jpg",
-          "cover": "/public/photos/arte/noa-lace/sets/set-01/cover.jpg",
-          "full": "/public/photos/arte/noa-lace/sets/set-01/full.jpg"
+          "thumb": "/photos/arte/noa-lace/sets/set-01/thumb.jpg",
+          "cover": "/photos/arte/noa-lace/sets/set-01/cover.jpg",
+          "full": "/photos/arte/noa-lace/sets/set-01/full.jpg"
         }
       ]
     },
@@ -160,9 +160,9 @@
           "blurb": "",
           "grid": 4,
           "tags": [],
-          "thumb": "/public/photos/arte/rio-out/sets/set-01/thumb.jpg",
-          "cover": "/public/photos/arte/rio-out/sets/set-01/cover.jpg",
-          "full": "/public/photos/arte/rio-out/sets/set-01/full.jpg"
+          "thumb": "/photos/arte/rio-out/sets/set-01/thumb.jpg",
+          "cover": "/photos/arte/rio-out/sets/set-01/cover.jpg",
+          "full": "/photos/arte/rio-out/sets/set-01/full.jpg"
         }
       ]
     },
@@ -187,9 +187,9 @@
           "blurb": "",
           "grid": 4,
           "tags": [],
-          "thumb": "/public/photos/arte/sasha-dance/sets/set-01/thumb.jpg",
-          "cover": "/public/photos/arte/sasha-dance/sets/set-01/cover.jpg",
-          "full": "/public/photos/arte/sasha-dance/sets/set-01/full.jpg"
+          "thumb": "/photos/arte/sasha-dance/sets/set-01/thumb.jpg",
+          "cover": "/photos/arte/sasha-dance/sets/set-01/cover.jpg",
+          "full": "/photos/arte/sasha-dance/sets/set-01/full.jpg"
         }
       ]
     },
@@ -214,9 +214,9 @@
           "blurb": "",
           "grid": 4,
           "tags": [],
-          "thumb": "/public/photos/arte/sol-light/sets/set-01/thumb.jpg",
-          "cover": "/public/photos/arte/sol-light/sets/set-01/cover.jpg",
-          "full": "/public/photos/arte/sol-light/sets/set-01/full.jpg"
+          "thumb": "/photos/arte/sol-light/sets/set-01/thumb.jpg",
+          "cover": "/photos/arte/sol-light/sets/set-01/cover.jpg",
+          "full": "/photos/arte/sol-light/sets/set-01/full.jpg"
         }
       ]
     },
@@ -241,9 +241,9 @@
           "blurb": "",
           "grid": 4,
           "tags": [],
-          "thumb": "/public/photos/arte/val-cos/sets/set-01/thumb.jpg",
-          "cover": "/public/photos/arte/val-cos/sets/set-01/cover.jpg",
-          "full": "/public/photos/arte/val-cos/sets/set-01/full.jpg"
+          "thumb": "/photos/arte/val-cos/sets/set-01/thumb.jpg",
+          "cover": "/photos/arte/val-cos/sets/set-01/cover.jpg",
+          "full": "/photos/arte/val-cos/sets/set-01/full.jpg"
         }
       ]
     },
@@ -268,9 +268,9 @@
           "blurb": "",
           "grid": 4,
           "tags": [],
-          "thumb": "/public/photos/arte/zen-well/sets/set-01/thumb.jpg",
-          "cover": "/public/photos/arte/zen-well/sets/set-01/cover.jpg",
-          "full": "/public/photos/arte/zen-well/sets/set-01/full.jpg"
+          "thumb": "/photos/arte/zen-well/sets/set-01/thumb.jpg",
+          "cover": "/photos/arte/zen-well/sets/set-01/cover.jpg",
+          "full": "/photos/arte/zen-well/sets/set-01/full.jpg"
         }
       ]
     }
@@ -280,56 +280,56 @@
       {
         "id": "ink-aria",
         "name": "ink aria",
-        "thumb": "/public/photos/arte/ink-aria/sets/set-01/thumb.jpg",
+        "thumb": "/photos/arte/ink-aria/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=ink-aria&s=set-01",
         "tags": []
       },
       {
         "id": "lina-fit",
         "name": "lina fit",
-        "thumb": "/public/photos/arte/lina-fit/sets/set-01/thumb.jpg",
+        "thumb": "/photos/arte/lina-fit/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=lina-fit&s=set-01",
         "tags": []
       },
       {
         "id": "noa-lace",
         "name": "noa lace",
-        "thumb": "/public/photos/arte/noa-lace/sets/set-01/thumb.jpg",
+        "thumb": "/photos/arte/noa-lace/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=noa-lace&s=set-01",
         "tags": []
       },
       {
         "id": "rio-out",
         "name": "rio out",
-        "thumb": "/public/photos/arte/rio-out/sets/set-01/thumb.jpg",
+        "thumb": "/photos/arte/rio-out/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=rio-out&s=set-01",
         "tags": []
       },
       {
         "id": "sasha-dance",
         "name": "sasha dance",
-        "thumb": "/public/photos/arte/sasha-dance/sets/set-01/thumb.jpg",
+        "thumb": "/photos/arte/sasha-dance/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sasha-dance&s=set-01",
         "tags": []
       },
       {
         "id": "sol-light",
         "name": "sol light",
-        "thumb": "/public/photos/arte/sol-light/sets/set-01/thumb.jpg",
+        "thumb": "/photos/arte/sol-light/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sol-light&s=set-01",
         "tags": []
       },
       {
         "id": "val-cos",
         "name": "val cos",
-        "thumb": "/public/photos/arte/val-cos/sets/set-01/thumb.jpg",
+        "thumb": "/photos/arte/val-cos/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=val-cos&s=set-01",
         "tags": []
       },
       {
         "id": "zen-well",
         "name": "zen well",
-        "thumb": "/public/photos/arte/zen-well/sets/set-01/thumb.jpg",
+        "thumb": "/photos/arte/zen-well/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=zen-well&s=set-01",
         "tags": []
       }
@@ -338,56 +338,56 @@
       {
         "id": "ink-aria",
         "name": "ink aria",
-        "thumb": "/public/photos/artistico/ink-aria/sets/set-01/thumb.jpg",
+        "thumb": "/photos/artistico/ink-aria/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=ink-aria&s=set-01",
         "tags": []
       },
       {
         "id": "lina-fit",
         "name": "lina fit",
-        "thumb": "/public/photos/artistico/lina-fit/sets/set-01/thumb.jpg",
+        "thumb": "/photos/artistico/lina-fit/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=lina-fit&s=set-01",
         "tags": []
       },
       {
         "id": "noa-lace",
         "name": "noa lace",
-        "thumb": "/public/photos/artistico/noa-lace/sets/set-01/thumb.jpg",
+        "thumb": "/photos/artistico/noa-lace/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=noa-lace&s=set-01",
         "tags": []
       },
       {
         "id": "rio-out",
         "name": "rio out",
-        "thumb": "/public/photos/artistico/rio-out/sets/set-01/thumb.jpg",
+        "thumb": "/photos/artistico/rio-out/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=rio-out&s=set-01",
         "tags": []
       },
       {
         "id": "sasha-dance",
         "name": "sasha dance",
-        "thumb": "/public/photos/artistico/sasha-dance/sets/set-01/thumb.jpg",
+        "thumb": "/photos/artistico/sasha-dance/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sasha-dance&s=set-01",
         "tags": []
       },
       {
         "id": "sol-light",
         "name": "sol light",
-        "thumb": "/public/photos/artistico/sol-light/sets/set-01/thumb.jpg",
+        "thumb": "/photos/artistico/sol-light/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sol-light&s=set-01",
         "tags": []
       },
       {
         "id": "val-cos",
         "name": "val cos",
-        "thumb": "/public/photos/artistico/val-cos/sets/set-01/thumb.jpg",
+        "thumb": "/photos/artistico/val-cos/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=val-cos&s=set-01",
         "tags": []
       },
       {
         "id": "zen-well",
         "name": "zen well",
-        "thumb": "/public/photos/artistico/zen-well/sets/set-01/thumb.jpg",
+        "thumb": "/photos/artistico/zen-well/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=zen-well&s=set-01",
         "tags": []
       }
@@ -396,56 +396,56 @@
       {
         "id": "ink-aria",
         "name": "ink aria",
-        "thumb": "/public/photos/cosplay/ink-aria/sets/car-show-01/thumb.jpg",
+        "thumb": "/photos/cosplay/ink-aria/sets/car-show-01/thumb.jpg",
         "profile": "./peek.html?creator=ink-aria&s=car-show-01",
         "tags": []
       },
       {
         "id": "lina-fit",
         "name": "lina fit",
-        "thumb": "/public/photos/cosplay/lina-fit/sets/set-01/thumb.jpg",
+        "thumb": "/photos/cosplay/lina-fit/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=lina-fit&s=set-01",
         "tags": []
       },
       {
         "id": "noa-lace",
         "name": "noa lace",
-        "thumb": "/public/photos/cosplay/noa-lace/sets/set-01/thumb.jpg",
+        "thumb": "/photos/cosplay/noa-lace/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=noa-lace&s=set-01",
         "tags": []
       },
       {
         "id": "rio-out",
         "name": "rio out",
-        "thumb": "/public/photos/cosplay/rio-out/sets/set-01/thumb.jpg",
+        "thumb": "/photos/cosplay/rio-out/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=rio-out&s=set-01",
         "tags": []
       },
       {
         "id": "sasha-dance",
         "name": "sasha dance",
-        "thumb": "/public/photos/cosplay/sasha-dance/sets/set-01/thumb.jpg",
+        "thumb": "/photos/cosplay/sasha-dance/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sasha-dance&s=set-01",
         "tags": []
       },
       {
         "id": "sol-light",
         "name": "sol light",
-        "thumb": "/public/photos/cosplay/sol-light/sets/set-01/thumb.jpg",
+        "thumb": "/photos/cosplay/sol-light/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sol-light&s=set-01",
         "tags": []
       },
       {
         "id": "val-cos",
         "name": "val cos",
-        "thumb": "/public/photos/cosplay/val-cos/sets/set-01/thumb.jpg",
+        "thumb": "/photos/cosplay/val-cos/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=val-cos&s=set-01",
         "tags": []
       },
       {
         "id": "zen-well",
         "name": "zen well",
-        "thumb": "/public/photos/cosplay/zen-well/sets/set-01/thumb.jpg",
+        "thumb": "/photos/cosplay/zen-well/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=zen-well&s=set-01",
         "tags": []
       }
@@ -454,56 +454,56 @@
       {
         "id": "ink-aria",
         "name": "ink aria",
-        "thumb": "/public/photos/fitness/ink-aria/sets/set-01/thumb.jpg",
+        "thumb": "/photos/fitness/ink-aria/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=ink-aria&s=set-01",
         "tags": []
       },
       {
         "id": "lina-fit",
         "name": "lina fit",
-        "thumb": "/public/photos/fitness/lina-fit/sets/set-01/thumb.jpg",
+        "thumb": "/photos/fitness/lina-fit/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=lina-fit&s=set-01",
         "tags": []
       },
       {
         "id": "noa-lace",
         "name": "noa lace",
-        "thumb": "/public/photos/fitness/noa-lace/sets/set-01/thumb.jpg",
+        "thumb": "/photos/fitness/noa-lace/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=noa-lace&s=set-01",
         "tags": []
       },
       {
         "id": "rio-out",
         "name": "rio out",
-        "thumb": "/public/photos/fitness/rio-out/sets/set-01/thumb.jpg",
+        "thumb": "/photos/fitness/rio-out/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=rio-out&s=set-01",
         "tags": []
       },
       {
         "id": "sasha-dance",
         "name": "sasha dance",
-        "thumb": "/public/photos/fitness/sasha-dance/sets/set-01/thumb.jpg",
+        "thumb": "/photos/fitness/sasha-dance/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sasha-dance&s=set-01",
         "tags": []
       },
       {
         "id": "sol-light",
         "name": "sol light",
-        "thumb": "/public/photos/fitness/sol-light/sets/set-01/thumb.jpg",
+        "thumb": "/photos/fitness/sol-light/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sol-light&s=set-01",
         "tags": []
       },
       {
         "id": "val-cos",
         "name": "val cos",
-        "thumb": "/public/photos/fitness/val-cos/sets/set-01/thumb.jpg",
+        "thumb": "/photos/fitness/val-cos/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=val-cos&s=set-01",
         "tags": []
       },
       {
         "id": "zen-well",
         "name": "zen well",
-        "thumb": "/public/photos/fitness/zen-well/sets/set-01/thumb.jpg",
+        "thumb": "/photos/fitness/zen-well/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=zen-well&s=set-01",
         "tags": []
       }
@@ -512,56 +512,56 @@
       {
         "id": "ink-aria",
         "name": "ink aria",
-        "thumb": "/public/photos/lenceria/ink-aria/sets/set-01/thumb.jpg",
+        "thumb": "/photos/lenceria/ink-aria/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=ink-aria&s=set-01",
         "tags": []
       },
       {
         "id": "lina-fit",
         "name": "lina fit",
-        "thumb": "/public/photos/lenceria/lina-fit/sets/set-01/thumb.jpg",
+        "thumb": "/photos/lenceria/lina-fit/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=lina-fit&s=set-01",
         "tags": []
       },
       {
         "id": "noa-lace",
         "name": "noa lace",
-        "thumb": "/public/photos/lenceria/noa-lace/sets/set-01/thumb.jpg",
+        "thumb": "/photos/lenceria/noa-lace/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=noa-lace&s=set-01",
         "tags": []
       },
       {
         "id": "rio-out",
         "name": "rio out",
-        "thumb": "/public/photos/lenceria/rio-out/sets/set-01/thumb.jpg",
+        "thumb": "/photos/lenceria/rio-out/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=rio-out&s=set-01",
         "tags": []
       },
       {
         "id": "sasha-dance",
         "name": "sasha dance",
-        "thumb": "/public/photos/lenceria/sasha-dance/sets/set-01/thumb.jpg",
+        "thumb": "/photos/lenceria/sasha-dance/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sasha-dance&s=set-01",
         "tags": []
       },
       {
         "id": "sol-light",
         "name": "sol light",
-        "thumb": "/public/photos/lenceria/sol-light/sets/set-01/thumb.jpg",
+        "thumb": "/photos/lenceria/sol-light/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=sol-light&s=set-01",
         "tags": []
       },
       {
         "id": "val-cos",
         "name": "val cos",
-        "thumb": "/public/photos/lenceria/val-cos/sets/set-01/thumb.jpg",
+        "thumb": "/photos/lenceria/val-cos/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=val-cos&s=set-01",
         "tags": []
       },
       {
         "id": "zen-well",
         "name": "zen well",
-        "thumb": "/public/photos/lenceria/zen-well/sets/set-01/thumb.jpg",
+        "thumb": "/photos/lenceria/zen-well/sets/set-01/thumb.jpg",
         "profile": "./peek.html?creator=zen-well&s=set-01",
         "tags": []
       }
