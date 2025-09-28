@@ -230,7 +230,7 @@
       render(rows);
     }
 
-    fetch('/public/peeks.json?ts='+Date.now())
+    fetch('/peeks.json?ts='+Date.now())
       .then(r => r.json())
       .then(data => {
         const base = cat ? (data.categories?.[cat] || []) : (data.creators || []);

@@ -385,7 +385,7 @@
     }
 
     async function loadData(){
-      try{ const r = await fetch('/public/peeks.json?ts='+Date.now()); if(!r.ok) return null; return await r.json(); }
+      try{ const r = await fetch('/peeks.json?ts='+Date.now()); if(!r.ok) return null; return await r.json(); }
       catch{ return null; }
     }
     function findCreatorDetail(data, slug){

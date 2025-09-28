@@ -208,7 +208,7 @@
 
     async function load(){
       try{
-        const res  = await fetch('/public/peeks.json?ts='+Date.now());
+        const res  = await fetch('/peeks.json?ts='+Date.now());
         if(!res.ok) throw new Error('http '+res.status);
         const data = await res.json();
         const cats = data.categories || {};
