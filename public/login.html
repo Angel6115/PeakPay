@@ -1,169 +1,206 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <link rel="preload" as="style" href="/styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/styles.min.css"></noscript>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>PeekPay — Iniciar sesión</title>
   <link rel="icon" href="/favicon.ico">
+  <link rel="preload" as="style" href="/styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/styles.min.css"></noscript>
   <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
   <style>
     :root{
       --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
-      --ok:#059669; --err:#b91c1c;
-      --indigo:#4f46e5; --blue:#2563eb; --indigo-soft:#eef2ff;
+      --indigo:#4f46e5; --blue:#2563eb; --ok:#059669; --err:#b91c1c; --indigo-soft:#eef2ff;
     }
-    *{ box-sizing:border-box }
-    body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
-    .wrap{ max-width:820px; margin:0 auto; padding:28px 16px 64px }
-
-    .head{ display:flex; align-items:center; gap:10px; }
-    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.06) }
-    .brand h1{ margin:0; font-size:18px }
-    .brand p{ margin:0; color:var(--muted); font-size:12px }
-
-    .panel{
-      border:1px solid var(--ring); background:var(--card);
-      border-radius:16px; padding:16px; margin-top:12px;
-      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif}
+    .wrap{max-width:820px;margin:0 auto;padding:28px 16px 56px}
+    .panel{border:1px solid var(--ring);background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 6px 14px rgba(79,70,229,.06)}
+    header{display:flex;align-items:center;gap:10px}
+    header img{width:38px;height:38px;border-radius:10px;object-fit:cover;box-shadow:0 6px 14px rgba(79,70,229,.08)}
+    .brand small{color:var(--muted)}
+    .row{display:grid;gap:10px}
+    @media(min-width:760px){ .row{grid-template-columns:1fr 1fr} }
+    label{font-size:12px;color:var(--muted)}
+    input{
+      width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--ring);background:#fff;font-size:14px;outline:none;
     }
-    .title{ display:flex; align-items:center; justify-content:space-between; gap:10px }
-    .title h2{ margin:0; font-size:20px }
-    .subtitle{ margin:6px 0 12px; color:var(--muted); font-size:14px }
-
+    input:focus{border-color:#c7d2fe;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
     .btn{
-      border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
-      color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none;
-      box-shadow: 0 6px 16px rgba(79,70,229,.25); white-space:nowrap; display:inline-block;
+      border:0;background:linear-gradient(90deg,var(--indigo) 0%,var(--blue) 100%);color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;
+      box-shadow:0 6px 16px rgba(79,70,229,.25)
     }
-    .btn:hover{ filter: brightness(1.05) }
-    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
-
-    .form-grid{ display:grid; gap:12px }
-    .field{ display:flex; flex-direction:column; gap:6px }
-    .field label{ font-size:13px; color:var(--muted) }
-    .input{
-      padding:12px 12px; border-radius:12px; border:1px solid var(--ring); background:#fff; color:var(--text);
-      outline:none;
-    }
-    .input:focus{ box-shadow:0 0 0 3px #dbeafe; border-color:#93c5fd }
-    .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
-    .row{ display:flex; gap:8px; align-items:center }
-    .grow{ flex:1 }
-    .err{ color:var(--err); font-size:13px; min-height:18px; margin-top:6px }
-    .ok{ color:var(--ok); font-size:13px; min-height:18px; margin-top:6px }
-    .muted{ color:var(--muted) }
-    .links{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:6px }
-    .cta-banner{
-      margin:12px 0 0; padding:12px; border:1px dashed #c7d2fe; background:var(--indigo-soft);
-      border-radius:12px; color:#1e1b4b; font-size:14px; display:flex; justify-content:space-between; gap:8px; align-items:center;
-    }
+    .btn.secondary{background:#fff;color:var(--indigo);border:1px solid var(--ring);box-shadow:none}
+    .hint{font-size:12px;color:var(--muted)}
+    .msg{font-size:13px;margin-top:8px}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .footer{margin-top:10px;padding:10px;border:1px solid var(--ring);background:#fff;border-radius:12px;font-size:13px}
+    .right{margin-left:auto}
+    .eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:12px;color:var(--muted)}
+    .field{position:relative}
+    .pill{display:inline-block;font-size:11px;background:var(--indigo-soft);color:#1e1b4b;border:1px solid #c7d2fe;border-radius:999px;padding:2px 8px;vertical-align:middle}
   </style>
-  <link rel="preconnect" href="https://plausible.io">
 </head>
 <body>
   <div class="wrap">
-    <div class="head">
-      <header><img src="/peak1.png" alt="PeekPay"></header>
+    <header>
+      <img src="/peak1.png" alt="PeekPay">
       <div class="brand">
-        <h1>PeekPay</h1>
-        <p>Confidencialidad primero</p>
+        <div><strong>PeekPay</strong></div>
+        <small>Confidencialidad primero</small>
       </div>
-    </div>
+      <div class="right actions">
+        <a class="btn secondary" href="/signup.html">Crear cuenta</a>
+      </div>
+    </header>
 
     <section class="panel">
-      <div class="title">
-        <h2>Inicia sesión</h2>
-        <a class="btn secondary" href="/signup">Crear cuenta</a>
-      </div>
-      <p class="subtitle">Accede con tu email y contraseña. Luego podrás activar 2FA.</p>
+      <h2 style="margin:0 0 10px">Inicia sesión</h2>
+      <p class="hint">Accede con tu email y contraseña. Luego podrás activar 2FA.</p>
 
-      <form id="login" class="form-grid" novalidate>
-        <div class="field">
+      <div class="row">
+        <div>
           <label for="email">Email</label>
-          <input id="email" name="email" type="email" class="input" inputmode="email" autocomplete="email" required placeholder="tú@correo.com" />
+          <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="tú@correo.com">
         </div>
-
         <div class="field">
           <label for="pass">Contraseña</label>
-          <div class="row">
-            <input id="pass" name="pass" type="password" class="input grow" required autocomplete="current-password" placeholder="Tu contraseña" />
-            <button type="button" id="toggle" class="btn secondary" aria-pressed="false">Ver</button>
-          </div>
+          <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••••">
+          <span id="toggle" class="eye">Mostrar</span>
         </div>
+      </div>
 
-        <div class="actions">
-          <button type="submit" id="submitBtn" class="btn">Entrar</button>
-          <a class="btn secondary" href="/reset.html">¿Olvidaste tu contraseña?</a>
-        </div>
+      <div class="actions" style="margin-top:12px">
+        <button id="btn" class="btn">Entrar</button>
+        <a class="btn secondary" href="/signup.html">Crear cuenta</a>
+        <a id="forgot" class="hint" href="#" rel="nofollow">¿Olvidaste tu contraseña?</a>
+        <span id="msg" class="msg" role="status" aria-live="polite"></span>
+      </div>
 
-        <div id="msg" class="err"></div>
-
-        <div class="cta-banner">
-          <span>¿Aún no tienes cuenta? Únete en 30 segundos.</span>
-          <a class="btn" href="/signup">Crear cuenta</a>
-        </div>
-      </form>
+      <div class="footer">
+        <span class="pill">Privacidad primero</span> ·
+        <span class="pill">Sin tarjetas en fase temprana</span> ·
+        <span class="pill">Verificación por email</span>
+      </div>
     </section>
   </div>
 
   <script>
-    // Base de API (usa origin por defecto; permite override con localStorage)
+    // === API base (igual que en signup): usa location.origin si no hay override ===
     const API = ((localStorage.getItem('pp_api_base')||location.origin)+'').replace(/\/+$/,'');
+    const qs  = new URLSearchParams(location.search);
+    const nextUrl = qs.get('next') || localStorage.getItem('pp_login_next') || '/peek.html';
 
-    const form = document.getElementById('login');
-    const email = document.getElementById('email');
-    const pass = document.getElementById('pass');
-    const toggle = document.getElementById('toggle');
-    const msg = document.getElementById('msg');
-    const btn = document.getElementById('submitBtn');
+    const $ = (s)=>document.querySelector(s);
+    const email = $('#email');
+    const pass  = $('#pass');
+    const btn   = $('#btn');
+    const msg   = $('#msg');
+    const toggle= $('#toggle');
 
-    function setMsg(t, ok){ msg.textContent = t || ''; msg.className = ok ? 'ok' : 'err'; }
+    // Pre-carga email si viene de signup/recordado
+    (()=>{ const e = localStorage.getItem('pp_email'); if(e) email.value = e; })();
 
-    toggle.addEventListener('click', ()=>{
-      const vis = pass.type === 'password' ? 'text' : 'password';
-      pass.type = vis;
-      const pressed = toggle.getAttribute('aria-pressed') === 'true';
-      toggle.setAttribute('aria-pressed', String(!pressed));
-      toggle.textContent = vis === 'text' ? 'Ocultar' : 'Ver';
-    });
+    toggle.onclick = ()=>{
+      const t = pass.getAttribute('type') === 'password' ? 'text':'password';
+      pass.setAttribute('type', t);
+      toggle.textContent = t==='password' ? 'Mostrar' : 'Ocultar';
+    };
 
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault(); setMsg('');
-      const em = (email.value||'').trim();
-      const pw = pass.value||'';
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return setMsg('Email inválido.');
-      if (!pw) return setMsg('Ingresa tu contraseña.');
+    function setMsg(text, ok=false){
+      msg.textContent = text||'';
+      msg.className = 'msg ' + (ok?'ok':'err');
+    }
 
-      btn.disabled = true; btn.textContent = 'Entrando…';
+    function isEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s||'')); }
+
+    async function doLogin(){
+      setMsg('');
+      let e = (email.value||'').trim().toLowerCase();
+      let p = (pass.value||'').trim();
+      if (!isEmail(e)){ setMsg('Email inválido'); return; }
+      if (!p){ setMsg('Ingresa tu contraseña'); return; }
+
+      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Entrando…';
+
       try{
         const r = await fetch(API + '/api/auth/login', {
           method:'POST',
           headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ email: em, password: pw })
+          body: JSON.stringify({ email:e, password:p })
         });
-        const j = await r.json().catch(()=>({}));
-        if (r.ok && j && j.ok){
-          setMsg('¡Listo! Sesión iniciada.', true);
-          // Aquí podrías redirigir a /app o dashboard:
-          // location.href = '/app.html';
-        } else {
-          const code = (j && j.error) || 'auth_error';
-          if (code==='invalid_credentials') setMsg('Credenciales inválidas. Verifica tu email/contraseña.');
-          else if (code==='invalid_email') setMsg('Email inválido.');
-          else setMsg('No se pudo iniciar sesión. Intenta de nuevo.');
+        const j = await r.json().catch(()=> ({}));
+
+        if (!r.ok){
+          // Normaliza mensajes del backend
+          if (j?.error === 'invalid_email'){ setMsg('Email inválido'); }
+          else if (j?.error === 'missing_password'){ setMsg('Falta la contraseña'); }
+          else if (j?.error === 'invalid_credentials'){ setMsg('Email o contraseña incorrectos'); }
+          else if (j?.error === 'auth_error'){ setMsg(j.detail || 'No pudimos iniciar sesión'); }
+          else { setMsg('No pudimos iniciar sesión. Intenta de nuevo.'); }
+          return;
         }
-      }catch{
-        setMsg('No se pudo conectar. Reintenta.', false);
+
+        // Esperamos { ok:true, user:{…}, session:{ access_token, expires_at, … } }
+        const session = j?.session;
+        const user    = j?.user;
+        if (!session?.access_token){
+          setMsg('Respuesta de login incompleta'); return;
+        }
+
+        // Guarda sesión & email para autocompletar
+        localStorage.setItem('pp_session', JSON.stringify(session));
+        if (user?.email) localStorage.setItem('pp_email', user.email);
+
+        // Verifica token inmediatamente contra /api/auth/session
+        try{
+          const r2 = await fetch(API + '/api/auth/session', {
+            headers:{ Authorization: 'Bearer '+session.access_token }
+          });
+          if (!r2.ok){
+            // Si aquí falla, mostramos detalle pero igual redirigimos (el token existe)
+            const jj = await r2.json().catch(()=>null);
+            console.warn('session check failed', jj || r2.status);
+          }
+        }catch(_e){}
+
+        // OK
+        try{ window.plausible && plausible('login_ok'); }catch(_e){}
+        setMsg('¡Listo! Sesión iniciada.', true);
+
+        // Redirección (respeta ?next=)
+        localStorage.removeItem('pp_login_next');
+        setTimeout(()=> location.href = nextUrl, 400);
+      }catch(e){
+        setMsg('Error de red. Intenta de nuevo.');
       }finally{
-        btn.disabled = false; btn.textContent = 'Entrar';
+        btn.disabled = false; btn.textContent = old;
       }
+    }
+
+    btn.addEventListener('click', doLogin);
+    pass.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter') doLogin(); });
+    email.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter') doLogin(); });
+
+    // Forgot password: abre flujo de Supabase por correo
+    document.getElementById('forgot').addEventListener('click', async (ev)=>{
+      ev.preventDefault();
+      const e = (email.value||'').trim().toLowerCase();
+      if (!isEmail(e)){ setMsg('Escribe tu email arriba para enviarte el enlace.'); return; }
+      try{
+        const r = await fetch(API + '/api/auth/reset-request', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ email:e, redirectTo: location.origin + '/login.html' })
+        });
+        if (r.ok){ setMsg('Te enviamos un enlace para restablecer tu contraseña.', true); }
+        else { setMsg('No pudimos enviar el enlace.'); }
+      }catch(_e){ setMsg('No pudimos enviar el enlace.'); }
     });
 
-    // Tracking simple
-    document.querySelectorAll('.btn').forEach(b=>{
-      b.addEventListener('click', ()=>{ try{ if(window.plausible){ plausible('login_cta', { props:{ label: b.textContent.trim() } }) } }catch(e){} });
-    });
+    // Si venías de otra página “protegida”, recuerda next por si refrescas
+    if (qs.get('next')) localStorage.setItem('pp_login_next', qs.get('next'));
   </script>
 </body>
 </html>
