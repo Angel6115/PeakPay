@@ -23,12 +23,13 @@
     .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 64px }
 
     /* Header + nav consistente */
-    .head{ display:flex; align-items:center; gap:10px; }
+    .head{ display:flex; align-items:center; gap:10px; justify-content:space-between; }
+    header{ display:flex; align-items:center; gap:10px; }
     header img{ width:44px; height:44px; border-radius:12px; object-fit:cover;
       box-shadow:0 6px 14px rgba(79,70,229,.06) }
     .brand h1{ margin:0; font-size:18px }
     .brand p{ margin:0; color:var(--muted); font-size:12px }
-    .nav-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; margin-left:54px }
+    .nav-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
     @media (max-width:520px){ .nav-row{ margin-left:0 } }
 
     .btn{
@@ -116,18 +117,28 @@
   <div class="wrap">
     <!-- Header + nav -->
     <div class="head">
-      <header>
-        <img src="/peak1.png" alt="PeekPay logo">
-      </header>
-      <div class="brand">
-        <h1>PeekPay</h1>
-        <p>Unblur your curiosity</p>
+      <div style="display:flex;align-items:center;gap:10px">
+        <header>
+          <img src="/peak1.png" alt="PeekPay logo">
+        </header>
+        <div class="brand">
+          <h1>PeekPay</h1>
+          <p>Unblur your curiosity</p>
+        </div>
+      </div>
+
+      <!-- Acciones principales: Entrar / Crear cuenta -->
+      <div class="nav-row" aria-label="Acciones">
+        <a class="btn secondary" href="/login.html" id="btnLoginHeader">Entrar</a>
+        <a class="btn" href="/signup.html" id="btnSignupHeader">Crear cuenta</a>
       </div>
     </div>
+
+    <!-- Atajos secundarios -->
     <nav class="nav-row" aria-label="Atajos">
-      <a class="btn" href="./categories.html">Categorías</a>
-      <a class="btn" href="./creators.html">Creadores</a>
-      <a class="btn" href="./wallet.html">Wallet</a>
+      <a class="btn" href="/categories.html">Categorías</a>
+      <a class="btn" href="/creators.html">Creadores</a>
+      <a class="btn" href="/wallet.html">Wallet</a>
     </nav>
 
     <!-- HERO -->
@@ -139,8 +150,9 @@
           gana puntos por racha y disfruta contenido con privacidad.
         </p>
         <div class="cta-row">
-          <a class="btn" href="#roles">Crear cuenta</a>
-          <a class="btn secondary" href="./creators.html">Explorar primero</a>
+          <a class="btn" href="/signup.html">Crear cuenta</a>
+          <a class="btn secondary" href="/login.html">Entrar</a>
+          <a class="btn secondary" href="/creators.html">Explorar primero</a>
         </div>
         <p class="tiny" style="margin-top:8px">Sin tarjetas aún — acceso temprano. Podrás cambiar a plan de pago luego.</p>
       </div>
@@ -160,24 +172,24 @@
           <h3>Como Usuario</h3>
           <p>Explora perfiles, desbloquea en packs y arma la imagen completa. Gana puntos y bonos semanales.</p>
           <div class="actions">
-            <a class="btn" href="./signup.html?role=usuario">Crear cuenta</a>
-            <a class="btn secondary" href="./peek.html">Ver demo</a>
+            <a class="btn" href="/signup.html?role=usuario">Crear cuenta</a>
+            <a class="btn secondary" href="/peek.html">Ver demo</a>
           </div>
         </article>
         <article class="role">
           <h3>Como Creador/a</h3>
           <p>Publica sets en mosaico y monetiza cada desbloqueo. Controla vistas previas y precios.</p>
           <div class="actions">
-            <a class="btn" href="./signup.html?role=creador">Quiero monetizar</a>
-            <a class="btn secondary" href="./creators.html">Ver creadores</a>
+            <a class="btn" href="/signup.html?role=creador">Quiero monetizar</a>
+            <a class="btn secondary" href="/creators.html">Ver creadores</a>
           </div>
         </article>
         <article class="role">
           <h3>Ambos</h3>
           <p>Consume y crea. Desbloquea contenido mientras construyes tu comunidad con peeks.</p>
           <div class="actions">
-            <a class="btn" href="./signup.html?role=ambos">Empezar ahora</a>
-            <a class="btn secondary" href="./categories.html">Explorar categorías</a>
+            <a class="btn" href="/signup.html?role=ambos">Empezar ahora</a>
+            <a class="btn secondary" href="/categories.html">Explorar categorías</a>
           </div>
         </article>
       </div>
@@ -206,11 +218,11 @@
     <section class="panel" aria-labelledby="cats-title">
       <h3 id="cats-title" style="margin:0 0 8px">Explora por categoría</h3>
       <div class="cats">
-        <a class="cat" href="./creators.html?cat=lenceria">Lencería</a>
-        <a class="cat" href="./creators.html?cat=fitness">Fitness</a>
-        <a class="cat" href="./creators.html?cat=arte">Arte Corporal</a>
-        <a class="cat" href="./creators.html?cat=artistico">Artístico</a>
-        <a class="cat" href="./creators.html?cat=cosplay">Cosplay</a>
+        <a class="cat" href="/creators.html?cat=lenceria">Lencería</a>
+        <a class="cat" href="/creators.html?cat=fitness">Fitness</a>
+        <a class="cat" href="/creators.html?cat=arte">Arte Corporal</a>
+        <a class="cat" href="/creators.html?cat=artistico">Artístico</a>
+        <a class="cat" href="/creators.html?cat=cosplay">Cosplay</a>
       </div>
     </section>
 
@@ -271,7 +283,7 @@
     })();
 
     // Guarda rol de signup (si existe esa vista luego)
-    document.querySelectorAll('a[href^="./signup.html"]').forEach(a=>{
+    document.querySelectorAll('a[href^="/signup.html"]').forEach(a=>{
       try{
         const u = new URL(a.href, location.origin);
         const role = u.searchParams.get('role');
@@ -280,7 +292,7 @@
     });
 
     // Tracking de CTA
-    document.querySelectorAll('.cta-row .btn, .role .btn').forEach(b=>{
+    document.querySelectorAll('.cta-row .btn, .role .btn, #btnLoginHeader, #btnSignupHeader').forEach(b=>{
       b.addEventListener('click', ()=> {
         try{ if(window.plausible){ plausible('landing_cta', { props:{ label: b.textContent.trim() } }) } }catch(e){}
       });
