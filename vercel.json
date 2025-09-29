@@ -3,9 +3,6 @@
   "public": true,
   "cleanUrls": true,
   "trailingSlash": false,
-  "redirects": [
-    { "source": "/", "destination": "/index.html", "permanent": false }
-  ],
   "headers": [
     {
       "source": "/(.*)\\.(css|js)",
