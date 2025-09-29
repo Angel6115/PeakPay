@@ -1,97 +1,87 @@
-// api/auth-signup.js
 import { publicClient, adminClient } from './_lib/supabase.mjs';
 import { withCORS } from './_lib/cors.mjs';
 
-const isEmail  = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || ''));
-const isHandle = (s) => /^[a-z0-9._]{3,30}$/.test(String(s || ''));
-const strongPass = (s) => {
-  s = String(s || '');
-  return s.length >= 10 && /[A-Z]/.test(s) && /[a-z]/.test(s) && /\d/.test(s);
-};
+function isEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s||'')); }
+function isHandle(s){ return /^[a-z0-9._]{3,30}$/.test(String(s||'')); }
+function strongPass(s){
+  s = String(s||'');
+  return s.length>=10 && /[A-Z]/.test(s) && /[a-z]/.test(s) && /\d/.test(s);
+}
 
-export default async function handler(req, res) {
-  // Resuelve preflight y fija cabeceras CORS
+export default async function handler(req, res){
   if (withCORS(req, res)) return;
 
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST, OPTIONS');
-    return res.status(405).json({ error: 'method_not_allowed' });
+  if (req.method !== 'POST'){
+    res.setHeader('Allow','POST, OPTIONS');
+    return res.status(405).json({ ok:false, error:'method_not_allowed' });
   }
 
-  // Intenta parsear el cuerpo como JSON; si ya viene objeto, úsalo.
   let body = {};
   try {
-    body =
-      typeof req.body === 'string'
-        ? JSON.parse(req.body || '{}')
-        : (req.body || {});
+    body = typeof req.body === 'string' ? JSON.parse(req.body||'{}') : (req.body||{});
   } catch {
-    body = {};
+    console.warn('[signup] JSON body parse failed');
+    return res.status(400).json({ ok:false, error:'invalid_json' });
   }
 
-  // Normalización
-  const emailRaw   = (body.email || '').trim();
-  const password   = String(body.password || '');
-  const handleRaw  = (body.handle || '').trim();
-  const displayRaw = (body.display_name || '').trim();
-  const countryRaw = (body.country || '').trim();
-  const roleRaw    = (body.role || '').trim();
-  const news       = body.news ? 1 : 0;
-
-  const email  = emailRaw.toLowerCase();
-  const handle = handleRaw.toLowerCase();
+  const {
+    email, password, handle,
+    display_name = '', country = '', role = '', news = 0
+  } = body || {};
 
   // Validaciones
-  if (!isEmail(email))       return res.status(400).json({ error: 'invalid_email' });
-  if (!isHandle(handle))     return res.status(400).json({ error: 'invalid_handle' });
-  if (!strongPass(password)) return res.status(400).json({ error: 'weak_password' });
+  if (!isEmail(email))       return res.status(400).json({ ok:false, error:'invalid_email' });
+  if (!isHandle(handle))     return res.status(400).json({ ok:false, error:'invalid_handle' });
+  if (!strongPass(password)) return res.status(400).json({ ok:false, error:'weak_password' });
 
-  try {
-    // URL de retorno para la confirmación por correo
-    const origin =
-      process.env.SITE_ORIGIN ||
-      (req.headers?.host ? `https://${req.headers.host}` : '');
+  try{
+    const origin = process.env.SITE_ORIGIN || `https://${req.headers.host}`;
     const emailRedirectTo = `${origin}/check-email`;
 
-    // Alta en Supabase Auth (email + password)
-    const { data, error: authError } = await publicClient.auth.signUp({
-      email,
-      password,
+    console.log('[signup] attempting', { email, handle, emailRedirectTo });
+
+    // Registro en Supabase
+    const { data, error:authError } = await publicClient.auth.signUp({
+      email, password,
       options: { emailRedirectTo }
     });
 
-    if (authError) {
+    if (authError){
       const msg = (authError.message || '').toLowerCase();
-      if (msg.includes('already registered') || msg.includes('already exists')) {
-        return res.status(409).json({ error: 'email_in_use' });
+      console.warn('[signup] supabase auth error:', authError.message);
+      if (msg.includes('already registered') || msg.includes('already exists')){
+        return res.status(409).json({ ok:false, error:'email_in_use', detail: authError.message });
       }
-      return res.status(400).json({ error: 'auth_error', detail: authError.message });
+      return res.status(400).json({ ok:false, error:'auth_error', detail: authError.message });
     }
 
     const userId = data?.user?.id;
 
-    // Crea perfil (soft-fail si no hay tabla o políticas todavía)
-    if (adminClient && userId) {
-      try {
-        await adminClient
+    // Perfil (si existe tabla/permite)
+    if (adminClient && userId){
+      try{
+        const { error:profileErr } = await adminClient
           .from('profiles')
           .insert({
             id: userId,
-            handle,
-            display_name: displayRaw,
-            country: countryRaw,
-            role: roleRaw,
-            news
+            handle: String(handle).toLowerCase(),
+            display_name,
+            country,
+            role,
+            news: news ? 1 : 0
           });
-      } catch {
-        // No bloquea el signup si la tabla/políticas aún no están listas
+
+        if (profileErr){
+          console.warn('[signup] profile insert error (non-blocking):', profileErr.message);
+        }
+      }catch(e){
+        console.warn('[signup] profile insert exception (non-blocking):', e?.message || String(e));
       }
     }
 
-    return res.status(200).json({ ok: true });
-  } catch (e) {
-    return res
-      .status(500)
-      .json({ error: 'internal_error', detail: e?.message || String(e) });
+    return res.status(200).json({ ok:true });
+  }catch(e){
+    console.error('[signup] unexpected:', e?.message || String(e));
+    return res.status(500).json({ ok:false, error:'internal_error', detail: e?.message || String(e) });
   }
 }
