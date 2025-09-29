@@ -1,26 +1,22 @@
-cd ~/Desktop/PeakPay
-
-# crear/actualizar vercel.json
-cat > vercel.json <<'JSON'
 {
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
     {
-      "source": "/(.*)\\.(css|js)",
+      "source": "/(.*)\\.(css|js)$",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
     {
-      "source": "/(.*)\\.(png|jpg|jpeg|webp|ico|svg|woff2?)",
+      "source": "/(.*)\\.(png|jpg|jpeg|webp|ico|svg|woff2?)$",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
     {
-      "source": "/(.*)\\.(json|xml)",
+      "source": "/(.*)\\.(json|xml)$",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=60" }]
     },
     {
-      "source": "/(.*)\\.html",
+      "source": "/(.*)\\.html$",
       "headers": [{ "key": "Cache-Control", "value": "no-store" }]
     },
     {
