@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://peak-pay.vercel.app/index.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://peak-pay.vercel.app/categories.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://peak-pay.vercel.app/creators.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://peak-pay.vercel.app/peek.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://peak-pay.vercel.app/signup.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://peak-pay.vercel.app/wallet.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://peak-pay.vercel.app/profile.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://peak-pay.vercel.app/check-email.html</loc><changefreq>weekly</changefreq></url>
+</urlset>
