@@ -1,19 +1,21 @@
 import { adminClient } from '../_lib/supabase.mjs';
+import { withCORS } from '../_lib/cors.mjs';
 
 export default async function handler(req, res) {
+  if (withCORS(req, res)) return;
+
   const { handle } = req.query || {};
   const h = String(handle || '').toLowerCase().trim();
 
-  // validación básica
   if (!/^[a-z0-9._]{3,30}$/.test(h)) {
     return res.status(400).json({ available: false, reason: 'invalid' });
   }
 
-  // Si no hay adminClient o aún no hay tabla, responde disponible=true
+  // Si aún no hay tabla o no queremos consultar, devolvemos disponible=true
   if (!adminClient) return res.status(200).json({ available: true });
 
   try {
-    // Descomenta cuando tengas tabla "profiles" con columna "handle"
+    // Cuando tengas tabla "profiles" con columna "handle", descomenta:
     // const { data, error } = await adminClient
     //   .from('profiles')
     //   .select('id', { count: 'exact', head: true })
@@ -22,7 +24,7 @@ export default async function handler(req, res) {
     // const available = (data?.length ?? 0) === 0;
     // return res.status(200).json({ available });
 
-    // Placeholder mientras no exista la tabla:
+    // Placeholder por ahora:
     return res.status(200).json({ available: true });
   } catch (e) {
     return res.status(200).json({ available: true });
