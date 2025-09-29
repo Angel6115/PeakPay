@@ -1,6 +1,9 @@
+cd ~/Desktop/PeakPay
+
+# crear/actualizar vercel.json
+cat > vercel.json <<'JSON'
 {
   "version": 2,
-  "public": true,
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
