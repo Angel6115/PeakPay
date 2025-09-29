@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="preload" as="style" href="/styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/styles.min.css"></noscript>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Iniciar sesión</title>
+  <link rel="icon" href="/favicon.ico">
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+  <style>
+    :root{
+      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c;
+      --indigo:#4f46e5; --blue:#2563eb; --indigo-soft:#eef2ff;
+    }
+    *{ box-sizing:border-box }
+    body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
+    .wrap{ max-width:820px; margin:0 auto; padding:28px 16px 64px }
+
+    .head{ display:flex; align-items:center; gap:10px; }
+    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    .brand h1{ margin:0; font-size:18px }
+    .brand p{ margin:0; color:var(--muted); font-size:12px }
+
+    .panel{
+      border:1px solid var(--ring); background:var(--card);
+      border-radius:16px; padding:16px; margin-top:12px;
+      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    }
+    .title{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+    .title h2{ margin:0; font-size:20px }
+    .subtitle{ margin:6px 0 12px; color:var(--muted); font-size:14px }
+
+    .btn{
+      border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
+      color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none;
+      box-shadow: 0 6px 16px rgba(79,70,229,.25); white-space:nowrap; display:inline-block;
+    }
+    .btn:hover{ filter: brightness(1.05) }
+    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
+
+    .form-grid{ display:grid; gap:12px }
+    .field{ display:flex; flex-direction:column; gap:6px }
+    .field label{ font-size:13px; color:var(--muted) }
+    .input{
+      padding:12px 12px; border-radius:12px; border:1px solid var(--ring); background:#fff; color:var(--text);
+      outline:none;
+    }
+    .input:focus{ box-shadow:0 0 0 3px #dbeafe; border-color:#93c5fd }
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
+    .row{ display:flex; gap:8px; align-items:center }
+    .grow{ flex:1 }
+    .err{ color:var(--err); font-size:13px; min-height:18px; margin-top:6px }
+    .ok{ color:var(--ok); font-size:13px; min-height:18px; margin-top:6px }
+    .muted{ color:var(--muted) }
+    .links{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:6px }
+    .cta-banner{
+      margin:12px 0 0; padding:12px; border:1px dashed #c7d2fe; background:var(--indigo-soft);
+      border-radius:12px; color:#1e1b4b; font-size:14px; display:flex; justify-content:space-between; gap:8px; align-items:center;
+    }
+  </style>
+  <link rel="preconnect" href="https://plausible.io">
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <header><img src="/peak1.png" alt="PeekPay"></header>
+      <div class="brand">
+        <h1>PeekPay</h1>
+        <p>Confidencialidad primero</p>
+      </div>
+    </div>
+
+    <section class="panel">
+      <div class="title">
+        <h2>Inicia sesión</h2>
+        <a class="btn secondary" href="/signup">Crear cuenta</a>
+      </div>
+      <p class="subtitle">Accede con tu email y contraseña. Luego podrás activar 2FA.</p>
+
+      <form id="login" class="form-grid" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" class="input" inputmode="email" autocomplete="email" required placeholder="tú@correo.com" />
+        </div>
+
+        <div class="field">
+          <label for="pass">Contraseña</label>
+          <div class="row">
+            <input id="pass" name="pass" type="password" class="input grow" required autocomplete="current-password" placeholder="Tu contraseña" />
+            <button type="button" id="toggle" class="btn secondary" aria-pressed="false">Ver</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="submitBtn" class="btn">Entrar</button>
+          <a class="btn secondary" href="/reset.html">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div id="msg" class="err"></div>
+
+        <div class="cta-banner">
+          <span>¿Aún no tienes cuenta? Únete en 30 segundos.</span>
+          <a class="btn" href="/signup">Crear cuenta</a>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    // Base de API (usa origin por defecto; permite override con localStorage)
+    const API = ((localStorage.getItem('pp_api_base')||location.origin)+'').replace(/\/+$/,'');
+
+    const form = document.getElementById('login');
+    const email = document.getElementById('email');
+    const pass = document.getElementById('pass');
+    const toggle = document.getElementById('toggle');
+    const msg = document.getElementById('msg');
+    const btn = document.getElementById('submitBtn');
+
+    function setMsg(t, ok){ msg.textContent = t || ''; msg.className = ok ? 'ok' : 'err'; }
+
+    toggle.addEventListener('click', ()=>{
+      const vis = pass.type === 'password' ? 'text' : 'password';
+      pass.type = vis;
+      const pressed = toggle.getAttribute('aria-pressed') === 'true';
+      toggle.setAttribute('aria-pressed', String(!pressed));
+      toggle.textContent = vis === 'text' ? 'Ocultar' : 'Ver';
+    });
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault(); setMsg('');
+      const em = (email.value||'').trim();
+      const pw = pass.value||'';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return setMsg('Email inválido.');
+      if (!pw) return setMsg('Ingresa tu contraseña.');
+
+      btn.disabled = true; btn.textContent = 'Entrando…';
+      try{
+        const r = await fetch(API + '/api/auth/login', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ email: em, password: pw })
+        });
+        const j = await r.json().catch(()=>({}));
+        if (r.ok && j && j.ok){
+          setMsg('¡Listo! Sesión iniciada.', true);
+          // Aquí podrías redirigir a /app o dashboard:
+          // location.href = '/app.html';
+        } else {
+          const code = (j && j.error) || 'auth_error';
+          if (code==='invalid_credentials') setMsg('Credenciales inválidas. Verifica tu email/contraseña.');
+          else if (code==='invalid_email') setMsg('Email inválido.');
+          else setMsg('No se pudo iniciar sesión. Intenta de nuevo.');
+        }
+      }catch{
+        setMsg('No se pudo conectar. Reintenta.', false);
+      }finally{
+        btn.disabled = false; btn.textContent = 'Entrar';
+      }
+    });
+
+    // Tracking simple
+    document.querySelectorAll('.btn').forEach(b=>{
+      b.addEventListener('click', ()=>{ try{ if(window.plausible){ plausible('login_cta', { props:{ label: b.textContent.trim() } }) } }catch(e){} });
+    });
+  </script>
+</body>
+</html>

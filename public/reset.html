@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="preload" as="style" href="/styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/styles.min.css"></noscript>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Restablecer contraseña</title>
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root{
+      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c; --indigo:#4f46e5; --blue:#2563eb;
+    }
+    *{ box-sizing:border-box }
+    body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
+    .wrap{ max-width:620px; margin:0 auto; padding:28px 16px 64px }
+    .panel{ border:1px solid var(--ring); background:var(--card); border-radius:16px; padding:16px; margin-top:12px; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    .btn{ border:0; background:linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none; box-shadow:0 6px 16px rgba(79,70,229,.25) }
+    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring) }
+    .field{ display:flex; flex-direction:column; gap:6px }
+    .input{ padding:12px 12px; border-radius:12px; border:1px solid var(--ring); background:#fff; color:var(--text) }
+    .input:focus{ box-shadow:0 0 0 3px #dbeafe; border-color:#93c5fd }
+    .row{ display:flex; gap:8px; align-items:center; margin-top:8px }
+    .grow{ flex:1 }
+    .msg{ font-size:13px; min-height:18px; margin-top:8px }
+    .ok{ color:var(--ok) } .err{ color:var(--err) }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2 style="margin:0 0 8px;">Restablecer contraseña</h2>
+    <p style="color:var(--muted); margin:0 0 12px">Ingresa tu email y te enviaremos un enlace para crear una nueva contraseña.</p>
+    <section class="panel">
+      <form id="reset">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" class="input" type="email" required placeholder="tú@correo.com" autocomplete="email">
+        </div>
+        <div class="row">
+          <button class="btn" type="submit" id="sendBtn">Enviar enlace</button>
+          <a class="btn secondary" href="/login.html">Volver</a>
+        </div>
+        <div id="msg" class="msg"></div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const API = ((localStorage.getItem('pp_api_base')||location.origin)+'').replace(/\/+$/,'');
+    const form = document.getElementById('reset');
+    const email = document.getElementById('email');
+    const btn = document.getElementById('sendBtn');
+    const msg = document.getElementById('msg');
+    function setMsg(t,ok){ msg.textContent=t||''; msg.className='msg ' + (ok?'ok':'err'); }
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault(); setMsg('');
+      const em = (email.value||'').trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return setMsg('Email inválido.', false);
+
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try{
+        const r = await fetch(API + '/api/auth/reset-request', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ email: em })
+        });
+        const j = await r.json().catch(()=>({}));
+        if (r.ok && j && j.ok){ setMsg('Revisa tu correo. Si no llega, mira “Spam”.', true); }
+        else { setMsg('No se pudo enviar el enlace. Intenta más tarde.', false); }
+      }catch{
+        setMsg('Error de red. Intenta de nuevo.', false);
+      }finally{
+        btn.disabled = false; btn.textContent = 'Enviar enlace';
+      }
+    });
+  </script>
+</body>
+</html>
