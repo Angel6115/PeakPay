@@ -2,7 +2,7 @@ import { publicClient } from '../_lib/supabase.mjs';
 import { withCORS } from '../_lib/cors.mjs';
 
 export default async function handler(req, res) {
-  // CORS (maneja preflight)
+  // Maneja CORS y preflight
   if (withCORS(req, res)) return;
 
   if (req.method !== 'GET') {
@@ -10,21 +10,31 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
-  // Aceptamos Authorization: Bearer <jwt> o X-PP-Token
+  // Extrae Bearer token
   const auth = req.headers.authorization || '';
-  const bearer = auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : '';
-  const token = bearer || req.headers['x-pp-token'];
+  const m = auth.match(/^Bearer\s+(.+)$/i);
+  if (!m) return res.status(401).json({ ok: false, error: 'missing_token' });
 
-  if (!token) return res.status(401).json({ ok:false, error: 'missing_token' });
+  const token = m[1];
 
   try {
+    // Valida el token con Supabase
     const { data, error } = await publicClient.auth.getUser(token);
-    if (error || !data?.user) return res.status(401).json({ ok:false, error: 'invalid_token' });
 
-    // devolvemos lo mínimo
-    const user = { id: data.user.id, email: data.user.email };
-    return res.status(200).json({ ok:true, user });
+    if (error || !data?.user) {
+      return res.status(401).json({ ok: false, error: 'invalid_token' });
+    }
+
+    const u = data.user;
+    return res.status(200).json({
+      ok: true,
+      user: {
+        id: u.id,
+        email: u.email,
+        confirmed_at: u.email_confirmed_at || u.confirmed_at || null,
+      },
+    });
   } catch (e) {
-    return res.status(500).json({ ok:false, error:'internal_error', detail: e?.message || String(e) });
+    return res.status(500).json({ error: 'internal_error', detail: e?.message || String(e) });
   }
 }
