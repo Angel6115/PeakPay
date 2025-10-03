@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PeekPay — Creator Studio (Fase 0)</title>
+  <script src="./_header.js"></script>  <title>PeekPay — Creator Studio (Fase 0)</title>
   <link rel="icon" href="/favicon.ico">
   <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
 
@@ -42,7 +42,7 @@
 <body>
   <div class="wrap">
     <header>
-      <img src="/peak1.png" alt="PeekPay">
+      <img src="./peak1.png" alt="PeekPay">
       <div class="brand">
         <div style="font-weight:600;color:#0b1020">Creator Studio (Fase 0)</div>
         <div class="muted">Prepara tu set y descarga un ZIP listo para subir al proyecto</div>
@@ -239,5 +239,6 @@ http://localhost:5173/peek.html?creator=${creator}&s=${set}`;
       if (p.get('grid'))    $('#grid').value    = ['3','4','5'].includes(p.get('grid')) ? p.get('grid') : '4';
     })();
   </script>
+  <script src="./_header.js" defer></script>
 </body>
 </html>

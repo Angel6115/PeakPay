@@ -1,17 +1,16 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <link rel="preload" as="style" href="/styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/styles.min.css"></noscript>
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PeekPay — Descubre, desbloquea y gana</title>
+  <script src="./_header.js"></script>  <title>PeekPay — Descubre, desbloquea y gana</title>
 
-  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" href="./favicon.ico">
   <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
 
   <style>
     :root{
-      /* Tokens alineados con wallet/creators */
       --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
       --ok:#059669; --err:#b91c1c;
       --indigo:#4f46e5; --blue:#2563eb; --indigo-soft:#eef2ff;
@@ -22,7 +21,6 @@
 
     .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 64px }
 
-    /* Header */
     .head{ display:flex; align-items:center; gap:10px; justify-content:space-between; }
     header{ display:flex; align-items:center; gap:10px; }
     header img{ width:44px; height:44px; border-radius:12px; object-fit:cover;
@@ -41,14 +39,12 @@
     .btn:hover{ filter: brightness(1.05) }
     .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
 
-    /* Paneles */
     .panel{
       border:1px solid var(--ring); background:var(--card);
       border-radius:16px; padding:16px; margin-top:12px;
       box-shadow: 0 6px 14px rgba(79,70,229,.06);
     }
 
-    /* HERO con slideshow */
     .hero{ display:grid; gap:16px; align-items:center }
     @media (min-width:980px){ .hero{ grid-template-columns: 1.05fr .95fr } }
     .hero h2{ margin:0 0 6px; font-size:clamp(24px,5.4vw,40px); line-height:1.08 }
@@ -67,7 +63,6 @@
     .slide.active{ opacity:1 }
     .overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.35) 100%) }
 
-    /* Selector de rol (tarjetas) */
     .roles{ display:grid; gap:12px; margin-top:12px }
     @media (min-width:900px){ .roles{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
     .role{
@@ -78,17 +73,14 @@
     .role p{ margin:0; color:var(--muted); font-size:14px; flex:1 }
     .role .actions{ display:flex; gap:8px; flex-wrap:wrap }
 
-    /* Cómo funciona */
     .steps{ display:grid; gap:12px; margin-top:12px }
     @media (min-width:900px){ .steps{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
     .step{
       border:1px solid var(--ring); background:#fff; border-radius:14px; padding:14px;
-      box-shadow:0 6px 14px rgba(79,70,229,.06);
-    }
+    box-shadow:0 6px 14px rgba(79,70,229,.06);}
     .step h4{ margin:0 0 6px; font-size:15px }
     .step p{ margin:0; color:var(--muted); font-size:14px }
 
-    /* Categorías destacadas (locked) */
     .cats{ display:grid; gap:12px; margin-top:12px }
     @media (min-width:700px){ .cats{ grid-template-columns: repeat(5, minmax(0,1fr)); } }
     .cat{
@@ -128,7 +120,7 @@
     <div class="head">
       <div style="display:flex;align-items:center;gap:10px">
         <header>
-          <img src="/peak1.png" alt="PeekPay logo">
+          <img src="./peak1.png" alt="PeekPay logo">
         </header>
         <div class="brand">
           <h1>PeekPay</h1>
@@ -136,17 +128,16 @@
         </div>
       </div>
 
-      <!-- Acciones principales: Entrar / Crear cuenta -->
+      <!-- Acciones principales -->
       <div class="nav-row" aria-label="Acciones">
-        <a class="btn secondary" href="/login.html" id="btnLoginHeader">Entrar</a>
-        <a class="btn" href="/signup.html" id="btnSignupHeader">Crear cuenta</a>
+        <a class="btn secondary" href="/login" id="btnLoginHeader">Entrar</a>
+        <a class="btn" href="/signup" id="btnSignupHeader">Crear cuenta</a>
       </div>
     </div>
 
     <!-- Trust band -->
     <div class="panel" style="display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:10px">
       <span class="tiny">🔒 Privacidad primero</span>
-      <span class="tiny">💳 Sin tarjetas en fase temprana</span>
       <span class="tiny">📧 Verificación por email</span>
     </div>
     
@@ -159,16 +150,14 @@
           gana puntos por racha y disfruta contenido con privacidad.
         </p>
         <div class="cta-row">
-          <a class="btn" href="/signup.html">Crear cuenta</a>
-          <a class="btn secondary" href="/login.html">Entrar</a>
-          <a class="btn secondary" href="/creators.html">Explorar primero</a>
+          <a class="btn" href="/signup">Crear cuenta</a>
+          <a class="btn secondary" href="/login">Entrar</a>
+          <a class="btn secondary" href="/creators">Explorar primero</a>
         </div>
-        <p class="tiny" style="margin-top:8px">Sin tarjetas aún — acceso temprano. Podrás cambiar a plan de pago luego.</p>
       </div>
       <div class="shot" aria-hidden="true">
-        <!-- 2 capas para crossfade -->
-        <img class="slide active" id="slideA" src="/peak1.png" alt="">
-        <img class="slide" id="slideB" src="/peak1.png" alt="">
+        <img class="slide active" id="slideA" src="./peak1.png" alt="">
+        <img class="slide" id="slideB" src="./peak1.png" alt="">
         <div class="overlay"></div>
       </div>
     </section>
@@ -181,24 +170,24 @@
           <h3>Como Usuario</h3>
           <p>Explora perfiles, desbloquea en packs y arma la imagen completa. Gana puntos y bonos semanales.</p>
           <div class="actions">
-            <a class="btn" href="/signup.html?role=usuario">Crear cuenta</a>
-            <a class="btn secondary" href="/peek.html">Ver demo</a>
+            <a class="btn" href="/signup?role=usuario">Crear cuenta</a>
+            <a class="btn secondary" href="/peek">Ver demo</a>
           </div>
         </article>
         <article class="role">
           <h3>Como Creador/a</h3>
           <p>Publica sets en mosaico y monetiza cada desbloqueo. Controla vistas previas y precios.</p>
           <div class="actions">
-            <a class="btn" href="/signup.html?role=creador">Quiero monetizar</a>
-            <a class="btn secondary" href="/creators.html">Ver creadores</a>
+            <a class="btn" href="/signup?role=creador">Quiero monetizar</a>
+            <a class="btn secondary" href="/creators">Ver creadores</a>
           </div>
         </article>
         <article class="role">
           <h3>Ambos</h3>
           <p>Consume y crea. Desbloquea contenido mientras construyes tu comunidad con peeks.</p>
           <div class="actions">
-            <a class="btn" href="/signup.html?role=ambos">Empezar ahora</a>
-            <a class="btn secondary" href="/categories.html">Explorar categorías</a>
+            <a class="btn" href="/signup?role=ambos">Empezar ahora</a>
+            <a class="btn secondary" href="/categories">Explorar categorías</a>
           </div>
         </article>
       </div>
@@ -228,25 +217,24 @@
       <h3 id="cats-title" style="margin:0 0 8px">Explora por categoría</h3>
       <p class="tiny" style="margin:4px 0 8px;color:var(--muted)">Crea tu cuenta para ver todo el catálogo. Te tomará 20 segundos.</p>
       <div class="cats">
-        <a class="cat locked" data-next="/creators.html?cat=lenceria">Lencería</a>
-        <a class="cat locked" data-next="/creators.html?cat=fitness">Fitness</a>
-        <a class="cat locked" data-next="/creators.html?cat=arte">Arte Corporal</a>
-        <a class="cat locked" data-next="/creators.html?cat=artistico">Artístico</a>
-        <a class="cat locked" data-next="/creators.html?cat=cosplay">Cosplay</a>
+        <a class="cat locked" data-next="/creators?cat=lenceria">Lencería</a>
+        <a class="cat locked" data-next="/creators?cat=fitness">Fitness</a>
+        <a class="cat locked" data-next="/creators?cat=arte">Arte Corporal</a>
+        <a class="cat locked" data-next="/creators?cat=artistico">Artístico</a>
+        <a class="cat locked" data-next="/creators?cat=cosplay">Cosplay</a>
       </div>
       <div style="margin-top:10px" class="cta-row">
-        <a class="btn" href="/signup.html">Crear cuenta</a>
-        <a class="btn secondary" href="/login.html">Entrar</a>
-        <a class="btn secondary" href="/peek.html">Probar demo</a>
+        <a class="btn" href="/signup">Crear cuenta</a>
+        <a class="btn secondary" href="/login">Entrar</a>
+        <a class="btn secondary" href="/peek">Probar demo</a>
       </div>
     </section>
 
     <footer>Fase 0 — SFW • Diseño unificado con Wallet/Creators • © PeekPay</footer>
   </div>
 
-  <!-- Slideshow aleatorio (cambia solo con crossfade y preloading) -->
+  <!-- Slideshow -->
   <script>
-    // Curado mixto H/M (Unsplash). Puedes editar o ampliar.
     const HERO_POOL = [
       "https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?auto=format&fit=crop&w=1600&h=1066&q=80",
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&h=1066&q=80",
@@ -270,7 +258,7 @@
         return new Promise(res=>{
           const im = new Image();
           im.onload = ()=>res(src);
-          im.onerror = ()=>res("/peak1.png");
+          im.onerror = ()=>res("./peak1.png");
           im.decoding = "async";
           im.src = src;
         });
@@ -280,25 +268,21 @@
         idx = (idx + 1) % HERO_POOL.length;
         const url = await preload(HERO_POOL[idx]);
         next.src = url;
-        // crossfade
         next.classList.add('active');
         current.classList.remove('active');
-        // intercambia referencias
         const tmp = current; current = next; next = tmp;
       }
 
-      // Arranque inicial (carga 1ª aleatoria)
       preload(HERO_POOL[idx]).then(url=>{
         current.src = url;
         current.classList.add('active');
       });
 
-      // Cambia cada 6.5s
       setInterval(swap, 6500);
     })();
 
     // Guarda rol de signup (si existe esa vista luego)
-    document.querySelectorAll('a[href^="/signup.html"]').forEach(a=>{
+    document.querySelectorAll('a[href^="/signup"]').forEach(a=>{
       try{
         const u = new URL(a.href, location.origin);
         const role = u.searchParams.get('role');
@@ -313,18 +297,20 @@
       });
     });
 
-    // Gating suave de categorías: si no hay "sesión", manda a signup con next
-    const isAuthed = !!localStorage.getItem('pp_auth'); // placeholder; cámbialo por tu flag real cuando tengamos sesión
+    // Gating suave de categorías
+    const isAuthed = !!localStorage.getItem('pp_auth');
     document.querySelectorAll('.cat.locked').forEach(el=>{
       el.addEventListener('click', (e)=>{
         e.preventDefault();
-        const next = el.getAttribute('data-next') || '/creators.html';
+        const next = el.getAttribute('data-next') || '/creators';
         try{ if(window.plausible){ plausible('locked_click', { props:{ next } }) } }catch(_){}
-        const url = isAuthed ? next : `/signup.html?next=${encodeURIComponent(next)}`;
+        const url = isAuthed ? next : `/signup?next=${encodeURIComponent(next)}`;
         location.href = url;
       });
     });
   </script>
-<script src="/_header.js" defer></script>
+
+  <!-- Router local para /public -->
+  <script src="./_header.js" defer></script>
 </body>
 </html>

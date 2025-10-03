@@ -1,7 +1,10 @@
-// api/index.js
-require('dotenv').config();
-const express = require('express');
-const { Pool } = require('pg');
+// api/index.js  (ESM)
+import dotenv from 'dotenv';
+dotenv.config({ path: ['.env.local', '.env'], override: true });
+
+import express from 'express';
+import pkg from 'pg';
+const { Pool } = pkg;
 
 const app = express();
 app.use(express.json());
@@ -19,7 +22,7 @@ app.use((req,res,next)=>{
   if (origin && ALLOW.has(origin)) { res.setHeader('Access-Control-Allow-Origin', origin); res.setHeader('Vary','Origin'); }
   else if (!origin) { res.setHeader('Access-Control-Allow-Origin', '*'); }
   res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers','Content-Type, X-PP-UID');
+  res.setHeader('Access-Control-Allow-Headers','Content-Type, X-PP-UID, Authorization');
   if (req.method === 'OPTIONS') return res.status(204).end();
   next();
 });
@@ -35,8 +38,9 @@ if (HAS_DB_URL) {
 }
 
 /* ========= Utils ========= */
-const STATIC_BASE  = (process.env.STATIC_BASE  || 'http://localhost:5173').replace(/\/+$/,'');
-const ASSET_PREFIX = (process.env.ASSET_PREFIX || 'photos/arte').replace(/^\/+|\/+$/g,'');
+// Recomendado en .env: STATIC_BASE=http://localhost:5173/public  y  ASSET_PREFIX=photos
+const STATIC_BASE  = (process.env.STATIC_BASE  || 'http://localhost:5173/public').replace(/\/+$/,'');
+const ASSET_PREFIX = (process.env.ASSET_PREFIX || 'photos').replace(/^\/+|\/+$/g,'');
 const LEGACY_RAW   = (process.env.LEGACY_API_BASE || '').replace(/\/+$/,'');
 const LEGACY = LEGACY_RAW.endsWith('/public') ? LEGACY_RAW.replace(/\/public$/,'') : LEGACY_RAW;
 
@@ -45,37 +49,57 @@ app.get('/__who', (_req,res)=> res.json({
   pid: process.pid,
   env: { PORT: process.env.PORT, LEGACY_API_BASE: LEGACY || null, STATIC_BASE, ASSET_PREFIX, HAS_DB_URL }
 }));
+
 app.get('/__routes', (_req,res)=>{
   const out = [];
   (app._router?.stack || []).forEach((l)=>{
     if (l.route && l.route.path) {
-      const methods = Object.keys(l.route.methods).join(',').toUpperCase();
-      out.push(`${methods} ${l.route.path}`);
+      const methods = Object.keys(l.route.methods || {}).map(m=>m.toUpperCase()).join(',');
+      out.push(`${methods||'GET'} ${l.route.path}`);
     }
   });
   res.type('text/plain').send(out.sort().join('\n'));
 });
 
 /* ========= Health ========= */
-app.get('/api/health', (_req,res)=> res.json({ ok:true }));
+const healthPayload = () => ({ ok:true, ts: Date.now() });
+app.get('/health', (_req,res)=> res.json(healthPayload()));     // plano
+app.get('/api/health', (_req,res)=> res.json(healthPayload())); // compat
 
 /* ========= Sets ========= */
+/**
+ * GET /api/sets/signed-full
+ * Admite:
+ *   - ?u=cat/creator&set=set-01
+ *   - ó ?cat=arte&creator=ink-aria&set=set-01
+ *   - opcional: ?id=UUID (usa DB si está configurada)
+ *   - opcional: ?ext=webp|jpg  (por defecto webp)
+ * Responde { ok:true, url, source }
+ */
 app.get('/api/sets/signed-full', async (req,res)=>{
   const id       = (req.query.id || '').toString().trim();
+  const qU       = (req.query.u  || '').toString().trim();   // "cat/creator" o sólo "creator"
   const qCreator = (req.query.creator || '').toString().trim();
   const qSet     = (req.query.set || '').toString().trim();
+  const qCat     = (req.query.cat || '').toString().trim();
+
+  // extensión preferida (por defecto .webp)
+  const rawExt = (req.query.ext || 'webp').toString().trim().toLowerCase();
+  const ext = rawExt === 'jpg' ? 'jpg' : 'webp'; // solo permitimos webp|jpg
 
   const norm = (p) => String(p || '')
     .replace(/^\/+/,'')
     .replace(/^public\/+/,'')
-    .replace(/^photos\/+/,''); // ASSET_PREFIX manda
+    .replace(/^photos\/+/,''); // ASSET_PREFIX controla el prefijo
 
   const makeUrl = (rel, source) => {
     const clean = norm(rel);
+    // STATIC_BASE suele incluir /public; ASSET_PREFIX = photos
     const url = `${STATIC_BASE}/${ASSET_PREFIX}/${clean}`.replace(/([^:]\/)\/+/g,'$1');
     return res.json({ ok:true, url, source });
   };
 
+  // 1) DB lookup (si existe)
   if (HAS_DB_URL && id) {
     try {
       const { rows } = await pool.query(
@@ -84,19 +108,42 @@ app.get('/api/sets/signed-full', async (req,res)=>{
          WHERE id = $1 AND is_active = TRUE`,
         [id]
       );
-      if (rows.length && rows[0].full_path) return makeUrl(rows[0].full_path, 'db-full_path');
+      if (rows.length && rows[0].full_path) {
+        return makeUrl(rows[0].full_path, 'db-full_path');
+      }
     } catch (e) {
       console.error('[GET /api/sets/signed-full] DB error:', e.message);
     }
-  } else {
-    console.warn('[signed-full] DB no configurada; usando fallbacks.');
+  } else if (id) {
+    console.warn('[signed-full] DB no configurada; usando fallbacks. id=', id);
   }
 
-  if (qCreator && qSet) return makeUrl(`${qCreator}/sets/${qSet}/full.jpg`, 'query-fallback');
-  if (id === '697dc6d3-4008-4221-8259-4a7779c2a0ea')
-    return makeUrl('ink-aria/sets/set-01/full.jpg', 'demo-uuid-fallback');
+  // 2) Fallbacks por query
+  // a) Si u="cat/creator" y hay set
+  if (qU && qU.includes('/') && qSet) {
+    // qU ya trae cat/creator
+    return makeUrl(`${qU}/sets/${qSet}/full.${ext}`, 'u-catcreator-fallback');
+  }
 
-  return res.status(404).json({ ok:false, error:'not_found', hint:'Pasa ?creator=&set= o configura DATABASE_URL' });
+  // b) Si cat + creator + set vienen separados
+  if ((qCat || qCreator) && qSet) {
+    const catPart = qCat ? `${qCat}/` : '';             // cat opcional
+    const creatorPart = qCreator || qU || 'unknown';    // creator
+    return makeUrl(`${catPart}${creatorPart}/sets/${qSet}/full.${ext}`, 'query-fallback');
+  }
+
+  // c) Si u="creator" sin cat y hay set → asume creador directo bajo ASSET_PREFIX (poco común)
+  if (qU && !qU.includes('/') && qSet) {
+    return makeUrl(`${qU}/sets/${qSet}/full.${ext}`, 'u-creator-only-fallback');
+  }
+
+  // d) Demo UUID conocido
+  if (id === '697dc6d3-4008-4221-8259-4a7779c2a0ea') {
+    // demo en arte/ink-aria
+    return makeUrl(`arte/ink-aria/sets/set-01/full.${ext}`, 'demo-uuid-fallback');
+  }
+
+  return res.status(404).json({ ok:false, error:'not_found', hint:'Pasa ?u=cat/creator&set= o ?cat=&creator=&set=; o configura DATABASE_URL' });
 });
 
 /* ========= Créditos / Unlock ========= */
@@ -117,7 +164,7 @@ function normalizeItem(it){
     return { ...base,
       pack: it.pack ?? null,
       usd,
-      credits,                 // <- alias requerido por tu wallet
+      credits,
       credits_added: credits,
       credits_delta: +credits,
       points_delta: it.points_delta ?? Math.round(credits/5),
@@ -128,7 +175,7 @@ function normalizeItem(it){
     return { ...base,
       set_id: it.set_id,
       count: it.count,
-      credits: -(it.count||0), // para la columna derecha
+      credits: -(it.count||0),
       credits_delta: -(it.count || 0),
       points_delta: 0,
       label: `Desbloqueo ${it.count||0} celda`
@@ -147,26 +194,23 @@ function normalizeItem(it){
 if (!LEGACY) {
   console.log('[demo] Créditos/Unlock locales habilitados');
 
-  // Balance (retro-compatible: balance como número)
   app.get('/api/credits/balance', (req,res)=>{
     const u = ensureUser(getUID(req));
     res.json({
       ok: true,
       credits: u.credits,
       points:  u.points,
-      balance: u.credits,                          // <- número
+      balance: u.credits,
       balance_detail: { credits:u.credits, points:u.points },
       usd_equiv: +(u.credits * USD_PER_CREDIT).toFixed(2)
     });
   });
 
-  // Points
   app.get('/api/credits/points', (req,res)=>{
     const u = ensureUser(getUID(req));
     res.json({ ok:true, points: u.points });
   });
 
-  // Historial
   app.get('/api/credits/history', (req,res)=>{
     const u = ensureUser(getUID(req));
     const limit = Math.min(200, Math.max(1, Number(req.query.limit || 100)));
@@ -174,7 +218,6 @@ if (!LEGACY) {
     res.json({ ok:true, items });
   });
 
-  // Topup
   app.post('/api/credits/topup', (req,res)=>{
     const uid = getUID(req);
     const u = ensureUser(uid);
@@ -208,15 +251,14 @@ if (!LEGACY) {
       ok: true,
       credits: u.credits,
       points:  u.points,
-      balance: u.credits,            // <- número para front
-      added:   creditsToAdd,         // usado por tu wallet en el mensaje
+      balance: u.credits,
+      added:   creditsToAdd,
       credits_added: creditsToAdd,
       pack:    packRaw,
       usd
     });
   });
 
-  // Bono diario
   app.post('/api/credits/streak-bonus', (req,res)=>{
     const uid = getUID(req);
     const u = ensureUser(uid);
@@ -228,7 +270,6 @@ if (!LEGACY) {
     res.json({ ok:true, granted:true, points: u.points });
   });
 
-  // Unlock
   app.get('/api/unlock', (req,res)=>{
     const uid = getUID(req);
     const u = ensureUser(uid);
@@ -244,20 +285,21 @@ if (!LEGACY) {
       ok: true,
       unlocked: count,
       credits:  u.credits,
-      balance:  u.credits,         // <- número para front
+      balance:  u.credits,
       credits_delta: -count
     });
   });
 
 } else {
-  // Proxy
+  // Proxy hacia backend legado
   const LEG = LEGACY;
   async function forward(req,res){
     try{
       const target = LEG + req.originalUrl;
       const hdrs = {};
-      if (req.headers['content-type']) hdrs['content-type'] = req.headers['content-type'];
-      if (req.headers['x-pp-uid'])     hdrs['x-pp-uid']     = req.headers['x-pp-uid'];
+      if (req.headers['content-type'])  hdrs['content-type'] = req.headers['content-type'];
+      if (req.headers['x-pp-uid'])      hdrs['x-pp-uid']     = req.headers['x-pp-uid'];
+      if (req.headers['authorization']) hdrs['authorization'] = req.headers['authorization'];
       const init = { method:req.method, headers:hdrs };
       if (!['GET','HEAD'].includes(req.method)) init.body = req.is('application/json') ? JSON.stringify(req.body||{}) : req.body;
       const r = await fetch(target, init);

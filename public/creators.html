@@ -1,14 +1,16 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <link rel="preload" as="style" href="/styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/styles.min.css"></noscript>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PeekPay — Creadores</title>
 
-  <link rel="icon" href="/favicon.ico">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <link rel="icon" href="./favicon.ico">
   <link rel="canonical" href="https://peak-pay.vercel.app/creators">
-  <meta name="description" content="Descubre creadores y sus peeks. Desbloquea mosaicos con Peak Credits.">
+
+  <meta name="description" content="Explora creadores, filtra por categoría y desbloquea mosaicos con Peek Credits. Privacidad primero.">
   <meta property="og:site_name" content="PeekPay">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Creadores — PeekPay">
@@ -16,9 +18,7 @@
   <meta property="og:url" content="https://peak-pay.vercel.app/creators">
   <meta property="og:image" content="https://peak-pay.vercel.app/peak1.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Creadores — PeekPay">
-  <meta name="twitter:description" content="Explora perfiles y desbloquea mosaicos con créditos.">
-  <meta name="twitter:image" content="https://peak-pay.vercel.app/peak1.png">
+
   <link rel="preconnect" href="https://plausible.io">
   <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
 
@@ -29,150 +29,297 @@
     }
     *{ box-sizing:border-box }
     body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
-    .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 64px }
+    .wrap{ max-width:1120px; margin:0 auto; padding:20px 16px 64px }
 
-    .head{ display:flex; align-items:center; gap:10px; justify-content:space-between; }
-    header{ display:flex; align-items:center; gap:10px; }
-    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.06) }
-    .brand h1{ margin:0; font-size:18px }
+    /* Header limpio */
+    .head{ display:flex; align-items:center; gap:12px; justify-content:space-between; margin-bottom:6px }
+    .brand{ display:flex; align-items:center; gap:10px }
+    .brand img{ width:52px; height:52px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    .brand h1{ margin:0; font-size:20px; font-weight:700; letter-spacing:.2px }
     .brand p{ margin:0; color:var(--muted); font-size:12px }
 
+    .nav{ display:flex; gap:8px; flex-wrap:wrap; align-items:center }
+    .pill{ color:var(--indigo); text-decoration:none; font-size:14px; padding:8px 10px; border:1px solid var(--ring); border-radius:10px; background:#fff }
+    .pill[aria-current="page"]{ font-weight:600 }
     .btn{
       border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
       color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none;
       box-shadow: 0 6px 16px rgba(79,70,229,.25); white-space:nowrap; display:inline-block;
     }
-    .btn:hover{ filter: brightness(1.05) }
     .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
+    .btn:hover{ filter:brightness(1.05) }
 
     .panel{ border:1px solid var(--ring); background:var(--card); border-radius:16px; padding:16px; margin-top:12px; box-shadow:0 6px 14px rgba(79,70,229,.06) }
-
-    /* Grid de creadores */
-    .grid{ display:grid; gap:12px; margin-top:12px }
-    @media (min-width:720px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    @media (min-width:1024px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
-
-    .card{ border:1px solid var(--ring); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column }
-    .card img{ width:100%; aspect-ratio:4/3; object-fit:cover; display:block }
-    .card .meta{ padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px }
-    .card .meta h3{ margin:0; font-size:14px }
     .muted{ color:var(--muted); font-size:12px }
 
-    /* Gate overlay (se verá un instante) */
-    .gate{
-      border:1px dashed var(--ring); background:#fff; border-radius:14px; padding:16px; text-align:center
+    /* Chips categorías */
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 10px }
+    .chip{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--ring); background:#fff; cursor:pointer; user-select:none }
+    .chip.active{ background:var(--indigo); color:#fff; border-color:transparent }
+
+    /* Grid */
+    .grid{ display:grid; gap:12px; margin-top:12px; grid-template-columns:repeat(2,minmax(0,1fr)) }
+    @media (min-width:900px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (min-width:1200px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+
+    .card{ border:1px solid var(--ring); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column }
+    .frame{ width:100%; aspect-ratio:3/4; background:#000; position:relative }
+    .frame.wide{ aspect-ratio:4/3 }
+    .frame img{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center 22%;
+      display:block; transition:transform .35s ease;
     }
+    .frame.wide img{ object-position:center center }
+    .card:hover .frame img{ transform:scale(1.02) }
+
+    .meta{ padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px }
+    .meta h3{ margin:0; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
   </style>
 </head>
 <body>
   <div class="wrap">
     <!-- Header -->
     <div class="head">
-      <div style="display:flex;align-items:center;gap:10px">
-        <header><img src="/peak1.png" alt="PeekPay"></header>
-        <div class="brand">
+      <div class="brand">
+        <img src="./peak1.png" alt="PeekPay">
+        <div>
           <h1>PeekPay</h1>
           <p>Unblur your curiosity</p>
         </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn secondary" href="/login.html">Entrar</a>
-        <a class="btn" href="/signup.html">Crear cuenta</a>
-      </div>
+      <nav class="nav" aria-label="Navegación">
+        <a class="pill" href="./index.html">Inicio</a>
+        <a class="pill" href="./categories.html">Categorías</a>
+        <a class="pill" href="./creators.html" aria-current="page">Creadores</a>
+        <a class="btn secondary" href="./login.html">Entrar</a>
+        <a class="btn" href="./signup.html">Crear cuenta</a>
+      </nav>
     </div>
 
-    <!-- Gate suave: mensaje breve mientras redirige si no hay sesión -->
-    <section id="gate" class="panel gate" style="display:none">
-      <h2 style="margin:0 0 6px; font-size:18px">Crea tu cuenta para ver los creadores</h2>
-      <p class="muted" style="margin:0 0 10px">Te tomará 20 segundos. Verificación por email.</p>
-      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-        <a class="btn" id="goSignup" href="/signup.html">Crear cuenta</a>
-        <a class="btn secondary" href="/login.html">Entrar</a>
-      </div>
-      <p class="muted" style="margin-top:10px">Si estás probando, puedes usar <code>?preview=1</code> en la URL.</p>
-    </section>
+    <!-- Trust band -->
+    <div class="panel" style="display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap">
+      <span class="muted">🔒 Privacidad primero</span>
+      <span class="muted">🎯 Desbloqueos diarios con Peek Credits</span>
+      <span class="muted">🧩 Mosaicos que revelan la historia</span>
+    </div>
 
-    <!-- Contenido real -->
-    <section id="content" class="panel" aria-labelledby="crea-title" style="display:none">
-      <h2 id="crea-title" style="margin:0 0 8px">Creadores destacados</h2>
+    <!-- Título + chips -->
+    <section class="panel" style="padding-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <h2 style="margin:0">Creadores destacados</h2>
+        <div class="chips" id="chips">
+          <span class="chip" data-cat="all">Todos</span>
+          <span class="chip" data-cat="arte">Arte</span>
+          <span class="chip" data-cat="artistico">Artístico</span>
+          <span class="chip" data-cat="cosplay">Cosplay</span>
+          <span class="chip" data-cat="fitness">Fitness</span>
+          <span class="chip" data-cat="lenceria">Lencería</span>
+        </div>
+      </div>
       <div id="grid" class="grid" aria-live="polite"></div>
       <p id="empty" class="muted" style="display:none">No hay creadores para mostrar.</p>
     </section>
+
+    <!-- About corto -->
+    <section class="panel" style="display:grid;gap:12px;grid-template-columns:1fr 1fr">
+      <article class="card">
+        <div class="meta" style="justify-content:flex-start; gap:10px"><h3 style="font-size:16px">¿Qué es PeekPay?</h3></div>
+        <div style="padding:12px" class="muted">Cada set es un mosaico: algunas celdas son preview y el resto se desbloquea con Peek Credits. Vuelve cada día para ganar puntos de racha y revelar más.</div>
+      </article>
+      <article class="card">
+        <div class="meta" style="justify-content:flex-start; gap:10px"><h3 style="font-size:16px">Para creadores</h3></div>
+        <div style="padding:12px" class="muted">Sube tus sets, define previews y precios por desbloqueo. Cada revelación genera ingresos y visibilidad por categoría.</div>
+      </article>
+    </section>
+
+    <footer class="muted" style="margin-top:18px">© PeekPay • Fase 0</footer>
   </div>
 
-  <noscript>
-    <div class="wrap">
-      <section class="panel gate">
-        <h2>Necesitas activar JavaScript</h2>
-        <p class="muted">Activa JavaScript para continuar o <a href="/signup.html">crea tu cuenta aquí</a>.</p>
-      </section>
-    </div>
-  </noscript>
-
   <script>
-    // -------- GATE SUAVE --------
-    (function gate(){
-      const params = new URLSearchParams(location.search);
-      const preview = params.get('preview') === '1';
-      const isAuthed = !!localStorage.getItem('pp_auth'); // TODO: reemplazar por flag real cuando tengamos login
+    // HEAD helper
+    async function exists(url){
+      try{ const r=await fetch(url,{method:'HEAD'}); return r.ok; }catch(_){ return false; }
+    }
 
-      if (!isAuthed && !preview) {
-        // Mostrar gate breve y redirigir a signup con next
-        const gateEl = document.getElementById('gate');
-        gateEl.style.display = 'block';
-        const next = location.pathname + location.search;
-        document.getElementById('goSignup').href = '/signup.html?next=' + encodeURIComponent(next);
-        try { if (window.plausible) plausible('gate_creators'); } catch(e){}
+    // === Rutas por CATEGORÍA (tomadas de tu listado de /public/photos) ===
+    // Para cada creador, indicamos su portada por categoría.
+    const CREATOR_SOURCES = {
+      'ink-aria': {
+        name:'ink aria',
+        arte:      './photos/arte/ink-aria/arte1.jpg',
+        artistico: './photos/artistico/ink-aria/inkart.jpg',
+        cosplay:   './photos/cosplay/ink-aria/ink1.jpg',
+        fitness:   './photos/fitness/ink-aria/inkfit.jpg',
+        lenceria:  './photos/lenceria/ink-aria/inklen.jpg',
+      },
+      'lina-fit': {
+        name:'lina fit',
+        arte:      './photos/arte/lina-fit/linaarte.jpg',
+        artistico: './photos/artistico/lina-fit/lianart.jpg',
+        cosplay:   './photos/cosplay/lina-fit/lina1.jpg',
+        fitness:   './photos/fitness/lina-fit/linafit.jpg',
+        lenceria:  './photos/lenceria/lina-fit/linalen.jpg',
+      },
+      'noa-lace': {
+        name:'noa lace',
+        arte:      './photos/arte/noa-lace/noaarte.jpg',
+        artistico: './photos/artistico/noa-lace/noaart.jpg',
+        cosplay:   './photos/cosplay/noa-lace/noa1.jpg',
+        fitness:   './photos/fitness/noa-lace/noafit.jpg',
+        lenceria:  './photos/lenceria/noa-lace/noalen.jpg',
+      },
+      'rio-out': {
+        name:'rio out',
+        arte:      './photos/arte/rio-out/rioarte.jpg',
+        artistico: './photos/artistico/rio-out/rioart.jpg',
+        cosplay:   './photos/cosplay/rio-out/rio1.jpg',
+        fitness:   './photos/fitness/rio-out/riofit.jpg',
+        lenceria:  './photos/lenceria/rio-out/riolen.jpg',
+      },
+      'sasha-dance': {
+        name:'sasha dance',
+        arte:      './photos/arte/sasha-dance/sashaarte.jpg',
+        artistico: './photos/artistico/sasha-dance/sahsaart.jpg',
+        cosplay:   './photos/cosplay/sasha-dance/sasha1.jpg',
+        fitness:   './photos/fitness/sasha-dance/sashafit.jpg',
+        lenceria:  './photos/lenceria/sasha-dance/sashalen.jpg',
+      },
+      'sol-light': {
+        name:'sol light',
+        arte:      './photos/arte/sol-light/solarte.jpg',
+        artistico: './photos/artistico/sol-light/solart.jpg',
+        cosplay:   './photos/cosplay/sol-light/sol1.jpg',
+        fitness:   './photos/fitness/sol-light/solfit.jpg',
+        lenceria:  './photos/lenceria/sol-light/sollen.jpg',
+      },
+      'val-cos': {
+        name:'val cos',
+        arte:      './photos/arte/val-cos/valarte.jpg',
+        artistico: './photos/artistico/val-cos/valart.jpg',
+        cosplay:   './photos/cosplay/val-cos/val1.jpg',
+        fitness:   './photos/fitness/val-cos/valfit.jpg',
+        lenceria:  './photos/lenceria/val-cos/vallen.jpg',
+      },
+      'zen-well': {
+        name:'zen well',
+        arte:      './photos/arte/zen-well/zenarte.jpg',
+        artistico: './photos/artistico/zen-well/zenart.jpg',
+        cosplay:   './photos/cosplay/zen-well/zen1.jpg',
+        fitness:   './photos/fitness/zen-well/zenfit.jpg',
+        lenceria:  './photos/lenceria/zen-well/zenlen.jpg',
+      },
+    };
 
-        // Redirige en ~900ms para que se vea el mensaje
-        setTimeout(()=>{ location.href = '/signup.html?next=' + encodeURIComponent(next); }, 900);
-        return;
-      }
+    // Prioridad para "Todos"
+    const ALL_PRIORITY = ['lenceria','cosplay','fitness','arte','artistico'];
 
-      // Autorizado o preview: mostrar contenido real
-      document.getElementById('content').style.display = 'block';
-    })();
+    // Estado y render
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
 
-    // -------- CARGA DE CREADORES (usa peeks.json actual) --------
-    (async function loadCreators(){
-      const grid = document.getElementById('grid');
-      const empty = document.getElementById('empty');
-      if (!grid) return;
+    async function buildEntries(category){
+      const entries = [];
+      const handles = Object.keys(CREATOR_SOURCES);
 
-      try {
-        const res = await fetch('/peeks.json?ts=' + Date.now());
-        if (!res.ok) throw new Error('fetch peeks failed');
-        const data = await res.json();
-
-        // Esperamos estructura con sets / creators; adaptamos a lo que ya tienes (fallback)
-        const creators = Array.isArray(data?.creators) ? data.creators : [];
-
-        if (!creators.length) {
-          empty.style.display = 'block';
-          return;
+      if (category === 'all') {
+        for (const h of handles){
+          const srcs = CREATOR_SOURCES[h];
+          let chosenCat = null, chosenUrl = null;
+          for (const cat of ALL_PRIORITY){
+            if (!srcs[cat]) continue;
+            if (await exists(srcs[cat])) { chosenCat = cat; chosenUrl = srcs[cat]; break; }
+          }
+          // si no hubo ninguna válida, intenta cualquiera definida
+          if (!chosenUrl){
+            for (const [cat,url] of Object.entries(srcs)){
+              if (['name'].includes(cat)) continue;
+              if (await exists(url)){ chosenCat=cat; chosenUrl=url; break; }
+            }
+          }
+          if (chosenUrl){
+            entries.push({ handle:h, name:srcs.name, cat:chosenCat, cover:chosenUrl });
+          }
         }
-
-        const frag = document.createDocumentFragment();
-        creators.forEach(c=>{
-          const a = document.createElement('a');
-          a.href = '/peek.html?creator=' + encodeURIComponent(c.id || c.handle || '');
-          a.className = 'card';
-          a.innerHTML = `
-            <img loading="lazy" decoding="async" src="${c.cover || '/photos/artistico/cover.jpg'}" alt="${(c.name||c.handle||'Creator')}" />
-            <div class="meta">
-              <h3>${c.name || c.handle || 'Creator'}</h3>
-              <span class="muted">${(c.sets||0)} sets</span>
-            </div>
-          `;
-          frag.appendChild(a);
-        });
-        grid.appendChild(frag);
-      } catch (e) {
-        empty.textContent = 'No se pudieron cargar los creadores.';
-        empty.style.display = 'block';
+        return entries;
       }
+
+      // Categoría concreta: un card por creador si existe portada para esa categoría
+      for (const h of handles){
+        const srcs = CREATOR_SOURCES[h];
+        const url = srcs[category];
+        if (url && await exists(url)){
+          entries.push({ handle:h, name:srcs.name, cat:category, cover:url });
+        }
+      }
+      return entries;
+    }
+
+    function cardFor({handle,name,cat,cover}){
+      const a = document.createElement('a');
+      a.href = './peek.html?creator=' + encodeURIComponent(handle);
+      a.className = 'card';
+      a.setAttribute('data-cat', cat);
+
+      const frame = document.createElement('div');
+      frame.className = 'frame';
+
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.alt = name || handle || 'Creator';
+      img.src = cover;
+      img.addEventListener('load', ()=>{
+        const wide = img.naturalWidth >= img.naturalHeight;
+        if (wide) frame.classList.add('wide');
+      });
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.innerHTML = `<h3>${name}</h3><span class="muted">0 sets</span>`;
+
+      frame.appendChild(img);
+      a.appendChild(frame);
+      a.appendChild(meta);
+      return a;
+    }
+
+    async function render(category){
+      grid.innerHTML = '';
+      empty.style.display = 'none';
+      const entries = await buildEntries(category);
+      if (!entries.length){ empty.style.display='block'; return; }
+      const frag = document.createDocumentFragment();
+      entries.forEach(e=> frag.appendChild(cardFor(e)));
+      grid.appendChild(frag);
+    }
+
+    // Chips + ?cat=
+    (function initFilters(){
+      const params = new URLSearchParams(location.search);
+      const initial = (params.get('cat') || 'all').toLowerCase();
+      const chips = document.getElementById('chips');
+
+      // activa el chip inicial
+      const initialChip = chips.querySelector(`.chip[data-cat="${initial}"]`) || chips.querySelector('.chip[data-cat="all"]');
+      initialChip.classList.add('active');
+
+      render(initialChip.dataset.cat);
+
+      chips.addEventListener('click', (e)=>{
+        const chip = e.target.closest('.chip'); if(!chip) return;
+        chips.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+        // actualiza la url sin recargar
+        const p = new URLSearchParams(location.search);
+        if (chip.dataset.cat==='all') p.delete('cat'); else p.set('cat', chip.dataset.cat);
+        history.replaceState(null,'', location.pathname + (p.toString()?`?${p}`:''));
+        render(chip.dataset.cat);
+      });
     })();
   </script>
-<script src="/_header.js" defer></script>
+
+  <!-- Router local -->
+  <script src="./_header.js" defer></script>
 </body>
 </html>

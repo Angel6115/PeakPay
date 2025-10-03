@@ -1,359 +1,347 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>PeekPay — Perfil</title>
 
-  <link rel="icon" href="/favicon.ico">
-  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="./_header.js" defer></script>
+
+  <link rel="icon" href="./favicon.ico">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
 
   <style>
-    :root{
-      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e5e7eb;
-      --cta:#111827; --cta-text:#fff; --ok:#059669; --err:#b91c1c;
-    }
-    *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1120px;margin:0 auto;padding:28px 16px 48px}
+    :root{ --bg:#fff; --text:#0b1020; --muted:#5b667a; --ring:#e5e7eb; --card:#f8fafc; --indigo:#4f46e5; --blue:#2563eb; --shadow:0 8px 20px rgba(79,70,229,.10); --radius:16px; }
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px 14px 80px}
+    .topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:8px;font-weight:800}
+    .brand img{width:22px;height:22px;border-radius:6px;box-shadow:0 6px 10px rgba(79,70,229,.18)}
+    .crumbs{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+    .crumbs a{font-size:13px;color:#374151;text-decoration:none;padding:8px 12px;border:1px solid var(--ring);background:#fff;border-radius:999px}
+    .crumbs a:hover{border-color:#c7d2fe;background:#eef2ff}
+    @media (max-width:560px){ .crumbs{width:100%;margin-left:0} .crumbs a{flex:1;text-align:center} }
 
-    header{display:flex;align-items:center;gap:12px}
-    header img.logo{width:44px;height:auto;border-radius:10px}
-    .brand h1{font-size:18px;margin:0}
-    .brand p{margin:0;color:var(--muted);font-size:12px}
+    .grid{display:grid;grid-template-columns:340px 1fr;gap:18px;margin-top:12px}
+    @media (max-width:960px){ .grid{grid-template-columns:1fr} }
+    .card{background:var(--card);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .panel{background:#fff;border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card .inner,.panel .inner,.section{padding:14px}
 
-    .topbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-    .btn{border:1px solid var(--cta);background:var(--cta);color:var(--cta-text);padding:8px 12px;border-radius:10px;text-decoration:none;font-size:14px}
-    .btn.ghost{background:#fff;color:var(--cta);border-color:var(--ring)}
-    .crumbs{font-size:12px;color:var(--muted)}
-    .crumbs a{color:inherit}
+    .hero{display:flex;align-items:center;gap:14px}
+    .avatar{width:70px;height:70px;border-radius:12px;border:1px solid #e6e6e6;object-fit:cover;background:#fff}
+    .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+    .tag{font-size:12px;color:#374151;border:1px solid var(--ring);background:#fff;border-radius:999px;padding:3px 8px}
+    .kpis{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .kpi{font-size:12px;border:1px solid var(--ring);background:#fff;border-radius:10px;padding:6px 8px}
 
-    .panel{border:1px solid var(--ring);background:var(--card);border-radius:16px;padding:20px;margin:12px 0 16px;display:grid;gap:16px}
-    .creator{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-    .avatar{width:64px;height:64px;border-radius:14px;object-fit:cover;border:1px solid var(--ring);background:#fff}
-    .meta{color:var(--muted);font-size:13px}
-    .statline{display:flex;gap:12px;flex-wrap:wrap}
-    .pill{background:#fff;border:1px solid var(--ring);padding:6px 10px;border-radius:999px;font-size:12px}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .btn{border:1px solid var(--ring);background:#fff;color:#111827;border-radius:10px;padding:10px 12px;cursor:pointer}
+    .btn.primary{border:0;background:linear-gradient(90deg,var(--indigo),var(--blue));color:#fff;box-shadow:0 8px 18px rgba(79,70,229,.25)}
+    .menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    @media (max-width:420px){ .menu{grid-template-columns:1fr} }
+    .hint{font-size:12px;color:var(--muted);margin-top:10px}
 
-    /* Selector de sets */
-    .sets{display:flex;gap:12px;overflow:auto;padding-bottom:4px}
-    .set-card{
-      min-width:180px;border:1px solid var(--ring);border-radius:12px;background:#fff;cursor:pointer;
-      display:grid;gap:8px;padding:8px
-    }
-    .set-card img{width:100%;height:120px;object-fit:cover;border-radius:8px}
-    .set-card.active{outline:2px solid #111827}
-    .set-title{font-weight:600;font-size:14px}
-    .set-blurb{font-size:12px;color:var(--muted);min-height:2.6em}
-
-    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .controls .pack{border:1px solid var(--cta);background:var(--cta);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
-    .controls .pack.secondary{background:#fff;color:var(--cta);border-color:var(--ring)}
-    .price{font-weight:600}
-
-    .progress{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);margin-top:8px}
-    .bar{flex:1;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden}
-    .bar span{display:block;height:100%;background:#111827;width:0%}
-
-    /* GRID sin bordes negros ni gaps */
-    .grid{display:grid; gap:0; grid-template-columns: repeat(var(--cols,4), minmax(0,1fr));}
-    .cell{aspect-ratio:1/1; position:relative; overflow:hidden; background:#0000; display:flex; align-items:center; justify-content:center; user-select:none;}
-    .cell .img{position:absolute; inset:0; background-repeat:no-repeat; background-size:cover; transition:filter .25s ease, transform .25s ease;}
-    .cell.locked .img{ filter: blur(12px) brightness(0.95); transform: scale(1.02); }
-    .cell.unlocked .img{ filter: none; transform: none; }
-    .cell.preview .img{ filter: blur(2px) !important; }
-
-    .badge{position:absolute; right:8px; top:8px; font-size:11px; padding:4px 8px; border-radius:999px; background:rgba(17,24,39,.85); color:#fff; border:1px solid rgba(255,255,255,.2)}
-    .badge.free{background:rgba(5,150,105,.9)}
-
-    .reveal{margin-top:12px;border:1px solid var(--ring);background:#fff;border-radius:12px;padding:8px}
-    .reveal img{width:100%;height:auto;border-radius:8px;display:block}
-
-    .credit{margin-top:8px;font-size:12px;color:var(--muted)}
-    .msg{font-size:13px;margin-top:6px}
-    .ok{color:var(--ok)} .err{color:var(--err)}
-    .footer{margin-top:22px;color:var(--muted);font-size:12px}
+    .section h3{margin:0 0 8px 0;font-size:15px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .pill{font-size:12px;border:1px solid var(--ring);background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer}
+    .list{display:grid;gap:8px}
+    .item{border:1px solid var(--ring);background:#fff;border-radius:12px;padding:10px;display:flex;justify-content:space-between;align-items:center}
+    .item .left{display:flex;align-items:center;gap:10px}
+    .mini{width:28px;height:28px;border-radius:999px;border:1px solid var(--ring);object-fit:cover;background:#fff}
+    .switch{display:inline-flex;align-items:center;gap:6px}
+    .notifBadge{display:none;margin-left:8px;min-width:18px;height:18px;padding:0 6px;border-radius:999px;font-size:11px;background:#ef4444;color:#fff;display:inline-flex;align-items:center;justify-content:center}
   </style>
-  <link rel="preconnect" href="https://plausible.io">
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
-      <header>
-        <img class="logo" src="/peak1.png" alt="PeekPay logo">
-        <div class="brand">
-          <h1>PeekPay</h1>
-          <p>Desbloquea Peeks por mosaicos</p>
-        </div>
-      </header>
-      <a class="btn ghost" href="./categories.html">Categorías</a>
-      <a class="btn ghost" href="./creators.html">Creadores</a>
-      <a class="btn" href="./index.html">Inicio</a>
+      <div class="brand"><img src="./peak1.png" alt="PeekPay"/><span>PeekPay</span></div>
+      <nav class="crumbs">
+        <a href="./index.html?return=./profile.html">Inicio</a>
+        <a href="./categories.html?return=./profile.html">Categorías</a>
+        <a href="./creators.html?return=./profile.html">Explorar Creadores</a>
+        <a href="./notifications.html?return=./profile.html">Notificaciones <span class="notifBadge">0</span></a>
+        <a href="./wallet.html?return=./profile.html">Wallet</a>
+        <a href="./settings.html?return=./profile.html">Ajustes</a>
+      </nav>
     </div>
 
-    <div class="crumbs" id="crumbs"></div>
+    <div class="grid">
+      <div class="card">
+        <div class="inner">
+          <div class="hero">
+            <img class="avatar" src="./peak1.png" alt="avatar" id="u-avatar">
+            <div>
+              <div style="font-weight:700" id="u-name">Demo User</div>
+              <div class="tags">
+                <span class="tag" id="u-handle">@test-user</span>
+                <span class="tag" id="u-country">Global</span>
+              </div>
+              <div class="kpis">
+                <div class="kpi" id="kpiCredits">Peak Credits: 0  ≈ $0.00</div>
+                <div class="kpi" id="kpiPoints">Puntos: 0</div>
+              </div>
+            </div>
+          </div>
 
-    <section class="panel">
-      <div class="creator">
-        <img id="avatar" class="avatar" src="" alt="Avatar creador">
-        <div>
-          <div id="c-name" style="font-weight:700">—</div>
-          <div id="c-handle" class="meta">—</div>
-          <div class="statline">
-            <span class="pill" id="c-cat">—</span>
-            <span class="pill" id="c-country">—</span>
-            <span class="pill" id="c-verified">—</span>
+          <div class="actions">
+            <button class="btn primary" onclick="goto('./wallet.html?return=./profile.html')">Wallet</button>
+            <button id="btnMsg" class="btn" onclick="alert('Mensajería llegará pronto ✨')">Mensajes</button>
           </div>
-          <div class="statline">
-            <span class="pill" id="st-rating">Rating —</span>
-            <span class="pill" id="st-revealed">Peeks revelados —</span>
-            <span class="pill" id="st-subs">Subs —</span>
-            <span class="pill" id="st-posts">Posts —</span>
-            <span class="pill" id="st-likes">Likes —</span>
+
+          <div class="menu">
+            <button class="btn" onclick="goto('./index.html?return=./profile.html')">Home</button>
+            <button class="btn" onclick="goto('./creators.html?return=./profile.html')">Explorar Creadores</button>
+            <button class="btn" onclick="goto('./categories.html?return=./profile.html')">Categorías</button>
+            <button class="btn" onclick="goto('./notifications.html?return=./profile.html')">Notificaciones</button>
           </div>
+
+          <div class="hint">Consejo: abre tus peeks desde <b>Wallet</b> o explora nuevos creadores. Tu saldo se actualiza automáticamente.</div>
+          <div class="muted" id="sbHint" style="margin-top:6px">Sin Supabase (modo demo local).</div>
         </div>
       </div>
 
-      <!-- Selector de sets -->
-      <div id="sets" class="sets"></div>
+      <div class="panel">
+        <div class="section" id="favSection">
+          <div class="row"><h3>Favoritos recientes</h3><button class="pill" onclick="goto('./creators.html?return=./profile.html')">Explorar</button></div>
+          <div class="muted" id="favEmpty">Inicia sesión para ver favoritos.</div>
+          <div class="list" id="favList" style="display:none"></div>
+        </div>
 
-      <div class="controls">
-        <button class="pack" data-pack="1">Desbloquear 1 <span class="price">($0.99)</span></button>
-        <button class="pack secondary" data-pack="3">Pack 3 <span class="price">($2.49)</span></button>
-        <span class="meta">Vista previa: ~20% gratis</span>
+        <div class="section">
+          <div class="row"><h3>Notificaciones</h3><button class="pill" onclick="goto('./notifications.html?return=./profile.html')">Ver todas</button></div>
+          <div class="muted">Sin novedades por ahora.</div>
+        </div>
+
+        <div class="section">
+          <h3>Privacidad</h3>
+          <div class="list">
+            <label class="switch"><input type="checkbox" id="p_public"> <span>Perfil visible públicamente</span></label>
+            <label class="switch"><input type="checkbox" id="p_handle" checked> <span>Mostrar @handle</span></label>
+            <label class="switch"><input type="checkbox" id="p_msgs" checked> <span>Permitir mensajes</span></label>
+          </div>
+          <div class="muted" style="margin-top:6px">Tus ajustes se guardan en tu cuenta. Si no has iniciado sesión, se guardan solo en este navegador.</div>
+        </div>
+
+        <div class="section">
+          <h3>Actividad reciente</h3>
+          <div class="list" id="activityList">
+            <div class="item"><span>No hay actividad aún.</span><span class="muted">—</span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="row"><h3>Pedido especial</h3><button class="pill" id="openRequest">Abrir</button></div>
+          <div class="muted">Envía una solicitud breve a un creador favorito. No se permiten correos, teléfonos o enlaces.</div>
+        </div>
+
+        <div class="section">
+          <div class="row"><h3>Datos & seguridad</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="pill" onclick="exportData()">Exportar</button>
+              <button class="pill" onclick="goto('./settings.html?return=./profile.html')">Ajustes</button>
+              <button class="pill" id="btnResetPwd">Cambiar contraseña</button>
+              <button class="pill" id="btnSignout">Cerrar sesión</button>
+            </div>
+          </div>
+          <div class="muted" id="sbNote">Sin Supabase configurado.</div>
+        </div>
       </div>
-
-      <!-- Progreso -->
-      <div class="progress">
-        <div>Progreso</div>
-        <div class="bar"><span id="bar"></span></div>
-        <div><b id="count">0</b>/<span id="total">0</span></div>
-      </div>
-
-      <!-- Grid -->
-      <div id="grid" class="grid"></div>
-
-      <!-- Obra completa + crédito -->
-      <div id="reveal" class="reveal" style="display:none">
-        <img id="fullImg" alt="Obra completa">
-        <div class="credit" id="credit"></div>
-      </div>
-
-      <div class="msg" id="msg"></div>
-    </section>
-
-    <p class="footer">Fase 0 — SFW · Usa imágenes en <code>/photos/&lt;cat&gt;/&lt;creator&gt;/sets/&lt;set&gt;/{cover,main,full}.webp</code>. Cada <b>Peek</b> es un mosaico del grid. </p>
+    </div>
   </div>
 
   <script>
     const $ = s => document.querySelector(s);
-    const params = new URLSearchParams(location.search);
-    const cat  = params.get('cat') || 'cosplay';
-    const creator = params.get('creator') || 'ink-aria';
-    let setSlug = params.get('set') || null;
+    const sb = window.__SB || window.supabaseClient || null;
+    const API_BASE = (localStorage.getItem('pp_api_base') || '').replace(/\/+$/,'');
+    const PP_UID   = localStorage.getItem('pp_uid') || 'test-user-123';
+    localStorage.setItem('pp_uid', PP_UID);
 
-    // Estado
-    let CREATOR = null;   // detalle del creador (desde peeks.json)
-    let SET = null;       // set activo
-    let GRID = 4;
-    let baseImageUrl = null;
+    const fmtUSD = v => Number(v||0).toLocaleString('en-US',{style:'currency',currency:'USD'});
+    const CREDIT_TO_USD = 0.25;
 
-    const $crumbs = $('#crumbs');
-    const $avatar = $('#avatar');
-    const $sets   = $('#sets');
-    const $grid   = $('#grid');
-    const $bar    = $('#bar');
-    const $count  = $('#count');
-    const $total  = $('#total');
-    const $msg    = $('#msg');
-    const $reveal = $('#reveal');
-    const $fullImg= $('#fullImg');
-    const $credit = $('#credit');
+    function goto(href){ location.href = href; }
 
-    function plausibleSafe(event, opts){ try{ window.plausible && window.plausible(event, opts); }catch{} }
+    // === Tarjeta de usuario (nombre/@/avatar) ===
+    async function refreshUserCard(){
+      const el = $('#sbHint');
+      if (!sb){ el.textContent='Sin Supabase (modo demo local).'; return; }
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session){ el.textContent='Sin Supabase (modo demo local).'; return; }
+      el.textContent = 'Perfil leído desde Supabase.';
+      const u = session.user;
+      const name = u.user_metadata?.name || u.email || 'Mi cuenta';
+      const handle = u.user_metadata?.handle || (u.email||'user').split('@')[0];
+      const country = u.user_metadata?.country;
+      const pic = u.user_metadata?.avatar_url || u.user_metadata?.picture;
 
-    async function loadData(){
-      const res = await fetch('/peeks.json?_=' + Date.now());
-      if (!res.ok) throw new Error('peeks.json not found');
-      const all = await res.json();
-      const key = `${cat}/${creator}`;
-      CREATOR = all.creatorsDetail[key];
-      if (!CREATOR) throw new Error('Creator not found in peeks.json');
-      if (!setSlug && CREATOR.sets?.length) setSlug = CREATOR.sets[0].slug;
-      SET = CREATOR.sets.find(s => s.slug === setSlug) || CREATOR.sets[0];
-
-      // Header
-      $crumbs.innerHTML = `<a href="./index.html">Inicio</a> / <a href="./categories.html">Categorías</a> / <a href="./creators.html?cat=${encodeURIComponent(cat)}">Creadores</a> / <b>${CREATOR.name}</b>`;
-      $('#c-name').textContent = CREATOR.name;
-      $('#c-handle').textContent = CREATOR.handle || '';
-      $('#c-cat').textContent = CREATOR.label || cat;
-      $('#c-country').textContent = CREATOR.country ? `País: ${CREATOR.country}` : 'País: —';
-      $('#c-verified').textContent = CREATOR.verified ? 'Verificado' : 'No verificado';
-      $('#st-rating').textContent   = `Rating ${CREATOR.stats.rating} (${CREATOR.stats.reviews})`;
-      $('#st-revealed').textContent = `Peeks revelados ${CREATOR.stats.revealed}`;
-      $('#st-subs').textContent     = `Subs: ${CREATOR.stats.subs}`;
-      $('#st-posts').textContent    = `Posts: ${CREATOR.stats.posts}`;
-      $('#st-likes').textContent    = `Likes: ${CREATOR.stats.likes}`;
-
-      // Avatar fallback
-      const avatarUrl = `/photos/${cat}/${creator}/avatar.webp`;
-      const coverUrl  = SET.cover;
-      const img = new Image();
-      img.onload = ()=> $avatar.src = avatarUrl;
-      img.onerror = ()=> { $avatar.src = coverUrl || '/peak1.png'; };
-      img.src = avatarUrl;
-
-      // Pintar sets
-      $sets.innerHTML = '';
-      (CREATOR.sets || []).forEach(s=>{
-        const card = document.createElement('div');
-        card.className = 'set-card' + (s.slug===SET.slug ? ' active':'');
-        card.innerHTML = `
-          <img src="${s.cover || ''}" alt="${s.title||s.slug}">
-          <div class="set-title">${s.title || s.slug}</div>
-          <div class="set-blurb">${s.blurb || ''}</div>
-          <div class="meta">Grid ${s.grid}×${s.grid}</div>
-        `;
-        card.onclick = ()=>{
-          const url = new URL(location.href);
-          url.searchParams.set('set', s.slug);
-          history.replaceState(null,'',url.toString());
-          switchSet(s);
-        };
-        $sets.appendChild(card);
-      });
-
-      switchSet(SET);
+      $('#u-name').textContent = name;
+      $('#u-handle').textContent = '@' + handle;
+      if (country) $('#u-country').textContent = country;
+      if (pic){ const img = new Image(); img.onload=()=>{$('#u-avatar').src=pic}; img.src=pic; }
     }
 
-    function switchSet(s){
-      SET = s;
-      GRID = Number(SET.grid || 4);
-      baseImageUrl = SET.main || null;
-
-      // Actualizar activo
-      $sets.querySelectorAll('.set-card').forEach(c=>c.classList.remove('active'));
-      const idx = (CREATOR.sets||[]).findIndex(x=>x.slug===SET.slug);
-      if (idx>=0) $sets.children[idx].classList.add('active');
-
-      // Reiniciar reveal y grid
-      $reveal.style.display = 'none';
-      $fullImg.src = '';
-      buildGrid();
-      plausibleSafe('preview_shown', {props:{u:creator, set:SET.slug, grid:String(GRID)}});
+    // Notif badge
+    async function refreshUnreadBadge(){
+      if (!sb) return;
+      try{
+        const { data:{ session } } = await sb.auth.getSession();
+        if (!session) return;
+        const { data } = await sb.from('v_unread_counts').select('unread').eq('user_id', session.user.id).maybeSingle();
+        const n = data?.unread || 0;
+        const b = document.querySelector('.notifBadge');
+        if (b){ b.textContent = n; b.style.display = n ? 'inline-flex' : 'none'; }
+      }catch{}
     }
 
-    function buildGrid(){
-      const TOTAL = GRID*GRID;
-      $total.textContent = TOTAL;
-      $count.textContent = 0;
-      $bar.style.width = '0%';
-      $grid.style.setProperty('--cols', GRID);
-      $grid.innerHTML = '';
-
-      const unlocked = new Set();
-
-      // ~20% preview
-      const NPRE = Math.max(1, Math.round(TOTAL*0.2));
-      const idxs = Array.from({length:TOTAL}, (_,i)=>i).sort(()=>Math.random()-0.5);
-      const preview = new Set(idxs.slice(0, NPRE));
-
-      // Celdas
-      for (let r=0; r<GRID; r++){
-        for (let c=0; c<GRID; c++){
-          const i = r*GRID + c;
-          const cell = document.createElement('div');
-          cell.className = 'cell locked';
-          cell.dataset.idx = i;
-
-          const img = document.createElement('div');
-          img.className = 'img';
-          if (baseImageUrl){
-            img.style.backgroundImage = `url('${baseImageUrl}')`;
-            img.style.backgroundSize = `${GRID*100}% ${GRID*100}%`;
-            const px = GRID===1 ? 0 : (c/(GRID-1))*100;
-            const py = GRID===1 ? 0 : (r/(GRID-1))*100;
-            img.style.backgroundPosition = `${px}% ${py}%`;
-          }
-          cell.appendChild(img);
-
-          const badge = document.createElement('div');
-          badge.className = 'badge' + (preview.has(i)?' free':'');
-          badge.textContent = preview.has(i) ? 'FREE' : 'LOCK';
-          cell.appendChild(badge);
-
-          if (preview.has(i)){
-            cell.classList.remove('locked');
-            cell.classList.add('unlocked','preview');
-            unlocked.add(i);
-          }
-
-          $grid.appendChild(cell);
+    // Favoritos (si existe la vista)
+    (async function loadFavs(){
+      const list = $('#favList');
+      const empty = $('#favEmpty');
+      if (!sb) return;
+      try{
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return;
+        const { data } = await sb.from('v_user_favorites')
+          .select('creator_id, creator_handle, creator_name, creator_avatar_url, last_seen')
+          .order('last_seen',{ascending:false}).limit(6);
+        if (data && data.length){
+          empty.style.display='none'; list.style.display='grid'; list.innerHTML='';
+          data.forEach(r=>{
+            const it = document.createElement('div');
+            it.className = 'item';
+            it.innerHTML = `
+              <div class="left">
+                <img class="mini" src="${r.creator_avatar_url || './peak1.png'}" alt="">
+                <div>
+                  <div style="font-weight:600">${r.creator_name || r.creator_handle}</div>
+                  <div class="muted">@${r.creator_handle}</div>
+                </div>
+              </div>
+              <button class="pill" onclick="goto('./peek.html?creator=${encodeURIComponent(r.creator_handle)}&return=./profile.html')">Ver</button>
+            `;
+            list.appendChild(it);
+          });
         }
-      }
+      }catch{}
+    })();
 
-      // Clicks
-      $grid.onclick = (e)=>{
-        const cell = e.target.closest('.cell');
-        if (!cell) return;
-        const i = Number(cell.dataset.idx);
-        if (cell.classList.contains('unlocked')) return;
-        unlock([i], 'tap');
+    // API helper (opcional)
+    function apiGet(path){
+      if (!API_BASE) return Promise.reject(new Error('API base no configurada'));
+      return fetch(API_BASE + path, { headers:{ 'X-PP-UID': PP_UID }})
+        .then(r=>{ if(!r.ok) throw new Error('GET '+path+' '+r.status); return r.json(); });
+    }
+
+    // KPIs
+    async function syncWalletKPIs(){
+      const elCr = $('#kpiCredits'), elPt = $('#kpiPoints');
+      if (API_BASE){
+        try{
+          const j = await apiGet('/api/credits/balance');
+          const cr = j?.credits ?? 0;
+          const pt = j?.points ?? 0;
+          elCr.textContent = `Peak Credits: ${cr}  ≈ ${fmtUSD(cr*CREDIT_TO_USD)}`;
+          elPt.textContent = `Puntos: ${pt}`;
+          return;
+        }catch{}
+      }
+      if (!sb){ elCr.textContent=`Peak Credits: 0  ≈ ${fmtUSD(0)}`; elPt.textContent='Puntos: 0'; return; }
+      try{
+        const { data } = await sb.from('v_user_wallet').select('credits,points,usd_equiv').limit(1);
+        if (Array.isArray(data) && data.length){
+          elCr.textContent = `Peak Credits: ${data[0].credits||0}  ≈ ${fmtUSD(data[0].usd_equiv||0)}`;
+          elPt.textContent = `Puntos: ${data[0].points||0}`; return;
+        }
+      }catch{}
+      try{
+        const { data } = await sb.from('v_wallet_activity_recent').select('running_credits').order('ts',{ascending:false}).limit(1);
+        const cr = (data && data[0]?.running_credits) || 0;
+        elCr.textContent = `Peak Credits: ${cr}  ≈ ${fmtUSD(cr*CREDIT_TO_USD)}`;
+        const { data: pts } = await sb.from('wallet_history').select('points').gt('points',0).limit(1000);
+        const sumPts = Array.isArray(pts) ? pts.reduce((a,b)=>a+(b.points||0),0) : 0;
+        elPt.textContent = `Puntos: ${sumPts}`;
+      }catch{
+        elCr.textContent = `Peak Credits: 0  ≈ ${fmtUSD(0)}`;
+        elPt.textContent = `Puntos: 0`;
+      }
+    }
+
+    // Actividad
+    const activityList = $('#activityList');
+    function renderEmptyActivity(){
+      activityList.innerHTML = `<div class="item"><span>No hay actividad aún.</span><span class="muted">—</span></div>`;
+    }
+    function renderActivityItems(items){
+      if (!items?.length){ renderEmptyActivity(); return; }
+      activityList.innerHTML = '';
+      const fmtWhen = ts => { try{ return new Date(ts).toLocaleString(); }catch{ return String(ts||''); } };
+      for (const it of items){
+        const type = it.type || it.kind || 'mov';
+        const when = fmtWhen(it.ts);
+        const meta = it.meta || {};
+        let label = '';
+        if (type==='topup') label = `Recarga ${fmtUSD(it.usd)} (+${it.credits} cr)`;
+        else if (type==='unlock') label = `Consumo ${it.credits} cr${meta.set?` · ${meta.set}`:''}`;
+        else if (type==='weekly_streak_bonus') label = `Bono semanal (+${it.points||0} pts${it.credits?` · +${it.credits} cr`:''})`;
+        else if (type==='streak_bonus') label = `Bono diario (+${it.points||0} pts)`;
+        else label = type;
+        const row = document.createElement('div');
+        row.className = 'item';
+        row.innerHTML = `<span>${label}</span><span class="muted">${when}</span>`;
+        activityList.appendChild(row);
+      }
+    }
+    async function loadActivity(){
+      if (API_BASE){
+        try{
+          const j = await apiGet('/api/credits/history?limit=20');
+          renderActivityItems(j?.items || []); return;
+        }catch{}
+      }
+      if (!sb){ renderEmptyActivity(); return; }
+      try{
+        const { data } = await sb.from('v_wallet_activity_recent')
+          .select('ts,type,credits,usd,points,kind,meta')
+          .order('ts',{ascending:false}).limit(15);
+        const mapped = (data||[]).map(r=>({ ts:r.ts, type:r.type||r.kind, credits:r.credits, usd:r.usd, points:r.points, meta:r.meta||{} }));
+        renderActivityItems(mapped);
+      }catch{ renderEmptyActivity(); }
+    }
+
+    // Acciones de seguridad rápidas
+    (function secActions(){
+      const sbNote = $('#sbNote');
+      if (!sb){ sbNote.textContent='Sin Supabase configurado.'; return; }
+      sbNote.textContent = 'Gestiona tu cuenta desde Ajustes.';
+      $('#btnResetPwd').onclick = async ()=>{
+        const { data:{ session } } = await sb.auth.getSession();
+        if (!session) { alert('Inicia sesión primero.'); return; }
+        const url = new URL('./auth-callback.html', location.origin);
+        url.searchParams.set('type','recovery');
+        url.searchParams.set('return','./profile.html');
+        try{
+          await sb.auth.resetPasswordForEmail(session.user.email, { redirectTo: url.toString() });
+          alert('Te enviamos un enlace para cambiar la contraseña.');
+        }catch(e){ alert(e.message || 'No se pudo enviar el enlace.'); }
       };
+      $('#btnSignout').onclick = async ()=>{ try{ await sb.auth.signOut(); }catch{} location.replace('./auth-signup.html'); };
+    })();
 
-      function unlock(list, mode){
-        let n=0;
-        list.forEach(i=>{
-          if (!unlocked.has(i)){
-            unlocked.add(i);
-            const cell = $grid.children[i];
-            cell.classList.remove('locked','preview');
-            cell.classList.add('unlocked');
-            const b = cell.querySelector('.badge'); if (b) b.remove();
-            n++;
-          }
-        });
-        if (n){
-          const pct = Math.round((unlocked.size/TOTAL)*100);
-          $count.textContent = unlocked.size;
-          $bar.style.width = pct + '%';
-          $msg.textContent = `Desbloqueaste ${n} Peek${n>1?'s':''}.`;
-          $msg.className = 'msg ok';
-          setTimeout(()=>{$msg.textContent='';},1200);
-          plausibleSafe('unlock',{props:{pack:String(list.length), mode, set:SET.slug}});
-          // ¿Completado?
-          if (unlocked.size===TOTAL) showFull();
-        }
-      }
+    // Bootstrap + listeners
+    (async function bootstrap(){
+      await Promise.all([refreshUserCard(), syncWalletKPIs(), loadActivity(), refreshUnreadBadge()]);
+      window.addEventListener('focus', ()=> setTimeout(()=>{ refreshUserCard(); syncWalletKPIs(); loadActivity(); refreshUnreadBadge(); }, 350));
+      setInterval(()=>{ syncWalletKPIs(); loadActivity(); }, 60_000);
 
-      // Packs
-      document.querySelectorAll('.pack').forEach(btn=>{
-        btn.onclick = ()=>{
-          const pack = Number(btn.dataset.pack||'1');
-          const locked = [];
-          for (let i=0;i<TOTAL;i++) if (!unlocked.has(i)) locked.push(i);
-          if (locked.length===0) return showFull();
-          locked.sort(()=>Math.random()-0.5);
-          unlock(locked.slice(0,Math.min(pack,locked.length)), 'button');
-        };
+      // ♥ Escucha cambios desde Ajustes (sin recargar)
+      window.addEventListener('storage', (e)=>{
+        if (e && e.key === 'pp_profile_updated'){ refreshUserCard(); }
       });
-
-      function showFull(){
-        // Mostrar full.webp y crédito
-        if (SET.full){
-          $fullImg.src = SET.full;
-          $reveal.style.display = 'block';
-          $credit.textContent = `Gracias por revelar este arte de ${CREATOR.name}. Tu apoyo impulsa nuevos Peeks y contenido.`;
-        }
-      }
-    }
-
-    // Init
-    loadData().catch(err=>{
-      $msg.textContent = 'No se pudo cargar la información (peeks.json).';
-      $msg.className = 'msg err';
-      console.error(err);
-    });
+    })();
   </script>
 </body>
 </html>

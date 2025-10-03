@@ -4,9 +4,27 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>PeekPay — Iniciar sesión</title>
-  <link rel="icon" href="/favicon.ico">
-  <link rel="preload" as="style" href="/styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/styles.min.css"></noscript>
+
+  <!-- 1) Carga la config pública -->
+  <script src="./env.js"></script>
+  <!-- Sincroniza PP_ENV -> localStorage (compatibilidad con _header.js antiguo) -->
+  <script>
+    (function(){
+      const E = (window.PP_ENV||{});
+      if (E.sb_url)  localStorage.setItem('pp_sb_url',  E.sb_url);
+      if (E.sb_anon) localStorage.setItem('pp_sb_anon', E.sb_anon);
+      if (E.api_base)localStorage.setItem('pp_api_base',E.api_base);
+    })();
+  </script>
+
+  <!-- 2) Router local (reescribe /… -> /public/… en localhost) -->
+  <script src="./_header.js" defer></script>
+
+  <link rel="icon" href="./favicon.ico">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
   <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+
   <style>
     :root{
       --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
@@ -22,9 +40,7 @@
     .row{display:grid;gap:10px}
     @media(min-width:760px){ .row{grid-template-columns:1fr 1fr} }
     label{font-size:12px;color:var(--muted)}
-    input{
-      width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--ring);background:#fff;font-size:14px;outline:none;
-    }
+    input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--ring);background:#fff;font-size:14px;outline:none}
     input:focus{border-color:#c7d2fe;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
     .btn{
       border:0;background:linear-gradient(90deg,var(--indigo) 0%,var(--blue) 100%);color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;
@@ -40,18 +56,20 @@
     .eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:12px;color:var(--muted)}
     .field{position:relative}
     .pill{display:inline-block;font-size:11px;background:var(--indigo-soft);color:#1e1b4b;border:1px solid #c7d2fe;border-radius:999px;padding:2px 8px;vertical-align:middle}
+    .cfgwarn{margin-top:10px; padding:10px; border:1px dashed #cbd5e1; border-radius:10px; font-size:12px; color:#475569; background:#fff}
+    .cfgwarn code{background:#f1f5f9; padding:2px 6px; border-radius:6px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <img src="/peak1.png" alt="PeekPay">
+      <img src="./peak1.png" alt="PeekPay">
       <div class="brand">
         <div><strong>PeekPay</strong></div>
         <small>Confidencialidad primero</small>
       </div>
       <div class="right actions">
-        <a class="btn secondary" href="/signup.html">Crear cuenta</a>
+        <a class="btn secondary" href="./signup.html">Crear cuenta</a>
       </div>
     </header>
 
@@ -59,10 +77,20 @@
       <h2 style="margin:0 0 10px">Inicia sesión</h2>
       <p class="hint">Accede con tu email y contraseña. Luego podrás activar 2FA.</p>
 
-      <div class="row">
+      <div id="cfgwarn" class="cfgwarn" style="display:none">
+        Falta la configuración de Supabase en el navegador.
+        Define en <b>localStorage</b>:
+        <div style="margin-top:6px">
+          <code>localStorage.setItem('pp_sb_url','https://TU-PROYECTO.supabase.co')</code><br>
+          <code>localStorage.setItem('pp_sb_anon','TU_ANON_KEY')</code>
+        </div>
+        y refresca la página. (En deploy ya viene preconfigurado.)
+      </div>
+
+      <div class="row" style="margin-top:8px">
         <div>
           <label for="email">Email</label>
-          <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="tú@correo.com">
+          <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="tú@correo.com" autofocus>
         </div>
         <div class="field">
           <label for="pass">Contraseña</label>
@@ -73,7 +101,7 @@
 
       <div class="actions" style="margin-top:12px">
         <button id="btn" class="btn">Entrar</button>
-        <a class="btn secondary" href="/signup.html">Crear cuenta</a>
+        <a class="btn secondary" href="./signup.html">Crear cuenta</a>
         <a id="forgot" class="hint" href="#" rel="nofollow">¿Olvidaste tu contraseña?</a>
         <span id="msg" class="msg" role="status" aria-live="polite"></span>
       </div>
@@ -86,20 +114,45 @@
     </section>
   </div>
 
-  <script>
-    // === API base (igual que en signup): usa location.origin si no hay override ===
-    const API = ((localStorage.getItem('pp_api_base')||location.origin)+'').replace(/\/+$/,'');
-    const qs  = new URLSearchParams(location.search);
-    const nextUrl = qs.get('next') || localStorage.getItem('pp_login_next') || '/peek.html';
+  <script type="module">
+    // ====== Cliente Supabase ======
+    async function getSupa() {
+      if (window.ppSupabase) return window.ppSupabase;
 
-    const $ = (s)=>document.querySelector(s);
+      // 1) Si _header.js expone un proveedor, úsalo
+      const fromHeader = (window.ppGetSupabaseConfig && window.ppGetSupabaseConfig()) || null;
+      // 2) Si no, lee de PP_ENV
+      const fromEnv = window.PP_ENV ? { url: PP_ENV.sb_url, anon: PP_ENV.sb_anon } : null;
+      // 3) Si no, del localStorage (compat)
+      const fromLS  = {
+        url:  localStorage.getItem('pp_sb_url')  || null,
+        anon: localStorage.getItem('pp_sb_anon') || null
+      };
+
+      const cfg = fromHeader || fromEnv || fromLS;
+      const ok = !!(cfg && cfg.url && cfg.anon);
+
+      const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
+      if (!ok && isLocal) document.getElementById('cfgwarn').style.display = '';
+
+      if (!ok) return null;
+
+      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+      window.ppSupabase = createClient(cfg.url, cfg.anon);
+      return window.ppSupabase;
+    }
+
+    // ====== Util/UI ======
+    const $ = s => document.querySelector(s);
     const email = $('#email');
     const pass  = $('#pass');
     const btn   = $('#btn');
     const msg   = $('#msg');
     const toggle= $('#toggle');
 
-    // Pre-carga email si viene de signup/recordado
+    const qs  = new URLSearchParams(location.search);
+    const nextUrl = qs.get('next') || localStorage.getItem('pp_login_next') || './creators.html';
+
     (()=>{ const e = localStorage.getItem('pp_email'); if(e) email.value = e; })();
 
     toggle.onclick = ()=>{
@@ -112,70 +165,51 @@
       msg.textContent = text||'';
       msg.className = 'msg ' + (ok?'ok':'err');
     }
+    const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s||''));
 
-    function isEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s||'')); }
-
+    // ====== LOGIN con Supabase Auth v2 ======
+    let logging = false;
     async function doLogin(){
+      if (logging) return;
       setMsg('');
       let e = (email.value||'').trim().toLowerCase();
       let p = (pass.value||'').trim();
       if (!isEmail(e)){ setMsg('Email inválido'); return; }
       if (!p){ setMsg('Ingresa tu contraseña'); return; }
 
-      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Entrando…';
+      btn.disabled = true; logging = true;
+      const old = btn.textContent; btn.textContent = 'Entrando…';
 
       try{
-        const r = await fetch(API + '/api/auth/login', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ email:e, password:p })
-        });
-        const j = await r.json().catch(()=> ({}));
+        const supa = await getSupa();
+        if (!supa){ setMsg('Config de Supabase faltante'); return; }
 
-        if (!r.ok){
-          // Normaliza mensajes del backend
-          if (j?.error === 'invalid_email'){ setMsg('Email inválido'); }
-          else if (j?.error === 'missing_password'){ setMsg('Falta la contraseña'); }
-          else if (j?.error === 'invalid_credentials'){ setMsg('Email o contraseña incorrectos'); }
-          else if (j?.error === 'auth_error'){ setMsg(j.detail || 'No pudimos iniciar sesión'); }
-          else { setMsg('No pudimos iniciar sesión. Intenta de nuevo.'); }
+        try{ await supa.auth.signOut(); }catch(_e){}
+
+        const { data, error } = await supa.auth.signInWithPassword({ email: e, password: p });
+        if (error){
+          const msgLow = (error.message||'').toLowerCase();
+          if (msgLow.includes('invalid') || msgLow.includes('credentials')) setMsg('Email o contraseña incorrectos');
+          else setMsg(error.message || 'No pudimos iniciar sesión');
           return;
         }
 
-        // Esperamos { ok:true, user:{…}, session:{ access_token, expires_at, … } }
-        const session = j?.session;
-        const user    = j?.user;
-        if (!session?.access_token){
-          setMsg('Respuesta de login incompleta'); return;
-        }
+        if (data?.user?.email) localStorage.setItem('pp_email', data.user.email);
 
-        // Guarda sesión & email para autocompletar
-        localStorage.setItem('pp_session', JSON.stringify(session));
-        if (user?.email) localStorage.setItem('pp_email', user.email);
-
-        // Verifica token inmediatamente contra /api/auth/session
         try{
-          const r2 = await fetch(API + '/api/auth/session', {
-            headers:{ Authorization: 'Bearer '+session.access_token }
-          });
-          if (!r2.ok){
-            // Si aquí falla, mostramos detalle pero igual redirigimos (el token existe)
-            const jj = await r2.json().catch(()=>null);
-            console.warn('session check failed', jj || r2.status);
-          }
+          const { data:s } = await supa.auth.getSession();
+          if (!s?.session?.access_token) console.warn('Sin session token tras login');
         }catch(_e){}
 
-        // OK
         try{ window.plausible && plausible('login_ok'); }catch(_e){}
         setMsg('¡Listo! Sesión iniciada.', true);
-
-        // Redirección (respeta ?next=)
         localStorage.removeItem('pp_login_next');
         setTimeout(()=> location.href = nextUrl, 400);
       }catch(e){
+        console.error(e);
         setMsg('Error de red. Intenta de nuevo.');
       }finally{
-        btn.disabled = false; btn.textContent = old;
+        btn.disabled = false; logging = false; btn.textContent = old;
       }
     }
 
@@ -183,23 +217,22 @@
     pass.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter') doLogin(); });
     email.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter') doLogin(); });
 
-    // Forgot password: abre flujo de Supabase por correo
+    // Forgot password
     document.getElementById('forgot').addEventListener('click', async (ev)=>{
       ev.preventDefault();
       const e = (email.value||'').trim().toLowerCase();
       if (!isEmail(e)){ setMsg('Escribe tu email arriba para enviarte el enlace.'); return; }
       try{
-        const r = await fetch(API + '/api/auth/reset-request', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ email:e, redirectTo: location.origin + '/login.html' })
+        const supa = await getSupa();
+        if (!supa){ setMsg('Config de Supabase faltante'); return; }
+        const { error } = await supa.auth.resetPasswordForEmail(e, {
+          redirectTo: location.origin + '/login.html'
         });
-        if (r.ok){ setMsg('Te enviamos un enlace para restablecer tu contraseña.', true); }
-        else { setMsg('No pudimos enviar el enlace.'); }
+        if (error) setMsg('No pudimos enviar el enlace.');
+        else setMsg('Te enviamos un enlace para restablecer tu contraseña.', true);
       }catch(_e){ setMsg('No pudimos enviar el enlace.'); }
     });
 
-    // Si venías de otra página “protegida”, recuerda next por si refrescas
     if (qs.get('next')) localStorage.setItem('pp_login_next', qs.get('next'));
   </script>
 </body>
