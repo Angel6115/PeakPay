@@ -1,0 +1,44 @@
+{
+  "creators": [
+    {
+      "handle": "ink-aria",
+      "name": "ink aria",
+      "cover": "/public/photos/artistico/ink-aria/sets/set-01/cover.jpg"
+    },
+    {
+      "handle": "lina-fit",
+      "name": "lina fit",
+      "cover": "/public/photos/artistico/lina-fit/sets/set-01/cover.jpg"
+    },
+    {
+      "handle": "noa-lace",
+      "name": "noa lace",
+      "cover": "/public/photos/artistico/noa-lace/sets/set-01/cover.jpg"
+    },
+    {
+      "handle": "rio-out",
+      "name": "rio out",
+      "cover": "/public/photos/artistico/rio-out/sets/set-01/cover.jpg"
+    },
+    {
+      "handle": "sasha-dance",
+      "name": "sasha dance",
+      "cover": "/public/photos/artistico/sasha-dance/sets/set-01/cover.jpg"
+    },
+    {
+      "handle": "sol-light",
+      "name": "sol light",
+      "cover": "/public/photos/artistico/sol-light/sets/set-01/cover.jpg"
+    },
+    {
+      "handle": "val-cos",
+      "name": "val cos",
+      "cover": "/public/photos/artistico/val-cos/sets/set-01/cover.jpg"
+    },
+    {
+      "handle": "zen-well",
+      "name": "zen well",
+      "cover": "/public/photos/artistico/zen-well/sets/set-01/cover.jpg"
+    }
+  ]
+}

@@ -1,12 +1,13 @@
 // public/_header.js
-// - Router local: reescribe /x -> /public/x en localhost:5173 (sin loops)
-// - Cliente Supabase singleton (window.__SB y alias window.sb)
-// - Botón Entrar/Salir fijo (esquina superior derecha)
-// - Botón "Volver al perfil" en creators.html y categories.html
-// - FIX: resolver ?return= y rutas relativas usando location.href (no origin)
+// PeekPay header boot
+// - Router local: / -> /public/* sólo en localhost:5173 (sin bucles)
+// - Carga de entorno: combina window.PP_ENV (env.js) + localStorage sin mutar el freeze()
+// - Supabase singleton: window.__SB y alias window.sb
+// - Barra Auth fija “Entrar / Salir”
+// - Util para manejar ?return= en botones Volver
 
 (function () {
-    /* ================= Router local -> /public (solo en Vite localhost:5173) ================= */
+    /* ================ Router local → /public (sólo en Vite 5173) ================ */
     try {
       const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
       const isVite = isLocal && location.port === '5173';
@@ -26,19 +27,32 @@
       }
     } catch {}
   
-    /* ================= Carga "entorno" desde localStorage ================= */
-    const PP_ENV = {
-      api_base: (localStorage.getItem('pp_api_base') || '').replace(/\/+$/, ''),
-      sb_url: localStorage.getItem('sb_url') || '',
-      sb_anon: localStorage.getItem('sb_anon') || ''
-    };
-    window.PP_ENV = Object.assign(window.PP_ENV || {}, PP_ENV);
+    /* ==================== Entorno: NO mutar window.PP_ENV ==================== */
+    // 1) Lee lo que expone env.js (puede no existir)
+    const FROM_ENV = (function () {
+      try { return window.PP_ENV || {}; } catch { return {}; }
+    })();
   
-    /* ================= Supabase singleton =================
-       Requiere <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    =================================================================== */
-    const hasCreds = !!(PP_ENV.sb_url && PP_ENV.sb_anon);
-    const supaLib = window.supabase;
+    // 2) Overlay con valores de localStorage (opcionales para depurar)
+    const LS = {
+      api_base: (localStorage.getItem('pp_api_base') || '').replace(/\/+$/, ''),
+      sb_url: localStorage.getItem('sb_url') || undefined,
+      sb_anon: localStorage.getItem('sb_anon') || undefined,
+    };
+  
+    // 3) Mezcla INMUTABLE sin tocar el objeto freeze() original
+    const MERGED_ENV = Object.freeze({
+      api_base: LS.api_base || FROM_ENV.api_base || '',
+      sb_url:   LS.sb_url   || FROM_ENV.sb_url   || '',
+      sb_anon:  LS.sb_anon  || FROM_ENV.sb_anon  || '',
+    });
+  
+    // Publica un objeto nuevo (no el original) para que el resto del código lea de aquí
+    window.PP_ENV = MERGED_ENV;
+  
+    /* ==================== Supabase singleton ==================== */
+    const supaLib = window.supabase; // CDN @supabase/supabase-js
+    const hasCreds = !!(MERGED_ENV.sb_url && MERGED_ENV.sb_anon);
   
     if (hasCreds && supaLib?.createClient) {
       if (!window.__SB) {
@@ -46,51 +60,36 @@
           const auth = {
             persistSession: true,
             storageKey: 'pp-auth',
-            autoRefreshToken: true
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
           };
-          window.__SB = supaLib.createClient(PP_ENV.sb_url, PP_ENV.sb_anon, { auth });
+          window.__SB = supaLib.createClient(MERGED_ENV.sb_url, MERGED_ENV.sb_anon, { auth });
           console.log('[peekpay] Supabase client inicializado');
         } catch (e) {
           console.warn('[peekpay] No se pudo crear el cliente Supabase:', e);
         }
       }
-      window.sb = window.__SB || window.sb || null;
+      window.sb = window.__SB || null;
     } else {
       console.warn('[peekpay] Supabase no configurado (local/demo).');
       window.sb = null;
     }
   
-    /* ================= Utilidades ================= */
-    function safeDecode(x) {
-      let s = x || '';
-      try { s = decodeURIComponent(s); } catch {}
-      try { s = decodeURIComponent(s); } catch {}
-      return (s || '').trim();
-    }
-  
-    // ⚠️ Usa location.href como base (no origin) para respetar /public/...
-    function resolveTarget(pathLike, fallback) {
-      if (!pathLike) return fallback;
+    /* ==================== Util: back con ?return= ==================== */
+    // Devuelve la URL a la que “volver” si existe ?return=xxx, si no, usa ./profile.html
+    function getReturnHref(defaultHref) {
       try {
-        const u = new URL(pathLike, location.href);
-        // no permitir salir del mismo origen
-        if (u.origin !== location.origin) return fallback;
-        return u.pathname + u.search + u.hash;
+        const u = new URL(location.href);
+        const ret = u.searchParams.get('return');
+        return ret || defaultHref || './profile.html';
       } catch {
-        return fallback;
+        return defaultHref || './profile.html';
       }
     }
+    // Exponer helper global mínimo para botones “Volver”
+    window.__pp_getReturn = getReturnHref;
   
-    function getReturnTarget(defaultRelative) {
-      const url = new URL(location.href);
-      const retRaw = url.searchParams.get('return');
-      const def = resolveTarget(defaultRelative, defaultRelative);
-      if (!retRaw) return def;
-      const ret = safeDecode(retRaw);
-      return resolveTarget(ret, def);
-    }
-  
-    /* ================= UI: Botón Entrar/Salir ================= */
+    /* ==================== Barra Auth fija (Entrar / Salir) ==================== */
     function mountAuthUI() {
       if (document.getElementById('pp-authbar')) return;
   
@@ -139,15 +138,12 @@
       const sb = window.sb;
   
       async function refresh() {
-        const isProfile =
-          location.pathname.endsWith('/profile.html') || location.pathname === '/public/profile.html';
-  
         if (!sb) {
           txt.textContent = 'Entrar';
           btn.title = 'Entrar';
+          // Preferimos rutas relativas con .html para que funcione igual en Vercel y local
           btn.onclick = () => (location.href = './auth-signup.html');
           avatar.style.display = 'none';
-          bar.style.display = 'block';
           return;
         }
         try {
@@ -157,22 +153,25 @@
             btn.title = 'Entrar';
             btn.onclick = () => (location.href = './auth-signup.html');
             avatar.style.display = 'none';
-            bar.style.display = 'block';
           } else {
-            if (isProfile) {
-              bar.style.display = 'none'; // ocultar en el perfil con sesión activa
-              return;
-            }
             const name = session.user.user_metadata?.name || session.user.email || 'Cuenta';
-            const pic = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '';
+            const pic =
+              session.user.user_metadata?.avatar_url ||
+              session.user.user_metadata?.picture ||
+              '';
             txt.textContent = name.length > 22 ? name.slice(0, 21) + '…' : name;
-            if (pic) { avatar.src = pic; avatar.style.display = 'inline-block'; } else { avatar.style.display = 'none'; }
+            if (pic) {
+              avatar.src = pic;
+              avatar.style.display = 'inline-block';
+            } else {
+              avatar.style.display = 'none';
+            }
             btn.title = 'Salir';
             btn.onclick = async () => {
               try { await sb.auth.signOut(); } catch {}
-              location.reload();
+              const back = getReturnHref('./auth-signup.html');
+              location.href = back;
             };
-            bar.style.display = 'block';
           }
         } catch (e) {
           console.warn('[peekpay] auth refresh error', e);
@@ -180,7 +179,6 @@
           btn.title = 'Entrar';
           btn.onclick = () => (location.href = './auth-signup.html');
           avatar.style.display = 'none';
-          bar.style.display = 'block';
         }
       }
   
@@ -189,65 +187,10 @@
       window.addEventListener('focus', () => setTimeout(refresh, 300));
     }
   
-    /* ================= UI: Botón "Volver al perfil" ================= */
-    function mountBackUI() {
-      const path = location.pathname;
-      const wantBack =
-        path.endsWith('/creators.html') ||
-        path.endsWith('/categories.html');
-  
-      if (!wantBack) return;
-      if (document.getElementById('pp-backbar')) return;
-  
-      const backBar = document.createElement('div');
-      backBar.id = 'pp-backbar';
-      Object.assign(backBar.style, {
-        position: 'fixed',
-        top: '10px',
-        left: '10px',
-        zIndex: '9999',
-        fontFamily: 'system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif'
-      });
-  
-      const backBtn = document.createElement('a');
-      backBtn.textContent = 'Volver al perfil';
-      backBtn.href = '#';
-      Object.assign(backBtn.style, {
-        border: '1px solid #c7d2fe',
-        background: '#eef2ff',
-        color: '#1e1b4b',
-        padding: '6px 10px',
-        fontSize: '12px',
-        borderRadius: '999px',
-        textDecoration: 'none',
-        boxShadow: '0 6px 12px rgba(79,70,229,.10)'
-      });
-  
-      backBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Por defecto siempre /public/profile.html (usando ruta relativa para heredar /public/)
-        const target = getReturnTarget('./profile.html');
-        const here = location.pathname + location.search + location.hash;
-        if (target === here) {
-          location.href = './profile.html';
-        } else {
-          location.href = target;
-        }
-      });
-  
-      backBar.appendChild(backBtn);
-      document.body.appendChild(backBar);
-    }
-  
-    /* ================= Mount ================= */
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        mountAuthUI();
-        mountBackUI();
-      });
+      document.addEventListener('DOMContentLoaded', mountAuthUI);
     } else {
       mountAuthUI();
-      mountBackUI();
     }
   })();
   

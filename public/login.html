@@ -6,7 +6,6 @@
   <title>PeekPay — Iniciar sesión</title>
 
   <!-- 1) Carga la config pública -->
-  <script src="./env.js"></script>
   <!-- Sincroniza PP_ENV -> localStorage (compatibilidad con _header.js antiguo) -->
   <script>
     (function(){
@@ -18,6 +17,8 @@
   </script>
 
   <!-- 2) Router local (reescribe /… -> /public/… en localhost) -->
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./_header.js" defer></script>
 
   <link rel="icon" href="./favicon.ico">
@@ -137,7 +138,6 @@
 
       if (!ok) return null;
 
-      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
       window.ppSupabase = createClient(cfg.url, cfg.anon);
       return window.ppSupabase;
     }
