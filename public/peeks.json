@@ -273,6 +273,25 @@
           "full": "/photos/arte/zen-well/sets/set-01/full.jpg"
         }
       ]
+    },
+    "arte/ink-aria": {
+      "sets": [
+        {
+          "slug": "set-03",
+          "title": "set-03",
+          "grid": 4,
+          "blurb": "",
+          "full": "/photos/arte/ink-aria/sets/set-03/full.jpg",
+          "cover": "/photos/arte/ink-aria/sets/set-03/cover.jpg",
+          "fullLocal": "/public/photos/arte/ink-aria/sets/set-03/full.jpg",
+          "coverLocal": "/public/photos/arte/ink-aria/sets/set-03/cover.jpg"
+        }
+      ],
+      "name": "ink aria",
+      "handle": "@ink.aria",
+      "country": "Mundo",
+      "verified": false,
+      "stats": {}
     }
   },
   "categories": {

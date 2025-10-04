@@ -1,0 +1,9 @@
+# 2) Permisos chmod +x bin/new_peek_set.sh # 
+3) Crear un set usando una imagen base 
+bin/new_peek_set.sh --cat arte --creator 
+ink-aria --set set-02 --full 
+~/Pictures/mosaico.jpg # 4) (Opcional) 
+especificar una portada distinta
+bin/new_peek_set.sh --cat fitness --creator lina-fit --set backstage-01 --full ~/Pics/full.png --cover ~/Pics/cover.png
+
+

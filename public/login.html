@@ -5,20 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>PeekPay — Iniciar sesión</title>
 
-  <!-- 1) Carga la config pública -->
-  <!-- Sincroniza PP_ENV -> localStorage (compatibilidad con _header.js antiguo) -->
-  <script>
-    (function(){
-      const E = (window.PP_ENV||{});
-      if (E.sb_url)  localStorage.setItem('pp_sb_url',  E.sb_url);
-      if (E.sb_anon) localStorage.setItem('pp_sb_anon', E.sb_anon);
-      if (E.api_base)localStorage.setItem('pp_api_base',E.api_base);
-    })();
-  </script>
-
-  <!-- 2) Router local (reescribe /… -> /public/… en localhost) -->
-    <script src="./env.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Orden correcto: env.js -> Supabase CDN -> _header.js -->
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./_header.js" defer></script>
 
   <link rel="icon" href="./favicon.ico">
@@ -57,7 +46,7 @@
     .eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:12px;color:var(--muted)}
     .field{position:relative}
     .pill{display:inline-block;font-size:11px;background:var(--indigo-soft);color:#1e1b4b;border:1px solid #c7d2fe;border-radius:999px;padding:2px 8px;vertical-align:middle}
-    .cfgwarn{margin-top:10px; padding:10px; border:1px dashed #cbd5e1; border-radius:10px; font-size:12px; color:#475569; background:#fff}
+    .cfgwarn{margin-top:10px; padding:10px; border:1px dashed #cbd5e1; border-radius:10px; font-size:12px; color:#475569; background:#fff; display:none}
     .cfgwarn code{background:#f1f5f9; padding:2px 6px; border-radius:6px}
   </style>
 </head>
@@ -70,7 +59,7 @@
         <small>Confidencialidad primero</small>
       </div>
       <div class="right actions">
-        <a class="btn secondary" href="./signup.html">Crear cuenta</a>
+        <a class="btn secondary" href="./auth-signup.html?return=./profile.html">Crear cuenta</a>
       </div>
     </header>
 
@@ -78,7 +67,7 @@
       <h2 style="margin:0 0 10px">Inicia sesión</h2>
       <p class="hint">Accede con tu email y contraseña. Luego podrás activar 2FA.</p>
 
-      <div id="cfgwarn" class="cfgwarn" style="display:none">
+      <div id="cfgwarn" class="cfgwarn">
         Falta la configuración de Supabase en el navegador.
         Define en <b>localStorage</b>:
         <div style="margin-top:6px">
@@ -102,7 +91,7 @@
 
       <div class="actions" style="margin-top:12px">
         <button id="btn" class="btn">Entrar</button>
-        <a class="btn secondary" href="./signup.html">Crear cuenta</a>
+        <a class="btn secondary" href="./auth-signup.html?return=./profile.html">Crear cuenta</a>
         <a id="forgot" class="hint" href="#" rel="nofollow">¿Olvidaste tu contraseña?</a>
         <span id="msg" class="msg" role="status" aria-live="polite"></span>
       </div>
@@ -115,31 +104,25 @@
     </section>
   </div>
 
-  <script type="module">
-    // ====== Cliente Supabase ======
-    async function getSupa() {
-      if (window.ppSupabase) return window.ppSupabase;
+  <script>
+    // Helper "volver" con ?return=
+    const getReturnHref = window.__pp_getReturn || function (dft){
+      try { const u = new URL(location.href); return u.searchParams.get('return') || dft || './profile.html'; }
+      catch { return dft || './profile.html'; }
+    };
 
-      // 1) Si _header.js expone un proveedor, úsalo
-      const fromHeader = (window.ppGetSupabaseConfig && window.ppGetSupabaseConfig()) || null;
-      // 2) Si no, lee de PP_ENV
-      const fromEnv = window.PP_ENV ? { url: PP_ENV.sb_url, anon: PP_ENV.sb_anon } : null;
-      // 3) Si no, del localStorage (compat)
-      const fromLS  = {
-        url:  localStorage.getItem('pp_sb_url')  || null,
-        anon: localStorage.getItem('pp_sb_anon') || null
-      };
+    // ====== Cliente Supabase (preferimos window.sb inicializado por _header.js) ======
+    function getSb() {
+      if (window.sb) return window.sb;
 
-      const cfg = fromHeader || fromEnv || fromLS;
-      const ok = !!(cfg && cfg.url && cfg.anon);
-
-      const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
-      if (!ok && isLocal) document.getElementById('cfgwarn').style.display = '';
-
-      if (!ok) return null;
-
-      window.ppSupabase = createClient(cfg.url, cfg.anon);
-      return window.ppSupabase;
+      // Fallback manual si por alguna razón no se creó el singleton (no recomendado)
+      const url  = (window.PP_ENV && PP_ENV.sb_url)  || localStorage.getItem('pp_sb_url')  || '';
+      const anon = (window.PP_ENV && PP_ENV.sb_anon) || localStorage.getItem('pp_sb_anon') || '';
+      if (url && anon && window.supabase?.createClient) {
+        try { return window.supabase.createClient(url, anon, { auth: { persistSession: true, storageKey: 'pp-auth' } }); }
+        catch { /* ignore */ }
+      }
+      return null;
     }
 
     // ====== Util/UI ======
@@ -151,9 +134,12 @@
     const toggle= $('#toggle');
 
     const qs  = new URLSearchParams(location.search);
-    const nextUrl = qs.get('next') || localStorage.getItem('pp_login_next') || './creators.html';
+    const nextUrl = qs.get('next') || localStorage.getItem('pp_login_next') || './profile.html';
 
-    (()=>{ const e = localStorage.getItem('pp_email'); if(e) email.value = e; })();
+    (()=>{
+      const e = localStorage.getItem('pp_email');
+      if (e) email.value = e;
+    })();
 
     toggle.onclick = ()=>{
       const t = pass.getAttribute('type') === 'password' ? 'text':'password';
@@ -167,6 +153,14 @@
     }
     const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s||''));
 
+    // Mostrar aviso de config si no hay credenciales
+    (function warnIfNoCfg(){
+      const hasSb = !!getSb();
+      const hasCreds = !!((window.PP_ENV && (PP_ENV.sb_url && PP_ENV.sb_anon)) ||
+                          (localStorage.getItem('pp_sb_url') && localStorage.getItem('pp_sb_anon')));
+      if (!hasSb && !hasCreds) document.getElementById('cfgwarn').style.display = '';
+    })();
+
     // ====== LOGIN con Supabase Auth v2 ======
     let logging = false;
     async function doLogin(){
@@ -177,34 +171,30 @@
       if (!isEmail(e)){ setMsg('Email inválido'); return; }
       if (!p){ setMsg('Ingresa tu contraseña'); return; }
 
+      const sb = getSb();
+      if (!sb){ setMsg('Supabase no está configurado.'); return; }
+
       btn.disabled = true; logging = true;
       const old = btn.textContent; btn.textContent = 'Entrando…';
 
       try{
-        const supa = await getSupa();
-        if (!supa){ setMsg('Config de Supabase faltante'); return; }
+        // limpiar sesiones antiguas por seguridad
+        try{ await sb.auth.signOut(); }catch{}
 
-        try{ await supa.auth.signOut(); }catch(_e){}
-
-        const { data, error } = await supa.auth.signInWithPassword({ email: e, password: p });
+        const { data, error } = await sb.auth.signInWithPassword({ email: e, password: p });
         if (error){
-          const msgLow = (error.message||'').toLowerCase();
-          if (msgLow.includes('invalid') || msgLow.includes('credentials')) setMsg('Email o contraseña incorrectos');
+          const m = (error.message||'').toLowerCase();
+          if (m.includes('invalid') || m.includes('credentials')) setMsg('Email o contraseña incorrectos');
           else setMsg(error.message || 'No pudimos iniciar sesión');
           return;
         }
 
         if (data?.user?.email) localStorage.setItem('pp_email', data.user.email);
+        try{ window.plausible && plausible('login_ok'); }catch{}
 
-        try{
-          const { data:s } = await supa.auth.getSession();
-          if (!s?.session?.access_token) console.warn('Sin session token tras login');
-        }catch(_e){}
-
-        try{ window.plausible && plausible('login_ok'); }catch(_e){}
         setMsg('¡Listo! Sesión iniciada.', true);
         localStorage.removeItem('pp_login_next');
-        setTimeout(()=> location.href = nextUrl, 400);
+        setTimeout(()=> location.href = getReturnHref(nextUrl), 400);
       }catch(e){
         console.error(e);
         setMsg('Error de red. Intenta de nuevo.');
@@ -222,15 +212,15 @@
       ev.preventDefault();
       const e = (email.value||'').trim().toLowerCase();
       if (!isEmail(e)){ setMsg('Escribe tu email arriba para enviarte el enlace.'); return; }
+      const sb = getSb();
+      if (!sb){ setMsg('Supabase no está configurado.'); return; }
       try{
-        const supa = await getSupa();
-        if (!supa){ setMsg('Config de Supabase faltante'); return; }
-        const { error } = await supa.auth.resetPasswordForEmail(e, {
-          redirectTo: location.origin + '/login.html'
+        const { error } = await sb.auth.resetPasswordForEmail(e, {
+          redirectTo: location.origin + '/auth-callback.html?mode=rp'
         });
         if (error) setMsg('No pudimos enviar el enlace.');
         else setMsg('Te enviamos un enlace para restablecer tu contraseña.', true);
-      }catch(_e){ setMsg('No pudimos enviar el enlace.'); }
+      }catch{ setMsg('No pudimos enviar el enlace.'); }
     });
 
     if (qs.get('next')) localStorage.setItem('pp_login_next', qs.get('next'));

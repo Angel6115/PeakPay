@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PeekPay — Peek</title>
 
-  <!-- Router local (reescribe /... a /public/... en localhost) -->
-    <script src="./env.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Orden correcto: env -> supabase-js -> _header -->
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./_header.js" defer></script>
 
   <link rel="icon" href="./favicon.ico">
@@ -26,73 +26,58 @@
       --toast:#111827; --toast-text:#fff;
       --bleed:.5px;
     }
-
     *{box-sizing:border-box}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
     a{color:inherit}
     .wrap{max-width:1024px;margin:0 auto;padding:28px 16px 56px}
-
     header{display:flex;gap:10px;align-items:center}
     header img{width:36px;border-radius:8px;box-shadow:0 6px 14px rgba(79,70,229,.12)}
     .brand{font-size:12px;color:var(--muted)}
     .brand .crumbs a{opacity:.95}
     .brand .crumbs a:hover{text-decoration:underline}
-
     .panel{border:1px solid var(--ring);background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 6px 14px rgba(79,70,229,.06)}
     .h-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
     .avatar{width:64px;height:64px;border-radius:14px;object-fit:cover;border:1px solid var(--ring);background:#fff}
     .name{font-size:18px;font-weight:700}
     .badge-verified{font-size:11px;background:var(--indigo-soft);color:#1e1b4b;border:1px solid #c7d2fe;border-radius:999px;padding:3px 8px;margin-left:8px}
     .meta-line{font-size:12px;color:var(--muted)}
-
     .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
     .chip{font-size:12px;border:1px solid var(--ring);background:#fff;padding:6px 10px;border-radius:999px}
     .chip b{font-weight:700}
-
     .wallet{margin-left:auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
     .badge-wallet{border:1px solid #c7d2fe; background:var(--indigo-soft); color:#1e1b4b; border-radius:10px; padding:6px 10px; font-size:12px; line-height:1}
     .wallet a{border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:8px 12px; border-radius:10px; text-decoration:none; font-size:12px; box-shadow:0 6px 16px rgba(79,70,229,.25)}
     .hint{border:1px solid #fecaca; background:#fee2e2; color:#7f1d1d; border-radius:999px; padding:4px 10px; font-size:12px; display:none}
     .hint.show{display:inline-block; animation: fade 2.2s ease}
-    @keyframes fade{ 0%{opacity:0; transform:translateY(-2px)} 10%{opacity:1; transform:none} 90%{opacity:1} 100%{opacity:0} }
-
+    @keyframes fade{0%{opacity:0;transform:translateY(-2px)}10%{opacity:1;transform:none}90%{opacity:1}100%{opacity:0}}
     .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
     .btn{border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:10px 14px; border-radius:10px; cursor:pointer; box-shadow:0 6px 16px rgba(79,70,229,.25)}
     .btn.secondary{background:#fff;color:var(--indigo);border:1px solid var(--ring);box-shadow:none}
-
     .progress{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
     .bar{flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
     .bar span{display:block;height:100%;background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);width:0%}
-
     .frame{border:0;border-radius:12px;overflow:hidden;background:transparent;margin-top:12px}
     .grid{--cols:4;--gap:0px; display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:var(--gap); align-items:stretch; justify-items:stretch; contain: layout paint; backface-visibility: hidden;}
     .cell{position:relative;aspect-ratio:1/1;cursor:pointer;overflow:hidden;-webkit-tap-highlight-color:transparent;background:transparent; transform: translateZ(0); will-change: transform;}
     .cell .img{position:absolute; inset: calc(var(--bleed) * -1); background-repeat:no-repeat; background-size: calc(var(--cols) * 100%) calc(var(--cols) * 100%); background-origin: border-box; background-clip: border-box; image-rendering: auto; will-change: background-position, opacity, filter, transform; transition:filter .2s ease, transform .2s ease, opacity .2s ease; opacity:1;}
     .cell .img.alt{position:absolute; inset: calc(var(--bleed) * -1); background-repeat:no-repeat; background-size:inherit; background-position:inherit; background-origin:border-box; background-clip:border-box; opacity:0; transition:opacity .25s ease;}
     .cell .img.loading{background: linear-gradient(90deg, var(--shimmer1), var(--shimmer2), var(--shimmer3)); background-size: 200% 100%; animation: shimmer 1.1s linear infinite;}
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    @keyframes shimmer {0%{background-position:200% 0}100%{background-position:-200% 0}}
     .cell.locked .img{filter:blur(10px);transform:scale(1.02)}
     .cell.unlocked .img{filter:blur(0)}
     .cell.preview.locked .img{filter:blur(2px)!important}
-
     .badge{position:absolute;right:8px;top:8px;font-size:11px;padding:4px 8px;border-radius:999px;color:#fff;border:1px solid rgba(255,255,255,.25)}
     .cell .badge{box-shadow:0 6px 14px rgba(0,0,0,.18)}
     .badge.free{background: linear-gradient(90deg, var(--mint) 0%, #34d399 100%)}
     .badge.lock{background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%)}
-
     .watermark{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(45deg,rgba(0,0,0,0) 0 24px,rgba(0,0,0,.05) 24px 32px);mix-blend-mode:multiply;opacity:.22}
-
     .desc{margin-top:8px;font-size:14px;color:var(--muted)}
     .msg{font-size:13px;margin-top:8px}
     .ok{color:var(--ok)} .err{color:var(--err)}
-
     .grid--reveal{display:block}
     .grid--reveal img.full{display:block;width:100%;height:auto;border-radius:12px}
-
     .credit{margin-top:12px;padding:12px;border:1px solid var(--ring);background:#fff;border-radius:12px;font-size:13px;color:var(--text);display:none}
-
     .debug-row{margin-top:8px}
-
     .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:var(--toast); color:var(--toast-text); border:1px solid rgba(255,255,255,.15); box-shadow:0 10px 24px rgba(0,0,0,.2); padding:10px 14px; border-radius:12px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; display:flex; align-items:center; gap:8px;}
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
     .toast .pill{background:#16a34a; color:#fff; border-radius:999px; padding:2px 8px; font-weight:700; font-size:12px}
@@ -176,25 +161,25 @@
     const $ = (s)=>document.querySelector(s);
     const params = new URLSearchParams(location.search);
 
-    // Acepta ?creator= y ?cat=, y también ?u=cat/creator
+    // Prefijo público en local (Vite sirve /public/... como raíz)
+    const PUBLIC_PREFIX =
+      (location.hostname === 'localhost' && location.pathname.startsWith('/public')) ? '/public' : '';
+
+    // Admite ?creator= y ?cat=, y también ?u=cat/creator
     let cat  = params.get('cat') || 'arte';
     let slug = params.get('creator') || 'ink-aria';
     const uParam = params.get('u');
     if (uParam) {
       const parts = String(uParam).split('/').filter(Boolean);
-      if (parts.length >= 2) {
-        cat  = params.get('cat') || parts[0];
-        slug = params.get('creator') || parts[1];
-      } else if (!params.get('creator')) {
-        slug = parts[0];
-      }
+      if (parts.length >= 2)      { cat  = params.get('cat') || parts[0]; slug = params.get('creator') || parts[1]; }
+      else if (!params.get('creator')) { slug = parts[0]; }
     }
 
     const setParam = params.get('s') || params.get('set') || null;
     const SET_ID   = params.get('sid') || '697dc6d3-4008-4221-8259-4a7779c2a0ea';
     let GRID = parseInt(params.get('g')||'4',10); if (![3,4,5].includes(GRID)) GRID = 4;
 
-    // API base (PP_ENV → localStorage → vacío)
+    // API base (PP_ENV → localStorage → '')
     const API_BASE = (
       (window.PP_ENV && window.PP_ENV.api_base) ||
       localStorage.getItem('pp_api_base') ||
@@ -212,7 +197,6 @@
     /* ===== Helpers de wallet ===== */
     function pickCredits(obj){ if (!obj) return 0; if (typeof obj.credits==='number') return obj.credits; if (typeof obj.balance==='number') return obj.balance; if (obj.balance && typeof obj.balance.credits==='number') return obj.balance.credits; return 0; }
     function pickPoints(obj){ if (!obj) return 0; if (typeof obj.points==='number') return obj.points; if (obj.balance && typeof obj.balance.points==='number') return obj.balance.points; return 0; }
-
     const CREDIT_KEY='pp_demo_balance', POINTS_KEY='pp_points';
     const getLocalCredits = ()=> Number(localStorage.getItem(CREDIT_KEY)||'0')||0;
     const setLocalCredits = (n)=>{ const v=Math.max(0,Math.floor(Number(n||0))); localStorage.setItem(CREDIT_KEY,String(v)); updateCreditsUI(); }
@@ -234,7 +218,6 @@
     function updateCreditsUI(){ const cr=getLocalCredits(); $('#credits').textContent=cr.toLocaleString('en-US'); $('#creditsUsd').textContent='≈ '+fmtMoney(cr*0.25); }
     function updatePointsUI(){ $('#points').textContent=getLocalPoints().toLocaleString('en-US'); }
     function showDeficit(def){ const n=Math.max(1, def|0); const el=$('#walletHint'); el.textContent=`Faltan ${n} crédito${n>1?'s':''}`; el.classList.add('show'); clearTimeout(showDeficit._t); showDeficit._t=setTimeout(()=>el.classList.remove('show'),2100); }
-
     function showToast(pillText, bodyText){ const t=$('#toast'); $('#toastPill').textContent=pillText||'+1'; $('#toastText').textContent=bodyText||'Punto de racha conseguido'; t.classList.add('show'); clearTimeout(showToast._t); showToast._t=setTimeout(()=> t.classList.remove('show'), 2000); }
     async function tryGrantStreakBonus(){
       if (!API_BASE) return;
@@ -267,10 +250,18 @@
     const loadProgress = (creator,setSlug)=>{ try{ return new Set(JSON.parse(localStorage.getItem(progressKey(creator,setSlug))||'[]')); }catch{ return new Set(); } };
     const saveProgress = (creator,setSlug,setOfIdx)=>{ try{ localStorage.setItem(progressKey(creator,setSlug), JSON.stringify([...setOfIdx])); }catch{} };
 
-    // Paths “legacy” locales (usa ?cat= y ?creator=)
+    // Paths “legacy” locales (usa ?cat= y ?creator=) — usa PUBLIC_PREFIX
     function legacyPaths(){
-      const base = setParam ? `/photos/${cat}/${slug}/sets/${setParam}` : `/photos/${cat}/${slug}`;
-      return { full:`${base}/full.webp`, cover:`${base}/cover.webp`, avatar:`${base}/cover.webp`, grid:GRID, desc:'' };
+      const base = setParam
+        ? `${PUBLIC_PREFIX}/photos/${cat}/${slug}/sets/${setParam}`
+        : `${PUBLIC_PREFIX}/photos/${cat}/${slug}`;
+      return {
+        full:   `${base}/full.webp`,
+        cover:  `${base}/cover.webp`,
+        avatar: `${base}/cover.webp`,
+        grid:   GRID,
+        desc:   ''
+      };
     }
 
     async function loadData(){
@@ -307,7 +298,8 @@
 
       if (verified) $('#c-verified').style.display = 'inline-block';
 
-      const avatar = setInfo?.cover || `/photos/${cat}/${slug}/cover.webp`;
+      const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
+  const avatar = (isLocal ? (setInfo?.coverLocal || setInfo?.cover) : (setInfo?.cover || setInfo?.coverLocal)) || `${PUBLIC_PREFIX}/photos/${cat}/${slug}/cover.webp`;
       const i=new Image();
       i.onload=()=>$('#avatar').src=avatar;
       i.onerror=()=>$('#avatar').src='./peak1.png';
@@ -328,8 +320,6 @@
     // ===== URL firmada con fallback de formato =====
     async function getSignedFull(){
       if (!API_BASE) return null;
-
-      // Helper: pide al API una URL firmada para un formato dado (webp/jpg)
       async function ask(ext){
         const url = new URL(`${API_BASE}/api/sets/signed-full`);
         url.searchParams.set('id',   SET_ID);
@@ -343,32 +333,16 @@
         const j = await r.json().catch(()=>null);
         return j?.url || null;
       }
-
-      // 1) Si viene ?ext, respétalo tal cual
       const forced = params.get('ext');
       if (forced){
-        try{
-          const one = await ask(forced);
-          if (one){
-            // validamos que realmente carga
-            try { await preloadDecode(one,'high'); } catch { return null; }
-            return one;
-          }
-        }catch(_e){}
+        const one = await ask(forced);
+        if (one){ try { await preloadDecode(one,'high'); } catch { return null; } return one; }
         return null;
       }
-
-      // 2) Fallback automático: webp → jpg
       let url = await ask('webp');
-      if (url){
-        try { await preloadDecode(url,'high'); return url; }
-        catch { url = null; }
-      }
+      if (url){ try { await preloadDecode(url,'high'); return url; } catch { url = null; } }
       url = await ask('jpg');
-      if (url){
-        try { await preloadDecode(url,'high'); return url; }
-        catch { /* nada */ }
-      }
+      if (url){ try { await preloadDecode(url,'high'); return url; } catch {} }
       return null;
     }
 
@@ -568,7 +542,7 @@
       updateCreditsUI(); updatePointsUI();
       await fetchBalance().then(()=>{ updateCreditsUI(); updatePointsUI(); });
 
-      // 1) Prueba con API firmada si hay sid
+      // 1) Si hay sid, intenta Storage firmado
       let signedFull = null;
       if (params.get('sid')) signedFull = await getSignedFull();
 
@@ -582,29 +556,45 @@
             if (!params.get('g')) GRID = Number(setInfo.grid || GRID) || 4;
             $('#grid').style.setProperty('--cols', GRID);
             setHeader(detail, setInfo);
-            buildGrid(setInfo.full);
+            const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
+  const fullForEnv = isLocal ? (setInfo.fullLocal || setInfo.full) : (setInfo.full || setInfo.fullLocal);
+  buildGrid(fullForEnv);
             try{ window.plausible && plausible('preview_shown',{props:{u:slug,set:setInfo.slug,grid:String(GRID)}});}catch{}
             return;
           }
         }
 
-        // 3) Fallback legacy a /photos/<cat>/<creator>/...
-        const legacy = legacyPaths();
-        $('#grid').style.setProperty('--cols', legacy.grid);
-        $('#set-title').textContent = '(set)';
-        $('#c-desc').textContent = legacy.desc || 'Peeks que insinúan más de lo que muestran. Desbloquea y arma la historia.';
+        // 3) Fallback legacy a /photos/<cat>/<creator>/... (con sets/<guess>)
+        const guessSet = setParam || 'set-01';
+        const baseRoot = `${PUBLIC_PREFIX}/photos/${cat}/${slug}`;
+        const baseSet  = `${PUBLIC_PREFIX}/photos/${cat}/${slug}/sets/${guessSet}`;
 
-        // Probar primero webp; si falla, intentamos jpg automáticamente
-        const test=new Image();
-        test.onload=()=>{ setHeader({name:slug,stats:{}},{cover:legacy.cover,blurb:''}); buildGrid(legacy.full); try{ window.plausible && plausible('preview_shown',{props:{u:slug,set:setParam||'default',grid:String(GRID)}});}catch{} };
-        test.onerror=()=>{
-          const jpg = legacy.full.replace(/\.webp$/i, '.jpg');
-          const test2 = new Image();
-          test2.onload=()=>{ setHeader({name:slug,stats:{}},{cover:legacy.cover.replace(/\.webp$/i,'.jpg'),blurb:''}); buildGrid(jpg); };
-          test2.onerror=()=>{ const $msg=$('#msg'); $msg.innerHTML='Aún no hay imagen base. Sube <code>full.webp</code> o <code>full.jpg</code> para este creador/set en <code>/photos/'+cat+'/'+slug+(setParam?('/sets/'+setParam):'')+'</code>.'; $msg.className='msg err'; };
-          test2.src = jpg;
-        };
-        test.src = legacy.full;
+        $('#grid').style.setProperty('--cols', GRID);
+        $('#set-title').textContent = '(set)';
+        $('#c-desc').textContent = 'Peeks que insinúan más de lo que muestran. Desbloquea y arma la historia.';
+
+        const candidates = [
+          { full: `${baseRoot}/full.webp`, cover: `${baseRoot}/cover.webp` },
+          { full: `${baseRoot}/full.jpg`,  cover: `${baseRoot}/cover.jpg`  },
+          { full: `${baseSet}/full.webp`,  cover: `${baseSet}/cover.webp`  },
+          { full: `${baseSet}/full.jpg`,   cover: `${baseSet}/cover.jpg`   },
+        ];
+        console.log('[peek] candidatos de imagen', candidates);
+
+        (async ()=>{
+          for (const cand of candidates){
+            try{
+              await new Promise((res,rej)=>{ const im=new Image(); im.onload=res; im.onerror=rej; im.src=cand.full; });
+              setHeader({name:slug,stats:{}},{cover:cand.cover,blurb:''});
+              buildGrid(cand.full);
+              try{ window.plausible && plausible('preview_shown',{props:{u:slug,set:guessSet,grid:String(GRID)}});}catch{}
+              return;
+            }catch{}
+          }
+          const $msg=$('#msg');
+          $msg.innerHTML = 'Aún no hay imagen base. Pon <code>full.webp</code> / <code>full.jpg</code> en <code>'+baseRoot+'</code> o en <code>'+baseSet+'</code>.';
+          $msg.className='msg err';
+        })();
         return;
       }
 

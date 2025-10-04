@@ -5,311 +5,244 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>PeekPay — Ajustes de cuenta</title>
 
-    <script src="./env.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Orden: env -> supabase CDN -> _header -->
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./_header.js" defer></script>
 
   <link rel="icon" href="./favicon.ico">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+
   <style>
-    :root{ --ring:#e2e8f0; --text:#0b1020; --muted:#475569; --ok:#065f46; --okbg:#d1fae5; --err:#7f1d1d; --errbg:#fee2e2; }
-    html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;color:var(--text)}
-    .wrap{max-width:920px;margin:0 auto;padding:18px 14px 80px}
-    .back{border:1px solid #c7d2fe;background:#eef2ff;color:#1e1b4b;border-radius:999px;padding:8px 14px;text-decoration:none}
-    .card{margin-top:12px;border:1px solid var(--ring);border-radius:14px;padding:14px 12px;box-shadow:0 8px 20px rgba(79,70,229,.06)}
-    .row{display:grid;grid-template-columns:180px 1fr;gap:12px;align-items:start;margin-top:10px}
-    @media (max-width:680px){.row{grid-template-columns:1fr}}
-    .muted{color:var(--muted);font-size:13px}
-    input[type=text],input[type=password]{width:100%;border:1px solid var(--ring);border-radius:10px;padding:10px;font-size:14px}
-    .btn{border:1px solid var(--ring);background:#fff;border-radius:10px;padding:10px 12px;cursor:pointer}
-    .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .btn.primary{border:0;background:linear-gradient(90deg,#4f46e5,#2563eb);color:#fff;box-shadow:0 8px 18px rgba(79,70,229,.25)}
-    .avatar{width:120px;height:120px;border-radius:16px;border:1px solid var(--ring);object-fit:cover;background:#fff}
-    .note{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px}
-    .ok{background:var(--okbg);color:var(--ok);border:1px solid #a7f3d0}
-    .err{background:var(--errbg);color:var(--err);border:1px solid #fecaca}
-    .head{display:flex;align-items:center;justify-content:space-between}
-    .right{display:flex;align-items:center;gap:8px}
-    .chip{font-size:12px;border:1px solid var(--ring);border-radius:999px;padding:6px 10px}
-    .banner{background:var(--errbg);color:var(--err);border:1px solid #fecaca;border-radius:10px;padding:10px 12px;margin:10px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .banner a{color:inherit}
+    :root{ --ring:#e2e8f0; --muted:#475569; --ok:#059669; --err:#b91c1c; --indigo:#4f46e5; --blue:#2563eb;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;background:#fff;color:#0b1020}
+    .wrap{max-width:980px;margin:0 auto;padding:18px 12px 64px}
+    .top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .back{border:1px solid #c7d2fe;background:#eef2ff;color:#1e1b4b;border-radius:999px;padding:8px 12px;text-decoration:none}
+    .card{border:1px solid var(--ring);border-radius:16px;box-shadow:0 8px 22px rgba(79,70,229,.06);background:#f8fafc}
+    .inner{padding:14px}
+    label{font-size:12px;color:var(--muted)}
+    input{width:100%;border:1px solid var(--ring);border-radius:10px;padding:10px;font-size:14px;background:#fff}
+    .row{display:grid;grid-template-columns:1fr;gap:10px}
+    .btn{border:0;background:linear-gradient(90deg,var(--indigo),var(--blue));color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;box-shadow:0 6px 16px rgba(79,70,229,.25)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .btn.out{background:#fff;color:#1f2937;border:1px solid var(--ring);box-shadow:none}
+    .msg{font-size:13px;margin-top:8px}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+    .avatar{width:96px;height:96px;border-radius:14px;border:1px solid #e5e7eb;object-fit:cover;background:#fff}
+    .hint{font-size:12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    @media(min-width:860px){ .grid{grid-template-columns:1.2fr .8fr} }
+    .danger{border:1px dashed #fecaca;background:#fff;border-radius:10px;padding:10px;color:#991b1b;font-size:12px}
+    .bar-warn{margin:10px 0 0;border:1px solid #fecaca;background:#fee2e2;color:#991b1b;border-radius:12px;padding:10px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="head">
-      <a class="back" id="btnBack" href="./profile.html">Volver</a>
-      <span class="muted" id="sessState">—</span>
+    <div class="top">
+      <a id="btnBack" class="back" href="./profile.html">Volver</a>
+      <div style="margin-left:auto;font-size:12px;color:#64748b" id="sessionState">Cargando…</div>
     </div>
 
-    <div id="noSession" class="banner" style="display:none">
-      <span>No hay sesión en esta pestaña.</span>
-      <a id="lnkLogin" href="./auth-signup.html?return=./settings.html">Entrar</a>
-      <button id="btnRefresh" class="btn">Ya inicié sesión</button>
-    </div>
+    <div class="grid">
+      <section class="card">
+        <div class="inner">
+          <h2 style="margin:0 0 10px">Ajustes de cuenta</h2>
 
-    <div class="card">
-      <h2 style="margin:4px 0 8px">Ajustes de cuenta</h2>
-
-      <div class="row">
-        <div class="muted">Avatar</div>
-        <div>
-          <img id="prev" class="avatar" src="./peak1.png" alt="avatar">
-          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" id="btnUpload">Subir imagen…</button>
+          <div id="warn" class="bar-warn" style="display:none">
+            No hay sesión iniciada en esta pestaña.
+            <a href="./auth-signup.html?return=./settings.html" style="color:#1d4ed8">Entrar</a> para continuar.
           </div>
-          <div class="muted" style="margin-top:6px">Si subes, copiamos la URL pública automáticamente.</div>
+
+          <div style="display:flex;gap:12px;align-items:center;margin:10px 0">
+            <img id="imgAvatar" class="avatar" src="./peak1.png" alt="avatar"/>
+            <div>
+              <input id="file" type="file" accept="image/*" style="display:none"/>
+              <button id="btnUpload" class="btn out">Subir imagen…</button>
+              <div class="hint">Si subes, copiamos la URL pública automáticamente.</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>Nombre para mostrar</label>
+              <input id="name" type="text" placeholder="Tu nombre">
+            </div>
+            <div>
+              <label>@handle</label>
+              <input id="handle" type="text" placeholder="Sólo letras, números y _">
+            </div>
+            <div>
+              <label>URL del avatar</label>
+              <input id="avatar" type="text" placeholder="https://…/mi-foto.jpg">
+            </div>
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+            <button id="save" class="btn">Guardar perfil</button>
+            <span id="msg" class="msg"></span>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="row">
-        <div class="muted">Nombre para mostrar</div>
-        <div><input id="inpName" type="text" placeholder="Tu nombre"></div>
-      </div>
-
-      <div class="row">
-        <div class="muted">@handle</div>
-        <div><input id="inpHandle" type="text" placeholder="Sólo letras, números y _" pattern="[A-Za-z0-9_]{2,18}"></div>
-      </div>
-
-      <div class="row">
-        <div class="muted">URL del avatar</div>
-        <div><input id="inpAvatar" type="text" placeholder="https://…/mi-foto.jpg"></div>
-      </div>
-
-      <div class="row">
-        <div></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn primary" id="btnSave">Guardar perfil</button>
+      <section class="card">
+        <div class="inner">
+          <h3 style="margin:0 0 8px">Seguridad</h3>
+          <div class="row">
+            <div>
+              <label>Email</label>
+              <input id="email" type="text" disabled placeholder="—">
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button id="sendReset" class="btn out">Enviar enlace para cambiar contraseña</button>
+            <button id="logout" class="btn out">Cerrar sesión</button>
+          </div>
+          <div class="danger" style="margin-top:10px">
+            Por seguridad, es posible que se cierren sesiones en otros dispositivos al cambiar datos sensibles.
+          </div>
         </div>
-      </div>
-
-      <div id="note" class="note ok" style="display:none"></div>
-      <div id="err" class="note err" style="display:none"></div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin:0 0 8px">Seguridad</h3>
-      <div class="row">
-        <div class="muted">Email</div>
-        <div class="right"><span id="uEmail" class="chip">—</span></div>
-      </div>
-      <div class="row">
-        <div></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" id="btnResetPwd">Enviar enlace para cambiar contraseña</button>
-          <button class="btn" id="btnSignout">Cerrar sesión</button>
-        </div>
-      </div>
+      </section>
     </div>
   </div>
 
-  <input id="file" type="file" accept="image/*" style="display:none"/>
-
   <script>
-    const $ = s => document.querySelector(s);
-
-    // -------- Cliente SB robusto (usa el de _header o crea uno al vuelo) --------
-    let sb = null;
-    async function ensureSB(){
-      if (sb) return sb;
-      sb = window.sb || window.__SB || window.supabaseClient || null;
-      if (!sb && window.supabase?.createClient){
-        const env = Object.assign({},
-          window.PP_ENV || {},
-          { sb_url: localStorage.getItem('sb_url') || '', sb_anon: localStorage.getItem('sb_anon') || '' }
-        );
-        if (env.sb_url && env.sb_anon){
-          try{
-            sb = window.supabase.createClient(env.sb_url, env.sb_anon, {
-              auth:{ persistSession:true, storageKey:'pp-auth', autoRefreshToken:true }
-            });
-            window.__SB = window.sb = sb;
-          }catch(e){ console.warn('[peekpay] no se pudo crear cliente SB inline', e); }
-        }
-      }
-      return sb;
+    // ---- Cliente unificado: usa window.__SB si existe; si no, créalo con MISMO storageKey ----
+    function getSB(){
+      if (window.__SB) return window.__SB;
+      const E = window.PP_ENV || {};
+      if (!E.sb_url || !E.sb_anon || !window.supabase?.createClient) return null;
+      const auth = { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:'pp-auth' };
+      window.__SB = window.supabase.createClient(E.sb_url, E.sb_anon, { auth });
+      window.sb = window.__SB;
+      return window.__SB;
     }
-    // ---------------------------------------------------------------------------
 
-    // Back con ?return= si llega
-    (function setBack(){
-      const u = new URL(location.href);
-      const ret = u.searchParams.get('return') || './profile.html';
-      $('#btnBack').href = ret;
-      $('#lnkLogin').href = `./auth-signup.html?return=${encodeURIComponent('./settings.html')}`;
+    const $ = s => document.querySelector(s);
+    const sessionState = $('#sessionState');
+    const warn = $('#warn');
+    const img = $('#imgAvatar');
+    const f = $('#file');
+    const btnUpload = $('#btnUpload');
+    const name = $('#name');
+    const handle = $('#handle');
+    const avatar = $('#avatar');
+    const email = $('#email');
+    const save = $('#save');
+    const msg = $('#msg');
+    const sendReset = $('#sendReset');
+    const logout = $('#logout');
+
+    // Volver con ?return= si viene de otra pantalla
+    (function mountBack(){
+      const getReturn = window.__pp_getReturn || ((d)=>d||'./profile.html');
+      $('#btnBack').href = getReturn('./profile.html');
+      $('#btnBack').onclick = (e)=>{ e.preventDefault(); location.href = getReturn('./profile.html'); };
     })();
 
-    function show(msg, isErr=false){
-      const ok = $('#note'), err = $('#err');
-      ok.style.display = 'none'; err.style.display = 'none';
-      if (isErr){ err.textContent = msg; err.style.display = 'block'; }
-      else { ok.textContent = msg; ok.style.display = 'block'; }
-    }
+    function setMsg(t, ok){ msg.textContent = t||''; msg.className = 'msg ' + (ok?'ok':'err'); }
 
-    function setEnabled(enabled){
-      ['inpName','inpHandle','inpAvatar','btnUpload','btnSave','btnResetPwd','btnSignout'].forEach(id=>{
-        const el = $('#'+id);
-        if (el) el.disabled = !enabled;
-      });
-    }
-
-    // ---------- Rehidratación manual desde localStorage ----------
-    const STORAGE_KEY = 'pp-auth';
-    async function tryRehydrateFromLocalStorage(){
-      try{
-        await ensureSB();
-        if (!sb || !sb.auth) return false;
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return false;
-        let obj; try{ obj = JSON.parse(raw); } catch { return false; }
-        const cs = obj.currentSession || obj.session || obj;
-        const at = cs?.access_token || obj?.access_token;
-        const rt = cs?.refresh_token || obj?.refresh_token;
-        if (at && rt){
-          const { data, error } = await sb.auth.setSession({ access_token: at, refresh_token: rt });
-          if (error) return false;
-          return !!data?.session;
-        }
-        return false;
-      }catch{ return false; }
-    }
-    // -------------------------------------------------------------
-
-    // ===== Detección robusta de sesión =====
-    let me = null;
-
-    async function loadMe(){
-      await ensureSB();
-      const banner = $('#noSession');
-      const state = $('#sessState');
-      if (!sb || !sb.auth){ state.textContent='Sin sesión'; banner.style.display='flex'; setEnabled(false); me=null; return; }
-
-      const { data:{ session } } = await sb.auth.getSession();
-      if (!session){
-        state.textContent='Sin sesión';
-        banner.style.display='flex';
-        setEnabled(false);
-        me=null;
+    async function boot(){
+      const sb = getSB();
+      if (!sb){
+        sessionState.textContent = 'Sin Supabase';
+        warn.style.display = '';
+        disableUI(true);
         return;
       }
 
-      banner.style.display='none'; setEnabled(true);
-      me = session.user;
-      state.textContent = `Sesión activa · ${me.email || ''}`;
-      $('#uEmail').textContent = me.email || me.user_metadata?.email || '—';
-
-      const name = me.user_metadata?.name || me.email?.split('@')[0] || '';
-      const handle = me.user_metadata?.handle || me.user_metadata?.preferred_username || '';
-      const avatar = me.user_metadata?.avatar_url || me.user_metadata?.picture || '';
-
-      $('#inpName').value = name;
-      $('#inpHandle').value = handle;
-      $('#inpAvatar').value = avatar;
-      if (avatar){ $('#prev').src = avatar; }
-    }
-
-    async function ensureSession(){
-      await ensureSB();
-      // 1) Rehidrata desde localStorage si hace falta
-      if (sb?.auth){
+      try{
         const { data:{ session } } = await sb.auth.getSession();
         if (!session){
-          const ok = await tryRehydrateFromLocalStorage();
-          if (ok){ await loadMe(); return; }
+          sessionState.textContent = 'Sin sesión';
+          warn.style.display = '';
+          disableUI(true);
+          return;
         }
+        warn.style.display = 'none';
+        sessionState.textContent = session.user.email || 'Sesión activa';
+        email.value = session.user.email || '';
+        disableUI(false);
+
+        // Precarga metadata
+        const m = session.user.user_metadata || {};
+        name.value   = m.name || '';
+        handle.value = m.handle || '';
+        const pic = m.avatar_url || m.picture || '';
+        if (pic) img.src = avatar.value = pic;
+
+        // Botón subir -> input file
+        btnUpload.onclick = ()=> f.click();
+        f.onchange = async ()=>{
+          if (!f.files || !f.files[0]) return;
+          try{
+            setMsg('Subiendo imagen…');
+            // Subir a Supabase Storage (bucket "avatars")
+            const file = f.files[0];
+            const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+            const key = `u/${session.user.id}/${Date.now()}.${ext}`;
+            const { error } = await sb.storage.from('avatars').upload(key, file, { upsert:false });
+            if (error) throw error;
+
+            const { data } = sb.storage.from('avatars').getPublicUrl(key);
+            if (!data?.publicUrl) throw new Error('No se obtuvo URL pública');
+            avatar.value = data.publicUrl;
+            img.src = data.publicUrl;
+            setMsg('Imagen subida ✓', true);
+          }catch(e){ setMsg(e.message||'No se pudo subir la imagen'); }
+          finally{ f.value = ''; }
+        };
+
+        // Guardar perfil
+        save.onclick = async ()=>{
+          try{
+            setMsg('Guardando…');
+            const updates = {
+              data: {
+                name: (name.value||'').trim(),
+                handle: (handle.value||'').trim(),
+                avatar_url: (avatar.value||'').trim()
+              }
+            };
+            const { error:err1 } = await sb.auth.updateUser(updates);
+            if (err1) throw err1;
+            setMsg('Perfil actualizado ✓', true);
+          }catch(e){ setMsg(e.message||'No se pudo guardar.'); }
+        };
+
+        // Reset password (magic link)
+        sendReset.onclick = async ()=>{
+          try{
+            setMsg('Enviando enlace…');
+            const back = location.origin + '/auth-callback.html';
+            const { error } = await sb.auth.resetPasswordForEmail(session.user.email, { redirectTo: back });
+            if (error) throw error;
+            setMsg('Te enviamos un enlace para cambiar tu contraseña.', true);
+          }catch(e){ setMsg(e.message||'No pudimos enviar el enlace.'); }
+        };
+
+        logout.onclick = async ()=>{
+          try{ await sb.auth.signOut(); }catch{}
+          location.href = './auth-signup.html?return=./profile.html';
+        };
+
+      }catch(e){
+        console.warn(e);
+        sessionState.textContent = 'Error de sesión';
+        warn.style.display = '';
+        disableUI(true);
       }
-      // 2) Reintenta lectura con backoff corto
-      for (let i=0;i<12;i++){
-        await ensureSB();
-        if (sb?.auth){
-          const { data:{ session } } = await sb.auth.getSession();
-          if (session){ await loadMe(); return; }
-        }
-        await new Promise(r=>setTimeout(r, 180 + i*60));
-      }
-      await loadMe();
     }
 
-    // Subir imagen a storage y poner URL pública
-    async function uploadAvatar(file){
-      if (!file) return;
-      await ensureSB();
-      if (!me || !sb?.storage){ show('Inicia sesión para subir imagen.', true); return; }
-      try{
-        const bucket = 'avatars';
-        const path = `${me.id}/${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
-        const { error: upErr } = await sb.storage.from(bucket).upload(path, file, { upsert:true, contentType:file.type });
-        if (upErr) throw upErr;
-        const { data, error: pubErr } = await sb.storage.from(bucket).getPublicUrl(path);
-        if (pubErr) throw pubErr;
-        const url = data.publicUrl;
-        $('#inpAvatar').value = url;
-        $('#prev').src = url;
-        show('Imagen subida.');
-      }catch(e){ show(e.message || 'No se pudo subir la imagen.', true); }
+    function disableUI(dis){
+      [btnUpload, save, sendReset, logout, name, handle, avatar].forEach(el=>{
+        el.disabled = !!dis;
+      });
     }
 
-    // Guardar perfil
-    async function saveProfile(){
-      try{
-        await ensureSB();
-        if (!me || !sb){ show('Inicia sesión primero.', true); return; }
-        const name = $('#inpName').value.trim().slice(0,60);
-        const handle = $('#inpHandle').value.trim();
-        const avatar = $('#inpAvatar').value.trim();
-
-        if (handle && !/^[A-Za-z0-9_]{2,18}$/.test(handle)){
-          show('El @handle sólo admite letras, números y _.', true); return;
-        }
-
-        const payload = { id: me.id, name, avatar_url: avatar };
-        if (handle) payload.handle = handle;
-
-        const { error } = await sb.from('profiles').upsert(payload, { onConflict:'id' });
-        if (error) throw error;
-
-        await sb.auth.updateUser({ data: { name, handle, avatar_url: avatar } });
-
-        // Señal local para refrescar profile.html
-        localStorage.setItem('pp_profile_updated', String(Date.now()));
-
-        show('Perfil actualizado.');
-      }catch(e){ show(e.message || 'No se pudo guardar el perfil.', true); }
-    }
-
-    // Cambiar contraseña (envía link de recuperación)
-    async function sendReset(){
-      try{
-        await ensureSB();
-        if (!me || !sb){ show('Inicia sesión primero.', true); return; }
-        const url = new URL('./auth-callback.html', location.origin);
-        url.searchParams.set('type','recovery');
-        url.searchParams.set('return','./settings.html'); // vuelve aquí
-        const { error } = await sb.auth.resetPasswordForEmail(me.email, { redirectTo: url.toString() });
-        if (error) throw error;
-        show('Te enviamos un enlace para cambiar la contraseña.');
-      }catch(e){ show(e.message || 'No se pudo enviar el enlace.', true); }
-    }
-
-    // Eventos / wiring
-    (function wiring(){
-      $('#btnUpload').onclick = ()=> $('#file').click();
-      $('#file').onchange = e => uploadAvatar(e.target.files?.[0]);
-      $('#btnSave').onclick = saveProfile;
-      $('#btnResetPwd').onclick = sendReset;
-      $('#btnSignout').onclick = async ()=>{
-        await ensureSB(); try{ await sb?.auth?.signOut(); }catch{} location.replace('./auth-signup.html');
-      };
-      $('#btnRefresh').onclick = ensureSession;
-
-      window.addEventListener('focus', ()=> setTimeout(ensureSession, 200));
-      window.addEventListener('storage', (e)=>{ if (e?.key === STORAGE_KEY) ensureSession(); });
-      // Si _header ya montó el cliente, escucha cambios
-      (async ()=>{ await ensureSB(); if (sb?.auth?.onAuthStateChange) sb.auth.onAuthStateChange(()=>loadMe()); })();
-    })();
-
-    // Arranque
-    ensureSession();
+    // Go!
+    document.addEventListener('DOMContentLoaded', boot);
   </script>
 </body>
 </html>
