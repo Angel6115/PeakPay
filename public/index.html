@@ -4,315 +4,812 @@
   <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <script src="./env.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./_header.js" defer></script>  <title>PeekPay — Descubre, desbloquea y gana</title>
-
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./_header.js" defer></script>
+  <title>PeekPay — Descubre, desbloquea y apoya</title>
   <link rel="icon" href="./favicon.ico">
-  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
-
   <style>
     :root{
-      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
-      --ok:#059669; --err:#b91c1c;
-      --indigo:#4f46e5; --blue:#2563eb; --indigo-soft:#eef2ff;
+      --bg:#ffffff;
+      --bg-soft: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --glass:rgba(248,250,252,0.85);
+      --accent:#667eea;
+      --indigo:#4f46e5;
+      --blue:#2563eb;
+      --purple:#764ba2;
+      --ok:#059669;
+      --err:#b91c1c;
     }
-    *{ box-sizing:border-box }
-    body{ margin:0; background:var(--bg); color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
-
-    .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 64px }
-
-    .head{ display:flex; align-items:center; gap:10px; justify-content:space-between; }
-    header{ display:flex; align-items:center; gap:10px; }
-    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover;
-      box-shadow:0 6px 14px rgba(79,70,229,.06) }
-    .brand h1{ margin:0; font-size:18px }
-    .brand p{ margin:0; color:var(--muted); font-size:12px }
-
-    .nav-row{ display:flex; gap:8px; flex-wrap:wrap; }
-    @media (max-width:520px){ .nav-row{ margin-left:0 } }
-
-    .btn{
-      border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
-      color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none;
-      box-shadow: 0 6px 16px rgba(79,70,229,.25); white-space:nowrap; display:inline-block;
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      background: var(--bg-soft);
+      color: var(--text); 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
     }
-    .btn:hover{ filter: brightness(1.05) }
-    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
-
-    .panel{
-      border:1px solid var(--ring); background:var(--card);
-      border-radius:16px; padding:16px; margin-top:12px;
-      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    
+    /* Early Access Banner */
+    .early-banner{
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
+      color: white;
+      padding: 14px 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 12px rgba(79,70,229,0.3);
+      animation: slideDown 0.6s ease-out;
     }
-
-    .hero{ display:grid; gap:16px; align-items:center }
-    @media (min-width:980px){ .hero{ grid-template-columns: 1.05fr .95fr } }
-    .hero h2{ margin:0 0 6px; font-size:clamp(24px,5.4vw,40px); line-height:1.08 }
-    .hero p{ margin:0; color:var(--muted); font-size:clamp(14px,2.6vw,16px) }
-    .cta-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
-
-    .shot{
-      position:relative; aspect-ratio:4/3; border-radius:14px; overflow:hidden;
-      border:1px solid var(--ring); background:#fff; box-shadow:0 6px 14px rgba(79,70,229,.06);
-      isolation:isolate;
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .early-banner-content{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .early-banner-text{
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .early-banner-text strong{
+      font-weight: 900;
+      font-size: 17px;
+    }
+    .early-banner-btn{
+      background: white;
+      color: var(--indigo);
+      padding: 10px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .early-banner-btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+    .early-banner-close{
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .early-banner-close:hover{
+      opacity: 1;
+    }
+    .early-banner.hidden{
+      display: none;
+    }
+    
+    .wrap{ max-width:1120px; margin:0 auto; padding:30px 20px 70px }
+    
+    /* Header */
+    .head{ 
+      display:flex; 
+      align-items:center; 
+      justify-content:space-between; 
+      padding-bottom:20px;
+      margin-bottom: 20px;
+    }
+    .logo-block{ 
+      display:flex; 
+      align-items:center; 
+      gap:16px;
+      cursor: pointer;
+    }
+    .logo-block:hover .logo-img{
+      transform: scale(1.05);
+    }
+    .logo-img{ 
+      width:80px; 
+      height:80px; 
+      border-radius:20px; 
+      object-fit:cover; 
+      box-shadow:0 8px 20px rgba(102,126,234,.15);
+      transition: transform 0.3s;
+    }
+    .brand h1{ 
+      margin:0; 
+      font-size:28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand p{ 
+      margin:0; 
+      color:var(--muted); 
+      font-size:15px;
+      font-weight: 500;
+    }
+    .nav-row{ 
+      display:flex; 
+      gap:14px; 
+    }
+    .btn{ 
+      border:0; 
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
+      color:#fff; 
+      border-radius:14px; 
+      padding:14px 32px; 
+      cursor:pointer; 
+      text-decoration:none;
+      box-shadow: 0 8px 20px rgba(79,70,229,.2); 
+      font-weight:700; 
+      font-size:16px;
+      transition: all 0.3s;
+      white-space:nowrap; 
+      display:inline-block;
+    }
+    .btn:hover{ 
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(79,70,229,.3);
+    }
+    
+    .panel{ 
+      border:1px solid var(--ring); 
+      background:var(--card); 
+      border-radius:24px; 
+      padding:40px 30px; 
+      margin-top:24px;
+      box-shadow: 0 10px 30px rgba(102,126,234,.08);
+    }
+    
+    .trust { 
+      display:flex;
+      gap:20px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border-radius: 16px;
+      border: 1px solid rgba(102,126,234,0.1);
+    }
+    .trust-item{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    
+    /* Hero */
+    .hero{ 
+      display:grid; 
+      gap:40px; 
+      align-items:center;
+      margin-bottom: 30px;
+    }
+    @media (min-width:980px){ 
+      .hero{ grid-template-columns: 1.2fr 1fr } 
+    }
+    .hero h2{ 
+      margin:0 0 20px; 
+      font-size:clamp(32px,5vw,48px); 
+      line-height:1.1; 
+      font-weight: 900;
+      color: var(--text);
+    }
+    .hero p{ 
+      margin:0 0 28px; 
+      color:var(--muted); 
+      font-size:clamp(16px,2.6vw,20px);
+      line-height: 1.6;
+    }
+    .cta-row{ 
+      display:flex; 
+      gap:16px; 
+      flex-wrap:wrap;
+    }
+    
+    /* Preview */
+    .preview-block{ 
+      position:relative; 
+      width:100%; 
+      max-width:420px;
+      height:auto;
+      margin:0 auto;
+    }
+    .preview-img{ 
+      width:100%; 
+      aspect-ratio:4/3; 
+      border-radius:20px; 
+      object-fit:cover; 
+      filter:blur(20px) brightness(0.9); 
+      box-shadow:0 10px 30px rgba(102,126,234,.2);
+    }
+    .mosaic{ 
+      position:absolute; 
+      top:0; 
+      left:0; 
+      width:100%; 
+      height:100%; 
+      display:grid; 
+      grid-template-columns:repeat(4,1fr); 
+      grid-template-rows:repeat(3,1fr); 
+      gap:6px; 
+      padding:10px;
+    }
+    .tile{ 
+      border-radius:10px; 
+      background: linear-gradient(135deg,#cbd5e1 0%,#94a3b8 100%);
+      filter: blur(8px) brightness(1.1) opacity(0.75); 
+      box-shadow: 0 4px 10px rgba(79,70,229,.15);
+    }
+    .tile.free{ 
+      filter:none; 
+      background: linear-gradient(135deg,#10b981 0%,#059669 100%);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .preview-label{ 
+      position:absolute; 
+      left:0; 
+      right:0; 
+      bottom:8px; 
+      text-align:center; 
+      color:#fff; 
+      font-size:16px; 
+      font-weight:700; 
+      background:rgba(102,126,234,0.9); 
+      padding:8px 0;
+      border-radius: 0 0 20px 20px;
+    }
+    
+    /* How It Works with Slider */
+    .how-section{
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 24px;
+      padding: 50px 40px;
+      margin-top: 40px;
+      box-shadow: 0 10px 30px rgba(102,126,234,.08);
+    }
+    .how-section h3{
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 16px;
+      font-weight: 800;
+    }
+    .how-section .subtitle{
+      text-align: center;
+      font-size: 18px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 40px;
+    }
+    
+    .slider-container{
+      max-width: 500px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(102,126,234,.12);
+    }
+    .slider{
+      display: flex;
+      transition: transform 0.8s ease-in-out;
     }
     .slide{
-      position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 35%;
-      opacity:0; transition: opacity .7s ease;
+      min-width: 100%;
+      padding: 40px 30px;
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
     }
-    .slide.active{ opacity:1 }
-    .overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.35) 100%) }
-
-    .roles{ display:grid; gap:12px; margin-top:12px }
-    @media (min-width:900px){ .roles{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    .role{
-      border:1px solid var(--ring); background:#fff; border-radius:14px; padding:14px;
-      box-shadow:0 6px 14px rgba(79,70,229,.06); display:flex; flex-direction:column; gap:10px;
+    .slide-title{
+      text-align: center;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 24px;
     }
-    .role h3{ margin:0; font-size:16px }
-    .role p{ margin:0; color:var(--muted); font-size:14px; flex:1 }
-    .role .actions{ display:flex; gap:8px; flex-wrap:wrap }
-
-    .steps{ display:grid; gap:12px; margin-top:12px }
-    @media (min-width:900px){ .steps{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    .step{
-      border:1px solid var(--ring); background:#fff; border-radius:14px; padding:14px;
-    box-shadow:0 6px 14px rgba(79,70,229,.06);}
-    .step h4{ margin:0 0 6px; font-size:15px }
-    .step p{ margin:0; color:var(--muted); font-size:14px }
-
-    .cats{ display:grid; gap:12px; margin-top:12px }
-    @media (min-width:700px){ .cats{ grid-template-columns: repeat(5, minmax(0,1fr)); } }
-    .cat{
-      display:block; text-align:center; padding:10px 12px; border-radius:12px; text-decoration:none; color:#fff;
-      background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
-      box-shadow:0 6px 14px rgba(79,70,229,.12);
-      position:relative;
+    .grid-demo{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-width: 340px;
+      margin: 0 auto;
+      aspect-ratio: 1;
     }
-    .cat.locked{ filter:saturate(.7) blur(.2px) }
-    .cat.locked::after{
-      content:"🔓 Crear cuenta";
-      position:absolute; right:8px; bottom:8px;
-      background:#fff; color:var(--indigo); border-radius:8px; padding:4px 8px;
-      font-size:11px; border:1px solid var(--ring); box-shadow:0 4px 10px rgba(79,70,229,.12);
+    .tile-demo{
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      background: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
     }
-
-    footer{ margin-top:20px; color:var(--muted); font-size:12px }
-    .tiny{ font-size:12px; color:var(--muted) }
+    .tile-demo.blur{
+      filter: blur(12px);
+      background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+    }
+    .tile-demo.free{
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+    .tile-demo.locked{
+      background: linear-gradient(135deg, #667eea, #818cf8);
+      color: white;
+      font-size: 11px;
+    }
+    .tile-demo.revealed{
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white;
+      animation: reveal 0.5s ease-out;
+    }
+    @keyframes reveal {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .slider-dots{
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .dot{
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .dot.active{
+      background: var(--accent);
+      width: 32px;
+      border-radius: 6px;
+    }
+    
+    /* Roles */
+    .roles{ 
+      display:grid; 
+      gap:20px; 
+      margin-top:20px;
+    }
+    @media (min-width:900px){ 
+      .roles{ grid-template-columns: repeat(3, 1fr); } 
+    }
+    .role{ 
+      border:1px solid var(--ring); 
+      background:var(--card); 
+      border-radius:20px; 
+      padding:28px;
+      box-shadow:0 6px 18px rgba(102,126,234,.06); 
+      display:flex; 
+      flex-direction:column; 
+      gap:16px;
+      transition: all 0.3s;
+    }
+    .role:hover{
+      transform: translateY(-4px);
+      box-shadow:0 12px 28px rgba(102,126,234,.12);
+      border-color: var(--accent);
+    }
+    .role h3{ 
+      margin:0; 
+      font-size:20px;
+      font-weight: 700;
+    }
+    .role p{ 
+      margin:0; 
+      color:var(--muted); 
+      font-size:15px; 
+      flex:1;
+      line-height: 1.6;
+    }
+    .role .actions{ 
+      display:flex; 
+      gap:12px; 
+      flex-wrap:wrap;
+    }
+    .role .btn{
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+    .btn.secondary{
+      background: var(--card);
+      color: var(--indigo);
+      border: 2px solid var(--ring);
+      box-shadow: none;
+    }
+    .btn.secondary:hover{
+      background: rgba(102,126,234,0.05);
+      border-color: var(--accent);
+    }
+    
+    /* Categories */
+    .cats-section{
+      margin-top: 40px;
+    }
+    .cats-section h3{
+      font-size: 32px;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+    .cats-section .subtitle{
+      color: var(--muted);
+      font-size: 16px;
+      margin-bottom: 28px;
+    }
+    .cats{ 
+      display:grid; 
+      gap:16px;
+    }
+    @media (min-width:640px){ 
+      .cats{ grid-template-columns: repeat(2, 1fr); } 
+    }
+    @media (min-width:900px){ 
+      .cats{ grid-template-columns: repeat(3, 1fr); } 
+    }
+    .cat{ 
+      display:flex;
+      align-items: center;
+      gap: 16px;
+      padding:24px;
+      border-radius:16px; 
+      text-decoration:none; 
+      color:var(--text); 
+      font-weight:600; 
+      font-size:17px;
+      background: var(--card);
+      border:2px solid var(--ring);
+      transition: all 0.3s;
+      cursor:pointer;
+    }
+    .cat:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102,126,234,.12);
+      border-color: var(--accent);
+    }
+    .cat-color{
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+    .cat:nth-child(1) .cat-color{ background: linear-gradient(135deg, #ec4899, #be185d); }
+    .cat:nth-child(2) .cat-color{ background: linear-gradient(135deg, #3b82f6, #1e40af); }
+    .cat:nth-child(3) .cat-color{ background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+    .cat:nth-child(4) .cat-color{ background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .cat:nth-child(5) .cat-color{ background: linear-gradient(135deg, #10b981, #059669); }
+    
+    footer{ 
+      margin-top:50px; 
+      color:var(--muted); 
+      font-size:14px;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    @media (max-width:640px){
+      .early-banner-content{ gap: 12px; padding: 0 40px; }
+      .early-banner-text{ font-size: 14px; }
+      .early-banner-text strong{ font-size: 15px; }
+      .early-banner-btn{ padding: 8px 20px; font-size: 13px; }
+      .early-banner-close{ right: 10px; font-size: 24px; }
+      .wrap{padding:20px 16px 50px;}
+      .panel{padding:28px 20px;}
+      .logo-img{width:60px;height:60px;}
+      .brand h1{font-size:22px;}
+      .btn{padding:12px 24px; font-size:15px;}
+      .role{padding:20px;}
+      .slide{padding:30px 20px;}
+      .grid-demo{max-width:280px;gap:6px;}
+    }
   </style>
-  <link rel="canonical" href="https://peak-pay.vercel.app/">
-  <meta name="description" content="Crea tu cuenta, descubre peeks y apoya a tus favoritos. Acceso temprano con privacidad.">
-  <meta property="og:site_name" content="PeekPay">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="PeekPay — Descubre, desbloquea y apoya">
-  <meta property="og:description" content="Revela mosaicos con Peak Credits y disfruta contenido con privacidad.">
-  <meta property="og:url" content="https://peak-pay.vercel.app/">
-  <meta property="og:image" content="https://peak-pay.vercel.app/peak1.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PeekPay — Descubre, desbloquea y apoya">
-  <meta name="twitter:description" content="Revela mosaicos con Peak Credits y disfruta contenido con privacidad.">
-  <meta name="twitter:image" content="https://peak-pay.vercel.app/peak1.png">
-  <link rel="preconnect" href="https://plausible.io">
 </head>
 <body>
-  <div class="wrap">
-    <!-- Header -->
-    <div class="head">
-      <div style="display:flex;align-items:center;gap:10px">
-        <header>
-          <img src="./peak1.png" alt="PeekPay logo">
-        </header>
-        <div class="brand">
-          <h1>PeekPay</h1>
-          <p>Unblur your curiosity</p>
-        </div>
-      </div>
-
-      <!-- Acciones principales -->
-      <div class="nav-row" aria-label="Acciones">
-        <a class="btn secondary" href="/login" id="btnLoginHeader">Entrar</a>
-        <a class="btn" href="/signup" id="btnSignupHeader">Crear cuenta</a>
-      </div>
-    </div>
-
-    <!-- Trust band -->
-    <div class="panel" style="display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:10px">
-      <span class="tiny">🔒 Privacidad primero</span>
-      <span class="tiny">📧 Verificación por email</span>
-    </div>
-    
-    <!-- HERO -->
-    <section class="panel hero" aria-labelledby="hero-title">
-      <div>
-        <h2 id="hero-title">Crea tu cuenta. Descubre peeks. Apoya a tus favoritos.</h2>
-        <p>
-          Una experiencia <b>visual</b> y <b>lúdica</b>: revela mosaicos con <b>Peak Credits</b>,
-          gana puntos por racha y disfruta contenido con privacidad.
-        </p>
-        <div class="cta-row">
-          <a class="btn" href="/signup">Crear cuenta</a>
-          <a class="btn secondary" href="/login">Entrar</a>
-          <a class="btn secondary" href="/creators">Explorar primero</a>
-        </div>
-      </div>
-      <div class="shot" aria-hidden="true">
-        <img class="slide active" id="slideA" src="./peak1.png" alt="">
-        <img class="slide" id="slideB" src="./peak1.png" alt="">
-        <div class="overlay"></div>
-      </div>
-    </section>
-
-    <!-- Selector de rol -->
-    <section id="roles" class="panel" aria-labelledby="roles-title">
-      <h3 id="roles-title" style="margin:0 0 8px">Elige cómo quieres empezar</h3>
-      <div class="roles">
-        <article class="role">
-          <h3>Como Usuario</h3>
-          <p>Explora perfiles, desbloquea en packs y arma la imagen completa. Gana puntos y bonos semanales.</p>
-          <div class="actions">
-            <a class="btn" href="/signup?role=usuario">Crear cuenta</a>
-            <a class="btn secondary" href="/peek">Ver demo</a>
-          </div>
-        </article>
-        <article class="role">
-          <h3>Como Creador/a</h3>
-          <p>Publica sets en mosaico y monetiza cada desbloqueo. Controla vistas previas y precios.</p>
-          <div class="actions">
-            <a class="btn" href="/signup?role=creador">Quiero monetizar</a>
-            <a class="btn secondary" href="/creators">Ver creadores</a>
-          </div>
-        </article>
-        <article class="role">
-          <h3>Ambos</h3>
-          <p>Consume y crea. Desbloquea contenido mientras construyes tu comunidad con peeks.</p>
-          <div class="actions">
-            <a class="btn" href="/signup?role=ambos">Empezar ahora</a>
-            <a class="btn secondary" href="/categories">Explorar categorías</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Cómo funciona -->
-    <section class="panel" aria-labelledby="how-title">
-      <h3 id="how-title" style="margin:0 0 8px">¿Cómo funciona?</h3>
-      <div class="steps">
-        <div class="step">
-          <h4>1) Mosaico con preview</h4>
-          <p>Algunas celdas FREE. El resto, difuminadas hasta que las desbloqueas.</p>
-        </div>
-        <div class="step">
-          <h4>2) Desbloquea con créditos</h4>
-          <p>Compra 1, 3 o 9. Cada acción suma <b>puntos de racha</b> y bonos.</p>
-        </div>
-        <div class="step">
-          <h4>3) Reveal total</h4>
-          <p>Completa la cuadrícula y obtén la imagen full HD del set.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Categorías (gated) -->
-    <section class="panel" aria-labelledby="cats-title">
-      <h3 id="cats-title" style="margin:0 0 8px">Explora por categoría</h3>
-      <p class="tiny" style="margin:4px 0 8px;color:var(--muted)">Crea tu cuenta para ver todo el catálogo. Te tomará 20 segundos.</p>
-      <div class="cats">
-        <a class="cat locked" data-next="/creators?cat=lenceria">Lencería</a>
-        <a class="cat locked" data-next="/creators?cat=fitness">Fitness</a>
-        <a class="cat locked" data-next="/creators?cat=arte">Arte Corporal</a>
-        <a class="cat locked" data-next="/creators?cat=artistico">Artístico</a>
-        <a class="cat locked" data-next="/creators?cat=cosplay">Cosplay</a>
-      </div>
-      <div style="margin-top:10px" class="cta-row">
-        <a class="btn" href="/signup">Crear cuenta</a>
-        <a class="btn secondary" href="/login">Entrar</a>
-        <a class="btn secondary" href="/peek">Probar demo</a>
-      </div>
-    </section>
-
-    <footer>Fase 0 — SFW • Diseño unificado con Wallet/Creators • © PeekPay</footer>
+  
+<!-- Early Access Banner -->
+<div class="early-banner" id="earlyBanner">
+  <div class="early-banner-content">
+    <span class="early-banner-text">
+      <strong>Early Access</strong> — Solo quedan <strong><span id="bannerSpots">847</span></strong> lugares a $9.99
+    </span>
+    <a href="./early-access.html" class="early-banner-btn">Ver oferta</a>
   </div>
+  <button class="early-banner-close" id="closeBanner" aria-label="Cerrar banner">×</button>
+</div>
 
-  <!-- Slideshow -->
-  <script>
-    const HERO_POOL = [
-      "https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1519340333755-5063a0f06ac5?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1521119989659-a83eee488004?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1600&h=1066&q=80"
-    ];
+<div class="wrap">
+  <!-- Header -->
+  <div class="head">
+    <div class="logo-block" onclick="window.location.href='./'">
+      <img src="peak1.png" alt="PeekPay logo" class="logo-img">
+      <div class="brand">
+        <h1>PeekPay</h1>
+        <p>Unblur your curiosity</p>
+      </div>
+    </div>
+    <div class="nav-row" aria-label="Acciones">
+      <a class="btn" href="./signup.html" id="btnSignupHeader">Crear cuenta</a>
+    </div>
+  </div>
+  
+  <!-- Trust badges -->
+  <div class="trust">
+    <span class="trust-item">🔒 Privacidad primero</span>
+    <span class="trust-item">📧 Verificación por email</span>
+    <span class="trust-item">💳 Pago seguro</span>
+  </div>
+  
+  <!-- Hero -->
+  <section class="panel hero" aria-labelledby="hero-title">
+    <div>
+      <h2 id="hero-title">Descubre contenido único. Revela mosaicos. Apoya creadores.</h2>
+      <p>Experiencia visual y lúdica donde TÚ decides qué revelar. Paga solo por lo que quieres ver con Peak Credits.</p>
+      <div class="cta-row">
+        <a class="btn" href="./early-access.html">Acceso anticipado $9.99</a>
+        <a class="btn secondary" href="./creators.html">Explorar creadores</a>
+      </div>
+    </div>
+    <div class="preview-block" aria-hidden="true">
+      <img class="preview-img" src="./photos/lenceria/noa-lace/sets/set-01/full.jpg" alt="Mosaico Preview">
+      <div class="mosaic">
+        <div class="tile free"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile free"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile free"></div>
+      </div>
+      <div class="preview-label">Preview · 3 gratis + 9 bloqueados</div>
+    </div>
+  </section>
+  
+  <!-- How It Works with Slider -->
+  <section class="how-section">
+    <h3>¿Cómo funciona?</h3>
+    <p class="subtitle">Paga solo por lo que quieres ver</p>
+    
+    <div class="slider-container">
+      <div class="slider" id="slider">
+        <!-- Slide 1 -->
+        <div class="slide">
+          <div class="slide-title">1. Foto en mosaico blur (4×4 = 16 cuadros)</div>
+          <div class="grid-demo">
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+          </div>
+        </div>
+        
+        <!-- Slide 2 -->
+        <div class="slide">
+          <div class="slide-title">2. Siempre 3 cuadros GRATIS como preview</div>
+          <div class="grid-demo">
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo locked">LOCK</div>
+          </div>
+        </div>
+        
+        <!-- Slide 3 -->
+        <div class="slide">
+          <div class="slide-title">3. Desbloquea con créditos (tú decides cuántos)</div>
+          <div class="grid-demo">
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo locked">LOCK</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="slider-dots">
+        <div class="dot active" data-slide="0"></div>
+        <div class="dot" data-slide="1"></div>
+        <div class="dot" data-slide="2"></div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Roles -->
+  <section id="roles" class="panel" aria-labelledby="roles-title">
+    <h3 id="roles-title" style="margin-bottom:20px; font-size:32px; font-weight:800;">Elige cómo quieres empezar</h3>
+    <div class="roles">
+      <article class="role">
+        <h3>Como Usuario</h3>
+        <p>Explora perfiles, desbloquea mosaicos y arma la imagen completa. Gana puntos por racha y bonos semanales.</p>
+        <div class="actions">
+          <a class="btn" href="./early-access.html">Empezar</a>
+          <a class="btn secondary" href="./peek.html">Ver demo</a>
+        </div>
+      </article>
+      <article class="role">
+        <h3>Como Creador/a</h3>
+        <p>Publica sets en mosaico y monetiza cada desbloqueo. Controla vistas previas y precios de tus peeks.</p>
+        <div class="actions">
+          <a class="btn" href="./early-access.html">Monetizar</a>
+          <a class="btn secondary" href="./creators.html">Ver creadores</a>
+        </div>
+      </article>
+      <article class="role">
+        <h3>Ambos</h3>
+        <p>Consume y crea. Desbloquea contenido mientras construyes tu comunidad y generas ingresos.</p>
+        <div class="actions">
+          <a class="btn" href="./early-access.html">Empezar</a>
+          <a class="btn secondary" href="./categories.html">Explorar todo</a>
+        </div>
+      </article>
+    </div>
+  </section>
+  
+  <!-- Categories -->
+  <section class="panel cats-section" aria-labelledby="cats-title">
+    <h3 id="cats-title">Explora por categoría</h3>
+    <p class="subtitle">Variedad de contenido para todos los gustos. Crea tu cuenta para acceder.</p>
+    <div class="cats">
+      <a class="cat" href="./early-access.html">
+        <div class="cat-color"></div>
+        <span>Lencería</span>
+      </a>
+      <a class="cat" href="./early-access.html">
+        <div class="cat-color"></div>
+        <span>Fitness</span>
+      </a>
+      <a class="cat" href="./early-access.html">
+        <div class="cat-color"></div>
+        <span>Arte Corporal</span>
+      </a>
+      <a class="cat" href="./early-access.html">
+        <div class="cat-color"></div>
+        <span>Artístico</span>
+      </a>
+      <a class="cat" href="./early-access.html">
+        <div class="cat-color"></div>
+        <span>Cosplay</span>
+      </a>
+    </div>
+    <div style="margin-top:28px; text-align:center;">
+      <a class="btn" href="./early-access.html" style="display:inline-block;">Acceso anticipado $9.99</a>
+    </div>
+  </section>
+  
+  <footer>Early Access — Lanzamiento Q1 2025 • © PeekPay</footer>
+</div>
 
-    (function heroSlideshow(){
-      const a = document.getElementById('slideA');
-      const b = document.getElementById('slideB');
-      if (!a || !b) return;
-
-      let current = a; let next = b;
-      let idx = Math.floor(Math.random()*HERO_POOL.length);
-
-      function preload(src){
-        return new Promise(res=>{
-          const im = new Image();
-          im.onload = ()=>res(src);
-          im.onerror = ()=>res("./peak1.png");
-          im.decoding = "async";
-          im.src = src;
-        });
-      }
-
-      async function swap(){
-        idx = (idx + 1) % HERO_POOL.length;
-        const url = await preload(HERO_POOL[idx]);
-        next.src = url;
-        next.classList.add('active');
-        current.classList.remove('active');
-        const tmp = current; current = next; next = tmp;
-      }
-
-      preload(HERO_POOL[idx]).then(url=>{
-        current.src = url;
-        current.classList.add('active');
-      });
-
-      setInterval(swap, 6500);
-    })();
-
-    // Guarda rol de signup (si existe esa vista luego)
-    document.querySelectorAll('a[href^="/signup"]').forEach(a=>{
-      try{
-        const u = new URL(a.href, location.origin);
-        const role = u.searchParams.get('role');
-        a.addEventListener('click', ()=> localStorage.setItem('pp_signup_role', role||'usuario'));
-      }catch(e){}
+<script>
+  // Banner functionality
+  const banner = document.getElementById('earlyBanner');
+  const closeBtn = document.getElementById('closeBanner');
+  
+  closeBtn.addEventListener('click', () => {
+    banner.classList.add('hidden');
+    localStorage.setItem('peekpay_banner_closed', 'true');
+  });
+  
+  if (localStorage.getItem('peekpay_banner_closed') === 'true') {
+    banner.classList.add('hidden');
+  }
+  
+  // Sync spots
+  const bannerSpots = document.getElementById('bannerSpots');
+  const savedSpots = localStorage.getItem('peekpay_spots');
+  if (savedSpots) {
+    bannerSpots.textContent = savedSpots;
+  }
+  
+  setInterval(() => {
+    const currentSpots = localStorage.getItem('peekpay_spots');
+    if (currentSpots) {
+      bannerSpots.textContent = currentSpots;
+    }
+  }, 5000);
+  
+  // Slider functionality
+  let currentSlide = 0;
+  const slider = document.getElementById('slider');
+  const dots = document.querySelectorAll('.dot');
+  const totalSlides = 3;
+  
+  function goToSlide(n) {
+    currentSlide = n;
+    slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === currentSlide);
     });
-
-    // Tracking de CTA
-    document.querySelectorAll('.cta-row .btn, .role .btn, #btnLoginHeader, #btnSignupHeader').forEach(b=>{
-      b.addEventListener('click', ()=> {
-        try{ if(window.plausible){ plausible('landing_cta', { props:{ label: b.textContent.trim() } }) } }catch(e){}
-      });
+  }
+  
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    goToSlide(currentSlide);
+  }
+  
+  let autoPlay = setInterval(nextSlide, 4000);
+  
+  dots.forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      clearInterval(autoPlay);
+      goToSlide(parseInt(e.target.dataset.slide));
+      autoPlay = setInterval(nextSlide, 4000);
     });
-
-    // Gating suave de categorías
-    const isAuthed = !!localStorage.getItem('pp_auth');
-    document.querySelectorAll('.cat.locked').forEach(el=>{
-      el.addEventListener('click', (e)=>{
-        e.preventDefault();
-        const next = el.getAttribute('data-next') || '/creators';
-        try{ if(window.plausible){ plausible('locked_click', { props:{ next } }) } }catch(_){}
-        const url = isAuthed ? next : `/signup?next=${encodeURIComponent(next)}`;
-        location.href = url;
-      });
-    });
-  </script>
-
-  <!-- Router local para /public -->
-  <script src="./_header.js" defer></script>
+  });
+</script>
+<script src="./_header.js" defer></script>
 </body>
 </html>
