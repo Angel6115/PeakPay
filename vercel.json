@@ -2,6 +2,9 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    { "source": "/thankyou", "destination": "/thankyou.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.(css|js)$",
