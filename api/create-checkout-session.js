@@ -27,9 +27,9 @@ export default async function handler(req, res) {
       ? (origin || 'http://localhost:5173')
       : (process.env.NEXT_PUBLIC_BASE_URL || 'https://peak-pay.vercel.app');
 
-    const PATH_PREFIX = isLocal ? '/public' : '';
-    const successUrl = `${BASE_URL}${PATH_PREFIX}/success.html?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl  = `${BASE_URL}${PATH_PREFIX}/signup.html`;
+      const PATH_PREFIX = isLocal ? '/public' : '';
+      const successUrl = `${BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl  = `${BASE_URL}/signup`;
 
     const session = await stripe.checkout.sessions.create({
       customer_email: email,
