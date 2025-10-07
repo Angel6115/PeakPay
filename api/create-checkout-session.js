@@ -21,14 +21,14 @@ export default async function handler(req, res) {
     const origin = req.headers.origin || '';
     const isLocal = /^(http:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
 
-    // En prod: archivos de public están en raíz → /welcome.html
-    // En local (Vite): viven bajo /public → /public/welcome.html
+    // En prod: archivos de public están en raíz → /gracias.html
+    // En local (Vite): viven bajo /public → /public/gracias.html
     const BASE_URL = isLocal
       ? (origin || 'http://localhost:5173')
       : (process.env.NEXT_PUBLIC_BASE_URL || 'https://peak-pay.vercel.app');
 
     const PATH_PREFIX = isLocal ? '/public' : '';
-    const successUrl = `${BASE_URL}${PATH_PREFIX}/welcome.html?session_id={CHECKOUT_SESSION_ID}`;
+    const successUrl = `${BASE_URL}${PATH_PREFIX}/gracias.html?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl  = `${BASE_URL}${PATH_PREFIX}/signup.html`;
 
     const session = await stripe.checkout.sessions.create({
