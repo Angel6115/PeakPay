@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/thankyou", "destination": "/thankyou.html" }
+    { "source": "/payment-complete", "destination": "/payment-complete.html" }
   ],
   "headers": [
     {
