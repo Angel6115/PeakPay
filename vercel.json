@@ -2,7 +2,6 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
-  "publicDirectory": "public",
   "headers": [
     {
       "source": "/(.*)\\.(css|js)$",
