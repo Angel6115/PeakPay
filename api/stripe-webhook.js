@@ -60,6 +60,9 @@ export default async function handler(req, res) {
 
       console.log('Processing payment for:', email);
 
+      // Generar handle del email (parte antes del @)
+      const handle = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
+
       // 1. Crear usuario en Supabase Auth (si no existe)
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: email,
@@ -84,6 +87,8 @@ export default async function handler(req, res) {
           .upsert({
             id: userId,
             email: email,
+            handle: handle, // ✅ AGREGADO: campo obligatorio
+            name: handle, // ✅ AGREGADO: nombre inicial
             early_access: true,
             paid_at: new Date().toISOString(),
             stripe_customer_id: stripeCustomerId,
@@ -96,6 +101,7 @@ export default async function handler(req, res) {
 
         if (profileError) {
           console.error('Error updating profile:', profileError);
+          return res.status(500).json({ error: 'Error updating profile', details: profileError.message });
         } else {
           console.log('Profile updated successfully for:', email);
         }
