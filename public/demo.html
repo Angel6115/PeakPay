@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Demo — PeekPay</title>
+  <link rel="icon" href="./favicon.ico">
+  <style>
+    :root{
+      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --accent:#667eea;
+      --purple:#764ba2;
+      --green:#10b981;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container{
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .logo-area{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .logo{
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(102,126,234,0.15);
+    }
+    .brand h1{
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 2px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand p{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .nav-btn{
+      padding: 10px 20px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .nav-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* Creator Info */
+    .creator-card{
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(102,126,234,0.08);
+    }
+    .creator-info{
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .creator-avatar{
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .creator-name{
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .creator-handle{
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .demo-badge{
+      display: inline-block;
+      padding: 4px 12px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+      border: 1px solid rgba(102,126,234,0.3);
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-left: 8px;
+    }
+    .creator-desc{
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    
+    /* Set Info */
+    .set-header{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .set-title{
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .set-stats{
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .set-stat{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* Mosaic Grid (tiles unidos) */
+    .mosaic{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;                 /* sin separación */
+      margin-bottom: 20px;
+      background: white;
+      padding: 0;             /* sin padding */
+      border-radius: 20px;
+      overflow: hidden;       /* bordes al contenedor */
+      box-shadow: 0 4px 16px rgba(102,126,234,0.08);
+    }
+    .tile{
+      aspect-ratio: 1;
+      border-radius: 0;       /* tiles pegados */
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.25s;
+      background-size: 400% 400%;
+      background-image: url('./photos/lenceria/rio-out/riolen.jpg');
+      backface-visibility: hidden;
+      will-change: transform;
+    }
+    
+    /* Posicionamiento de cada tile */
+    .tile:nth-child(1) { background-position: 0% 0%; }
+    .tile:nth-child(2) { background-position: 33.33% 0%; }
+    .tile:nth-child(3) { background-position: 66.66% 0%; }
+    .tile:nth-child(4) { background-position: 100% 0%; }
+    .tile:nth-child(5) { background-position: 0% 33.33%; }
+    .tile:nth-child(6) { background-position: 33.33% 33.33%; }
+    .tile:nth-child(7) { background-position: 66.66% 33.33%; }
+    .tile:nth-child(8) { background-position: 100% 33.33%; }
+    .tile:nth-child(9) { background-position: 0% 66.66%; }
+    .tile:nth-child(10) { background-position: 33.33% 66.66%; }
+    .tile:nth-child(11) { background-position: 66.66% 66.66%; }
+    .tile:nth-child(12) { background-position: 100% 66.66%; }
+    .tile:nth-child(13) { background-position: 0% 100%; }
+    .tile:nth-child(14) { background-position: 33.33% 100%; }
+    .tile:nth-child(15) { background-position: 66.66% 100%; }
+    .tile:nth-child(16) { background-position: 100% 100%; }
+    
+    /* FREE (preview): blur suave + velo claro */
+    .tile.free{
+      border: 2px solid var(--green);
+    }
+    .tile.free::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background-image: inherit;
+      background-size: inherit;
+      background-position: inherit;
+      /* preview borroso pero más leve que lock */
+      filter: blur(10px) brightness(0.88) contrast(0.9) saturate(0.85);
+      z-index:1;
+      /* velo leve para no revelar detalles */
+      box-shadow: inset 0 0 0 9999px rgba(255,255,255,0.25);
+    }
+    .tile.free::after{
+      content: 'FREE';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--green);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+      z-index: 3;
+    }
+    
+    /* LOCKED: blur MUY fuerte + velo opaco */
+    .tile.locked{
+      position: relative;
+    }
+    .tile.locked::before{
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: inherit;
+      background-size: inherit;
+      background-position: inherit;
+      /* tapa bien la imagen: blur más alto + más oscuro */
+      filter: blur(34px) brightness(0.48) contrast(0.65) saturate(0.55) grayscale(0.35);
+      z-index: 1;
+    }
+    .tile.locked::after{
+      content: 'LOCK';
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      box-shadow: 0 20px 19px rgba(102,126,234, 0.4);
+      z-index: 3;
+      opacity: 0.95;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+    /* velo adicional muy opaco por encima del blur (no afecta al badge) */
+    .tile.locked > i,
+    .tile.free  > i{ display:none } /* por si hubiera nodos internos */
+    .tile.locked::before,
+    .tile.free::before{ background-color: transparent; }
+    /* usar un pseudo overlay con box-shadow para tapar aún más */
+    .tile.locked{ box-shadow: inset 0 0 0 9999px rgba(255,255,255,0.62); }
+    
+    .tile.locked:hover::after{ opacity:1; transform: translate(-50%, -50%) scale(1.05); }
+    .tile.locked:hover{ transform: scale(1.005); }
+
+    /* Info box */
+    .info-box{
+      background: #fef3c7;
+      border: 2px solid #fbbf24;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 14px;
+      color: #78350f;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+    .info-box strong{ font-weight: 800; }
+    
+    /* Modal */
+    .modal{
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .modal.active{ display: flex; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-content{
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:none;opacity:1} }
+    .modal-icon{
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+    .modal h2{ font-size: 24px; font-weight: 900; margin-bottom: 12px; text-align: center; }
+    .modal p{ color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 24px; text-align: center; }
+    .modal-benefits{
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border: 1px solid rgba(102,126,234,0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .modal-benefits h3{ font-size: 14px; margin-bottom: 12px; font-weight: 700; }
+    .modal-benefits ul{ list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .modal-benefits li{ font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .modal-benefits li::before{ content: "✓"; color: var(--green); font-weight: 900; font-size: 16px; }
+    .modal-actions{ display: flex; gap: 12px; }
+    .btn{
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+    .btn-primary{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+    }
+    .btn-primary:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(102,126,234,0.4);
+    }
+    .btn-secondary{ background: white; color: var(--text); border: 2px solid var(--ring); }
+    .btn-secondary:hover{ border-color: var(--accent); background: rgba(102,126,234,0.05); }
+    
+    @media (max-width: 640px){
+      .mosaic{ gap: 0; padding: 0; }
+      .modal-content{ padding: 30px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-area" onclick="location.href='./index.html'">
+        <img src="./peak1.png" alt="PeekPay" class="logo">
+        <div class="brand">
+          <h1>PeekPay</h1>
+          <p>Demo interactivo</p>
+        </div>
+      </div>
+      <a href="./index.html" class="nav-btn">← Volver</a>
+    </div>
+
+    <!-- Creator Card -->
+    <div class="creator-card">
+      <div class="creator-info">
+        <img src="./peak1.png" alt="Rio Out" class="creator-avatar">
+        <div style="flex: 1;">
+          <div>
+            <span class="creator-name">Rio Out</span>
+            <span class="demo-badge">DEMO</span>
+          </div>
+          <div class="creator-handle">@rio-out</div>
+        </div>
+      </div>
+      <p class="creator-desc">
+        Esta es una demostración de cómo funciona PeekPay. En el soft launch (Q1 2025) podrás explorar creadores reales y desbloquear contenido con Peak Credits.
+      </p>
+    </div>
+
+    <!-- Set -->
+    <div class="creator-card">
+      <div class="set-header">
+        <h3 class="set-title">Set Demo • Lencería</h3>
+        <div class="set-stats">
+          <span class="set-stat">
+            <span style="color: var(--green);">●</span>
+            3 preview gratis
+          </span>
+          <span class="set-stat">
+            <span style="color: var(--accent);">●</span>
+            13 bloqueados
+          </span>
+        </div>
+      </div>
+
+      <!-- Mosaic Grid 4x4 -->
+      <div class="mosaic">
+        <!-- Tile 1 - FREE -->
+        <div class="tile free"></div>
+        
+        <!-- Tiles 2-5 - LOCKED -->
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        
+        <!-- Tile 6 - FREE -->
+        <div class="tile free"></div>
+        
+        <!-- Tiles 7-10 - LOCKED -->
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        
+        <!-- Tile 11 - FREE -->
+        <div class="tile free"></div>
+        
+        <!-- Tiles 12-16 - LOCKED -->
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+        <div class="tile locked"></div>
+      </div>
+
+      <div class="info-box">
+        <strong>🎮 Modo Demo:</strong> Los tiles con borde verde y badge "FREE" son preview gratis con un blur más suave. Los tiles con "LOCK" usan un blur mucho más fuerte para proteger la imagen.
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-icon">🔒</div>
+      <h2>Early Access Requerido</h2>
+      <p>
+        Este contenido estará disponible en el <strong>Soft Launch Q1 2025</strong>. Únete ahora y asegura tu lugar como Founder.
+      </p>
+      
+      <div class="modal-benefits">
+        <h3>Al unirte ahora obtienes:</h3>
+        <ul>
+          <li>1,000 Peak Credits gratis ($10 valor)</li>
+          <li>Badge de Founder exclusivo</li>
+          <li>Acceso de por vida por $9.99</li>
+          <li>Sin anuncios nunca</li>
+          <li>Comunidad VIP privada</li>
+        </ul>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cerrar</button>
+        <a href="./signup.html" class="btn btn-primary">Unirme • $9.99</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modal');
+    const lockedTiles = document.querySelectorAll('.tile.locked');
+
+    // Click en tiles bloqueados
+    lockedTiles.forEach(tile => {
+      tile.addEventListener('click', () => {
+        modal.classList.add('active');
+      });
+    });
+
+    // Cerrar modal
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+
+    // Click fuera del modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // ESC para cerrar
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

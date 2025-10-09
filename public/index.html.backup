@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./_header.js" defer></script>
   <title>PeekPay — Descubre, desbloquea y apoya</title>
   <link rel="icon" href="./favicon.ico">
   <style>
@@ -397,7 +398,7 @@
       border-radius: 6px;
     }
     
-    /* Roles / Pricing */
+    /* Roles */
     .roles{ 
       display:grid; 
       gap:20px; 
@@ -407,7 +408,7 @@
       .roles{ grid-template-columns: repeat(3, 1fr); } 
     }
     .role{ 
-      border:2px solid var(--ring); 
+      border:1px solid var(--ring); 
       background:var(--card); 
       border-radius:20px; 
       padding:28px;
@@ -416,7 +417,6 @@
       flex-direction:column; 
       gap:16px;
       transition: all 0.3s;
-      position: relative;
     }
     .role:hover{
       transform: translateY(-4px);
@@ -432,6 +432,7 @@
       margin:0; 
       color:var(--muted); 
       font-size:15px; 
+      flex:1;
       line-height: 1.6;
     }
     .role .actions{ 
@@ -543,9 +544,9 @@
 <div class="early-banner" id="earlyBanner">
   <div class="early-banner-content">
     <span class="early-banner-text">
-      <strong>🔥 Early Access</strong> — Solo quedan <strong><span id="bannerSpots">1900</span></strong> de 2,000 lugares a $9.99
+      <strong>Early Access</strong> — Solo quedan <strong><span id="bannerSpots">847</span></strong> lugares a $9.99
     </span>
-    <a href="./signup.html" class="early-banner-btn">Ver oferta</a>
+    <a href="./early-access.html" class="early-banner-btn">Ver oferta</a>
   </div>
   <button class="early-banner-close" id="closeBanner" aria-label="Cerrar banner">×</button>
 </div>
@@ -560,11 +561,15 @@
         <p>Unblur your curiosity</p>
       </div>
     </div>
+    <div class="nav-row" aria-label="Acciones">
+      <a class="btn" href="./signup.html" id="btnSignupHeader">Crear cuenta</a>
+    </div>
   </div>
+  
   <!-- Trust badges -->
   <div class="trust">
     <span class="trust-item">🔒 Privacidad primero</span>
-    <span class="trust-item">✓ Verificación por email</span>
+    <span class="trust-item">📧 Verificación por email</span>
     <span class="trust-item">💳 Pago seguro</span>
   </div>
   
@@ -574,7 +579,7 @@
       <h2 id="hero-title">Descubre contenido único. Revela mosaicos. Apoya creadores.</h2>
       <p>Experiencia visual y lúdica donde TÚ decides qué revelar. Paga solo por lo que quieres ver con Peak Credits.</p>
       <div class="cta-row">
-        <a class="btn" href="./signup.html">Acceso anticipado $9.99</a>
+        <a class="btn" href="./early-access.html">Acceso anticipado $9.99</a>
         <a class="btn secondary" href="./creators.html">Explorar creadores</a>
       </div>
     </div>
@@ -683,82 +688,34 @@
     </div>
   </section>
   
-  <!-- Pricing / Roles -->
+  <!-- Roles -->
   <section id="roles" class="panel" aria-labelledby="roles-title">
-    <h3 id="roles-title" style="margin-bottom:12px; font-size:32px; font-weight:800; text-align:center;">Acceso Anticipado Limitado</h3>
-    <p style="text-align:center; color:var(--muted); margin-bottom:32px; font-size:18px;">
-      Inversión única de por vida. Solo para los primeros 2,000.
-    </p>
+    <h3 id="roles-title" style="margin-bottom:20px; font-size:32px; font-weight:800;">Elige cómo quieres empezar</h3>
     <div class="roles">
-      
-      <!-- Usuario -->
       <article class="role">
-        <span style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:6px 20px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:0.5px;">🎉 FOUNDER</span>
-        <h3 style="margin-top:12px;">Usuario Early Access</h3>
-        <p style="font-size:48px; font-weight:900; margin:12px 0; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1;">$9.99</p>
-        <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Pago único • Acceso de por vida</p>
-        <ul style="list-style:none; padding:0; margin:20px 0; text-align:left; flex:1;">
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>1,000 Peak Credits gratis ($10 valor)</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Badge de Founder exclusivo</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Comunidad VIP privada</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Sin anuncios nunca</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Acumulación de puntos semanales</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Privacidad 100% garantizada</span></li>
-        </ul>
+        <h3>Como Usuario</h3>
+        <p>Explora perfiles, desbloquea mosaicos y arma la imagen completa. Gana puntos por racha y bonos semanales.</p>
         <div class="actions">
-          <a class="btn" href="./signup.html" style="width:100%;">Unirme ahora</a>
+          <a class="btn" href="./early-access.html">Empezar</a>
+          <a class="btn secondary" href="./peek.html">Ver demo</a>
         </div>
       </article>
-      
-      <!-- Creador -->
       <article class="role">
-        <span style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:6px 20px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:0.5px;">💎 LIFETIME</span>
-        <h3 style="margin-top:12px;">Creador Early Access</h3>
-        <p style="font-size:48px; font-weight:900; margin:12px 0; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1;">$4.99</p>
-        <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Pago único • Sin comisiones iniciales</p>
-        <ul style="list-style:none; padding:0; margin:20px 0; text-align:left; flex:1;">
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>0% comisión mes 1 (5 contenidos)</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>10% comisión mes 2 (con rostro)</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>15% comisión mes 2 (sin rostro)</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Pagos semanales directos</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Dashboard de analytics</span></li>
-          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Sin límite de uploads</span></li>
-        </ul>
+        <h3>Como Creador/a</h3>
+        <p>Publica sets en mosaico y monetiza cada desbloqueo. Controla vistas previas y precios de tus peeks.</p>
         <div class="actions">
-          <a class="btn" href="./creator-signup.html" style="width:100%;">Empezar a crear</a>
+          <a class="btn" href="./early-access.html">Monetizar</a>
+          <a class="btn secondary" href="./creators.html">Ver creadores</a>
         </div>
       </article>
-      
-      <!-- Ganancias -->
       <article class="role">
-        <h3 style="margin-top:12px;">💰 Potencial de Ganancias</h3>
-        <p style="margin-bottom:20px; font-size:14px;">Ejemplo con 100 usuarios activos:</p>
-        <div style="background:#f8fafc; border-radius:16px; padding:20px; margin:16px 0; border:1px solid var(--ring);">
-          <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--ring); font-size:15px;">
-            <span>100 sets vendidos @ $5</span>
-            <span style="font-weight:700; color:var(--text);">$500</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--ring); font-size:15px;">
-            <span>Comisión PeekPay (16%)</span>
-            <span style="color:var(--muted);">-$80</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--ring); font-size:15px;">
-            <span>Pedidos especiales (10)</span>
-            <span style="font-weight:700; color:var(--text);">+$200</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; padding:16px 0 0; font-size:18px; font-weight:900;">
-            <span>Total estimado/mes</span>
-            <span style="font-size:28px; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">$620</span>
-          </div>
-        </div>
-        <p style="font-size:12px; color:var(--muted); line-height:1.5; margin-top:16px;">
-          * Cálculo estimado. Ganancias reales varían según contenido, engagement y estrategia de pricing.
-        </p>
-        <div class="actions" style="margin-top:20px;">
-          <a class="btn secondary" href="./creator-signup.html" style="width:100%;">Más información</a>
+        <h3>Ambos</h3>
+        <p>Consume y crea. Desbloquea contenido mientras construyes tu comunidad y generas ingresos.</p>
+        <div class="actions">
+          <a class="btn" href="./early-access.html">Empezar</a>
+          <a class="btn secondary" href="./categories.html">Explorar todo</a>
         </div>
       </article>
-      
     </div>
   </section>
   
@@ -767,33 +724,33 @@
     <h3 id="cats-title">Explora por categoría</h3>
     <p class="subtitle">Variedad de contenido para todos los gustos. Crea tu cuenta para acceder.</p>
     <div class="cats">
-      <a class="cat" href="./signup.html">
+      <a class="cat" href="./early-access.html">
         <div class="cat-color"></div>
-        <span>Cosplay</span>
+        <span>Lencería</span>
       </a>
-      <a class="cat" href="./signup.html">
+      <a class="cat" href="./early-access.html">
         <div class="cat-color"></div>
         <span>Fitness</span>
       </a>
-      <a class="cat" href="./signup.html">
+      <a class="cat" href="./early-access.html">
         <div class="cat-color"></div>
-        <span>Arte</span>
+        <span>Arte Corporal</span>
       </a>
-      <a class="cat" href="./signup.html">
+      <a class="cat" href="./early-access.html">
         <div class="cat-color"></div>
-        <span>Fotografía</span>
+        <span>Artístico</span>
       </a>
-      <a class="cat" href="./signup.html">
+      <a class="cat" href="./early-access.html">
         <div class="cat-color"></div>
-        <span>Moda</span>
+        <span>Cosplay</span>
       </a>
     </div>
     <div style="margin-top:28px; text-align:center;">
-      <a class="btn" href="./signup.html" style="display:inline-block;">Obtener acceso anticipado</a>
+      <a class="btn" href="./early-access.html" style="display:inline-block;">Acceso anticipado $9.99</a>
     </div>
   </section>
   
-  <footer>Early Access — Lanzamiento completo próximamente • © 2025 PeekPay</footer>
+  <footer>Early Access — Lanzamiento Q1 2025 • © PeekPay</footer>
 </div>
 
 <script>
@@ -810,25 +767,19 @@
     banner.classList.add('hidden');
   }
   
-  // Update spots counter from Supabase
-  async function updateSpotsCounter() {
-    try {
-      const bannerSpots = document.getElementById('bannerSpots');
-      // TODO: Conectar con Supabase real
-      // Por ahora simula entre 1800-1950
-      const baseSpots = 100;
-      const randomUsed = Math.floor(Math.random() * 150);
-      const spotsLeft = 2000 - (baseSpots + randomUsed);
-      
-      bannerSpots.textContent = spotsLeft;
-      localStorage.setItem('peekpay_spots', spotsLeft);
-    } catch (error) {
-      console.error('Error updating spots:', error);
-    }
+  // Sync spots
+  const bannerSpots = document.getElementById('bannerSpots');
+  const savedSpots = localStorage.getItem('peekpay_spots');
+  if (savedSpots) {
+    bannerSpots.textContent = savedSpots;
   }
   
-  updateSpotsCounter();
-  setInterval(updateSpotsCounter, 30000); // Update every 30 seconds
+  setInterval(() => {
+    const currentSpots = localStorage.getItem('peekpay_spots');
+    if (currentSpots) {
+      bannerSpots.textContent = currentSpots;
+    }
+  }, 5000);
   
   // Slider functionality
   let currentSlide = 0;
@@ -859,5 +810,6 @@
     });
   });
 </script>
+<script src="./_header.js" defer></script>
 </body>
 </html>

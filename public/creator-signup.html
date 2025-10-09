@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Únete como Creador — PeekPay</title>
+  <link rel="icon" href="./favicon.ico">
+  <style>
+    :root{
+      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --accent:#667eea;
+      --purple:#764ba2;
+      --green:#10b981;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container{
+      max-width: 900px;
+      width: 100%;
+    }
+    .header{
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .logo{
+      width: 70px;
+      height: 70px;
+      border-radius: 18px;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 20px rgba(102,126,234,0.15);
+    }
+    h1{
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle{
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 768px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(102,126,234,0.12);
+    }
+    .price-card{
+      border: 3px solid var(--accent);
+      position: relative;
+    }
+    .badge{
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      padding: 6px 20px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .price{
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .price-amount{
+      font-size: 56px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .price-note{
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .benefits h3{
+      font-size: 18px;
+      margin-bottom: 16px;
+      font-weight: 800;
+    }
+    .benefits ul{
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .benefits li{
+      display: flex;
+      align-items: start;
+      gap: 10px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .benefits li::before{
+      content: "✓";
+      color: var(--green);
+      font-weight: 900;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .commission-table{
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border: 1px solid rgba(102,126,234,0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+    .commission-table h4{
+      font-size: 16px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .commission-row{
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--ring);
+      font-size: 14px;
+    }
+    .commission-row:last-child{
+      border-bottom: none;
+      font-weight: 700;
+    }
+    .earnings-example{
+      margin-top: 24px;
+      padding: 20px;
+      background: #fef3c7;
+      border: 2px solid #fbbf24;
+      border-radius: 16px;
+    }
+    .earnings-example h4{
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #78350f;
+      font-weight: 800;
+    }
+    .earnings-calc{
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+      color: #78350f;
+    }
+    .earnings-total{
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 2px solid #fbbf24;
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: 900;
+      color: #78350f;
+    }
+    .form-section{
+      margin-top: 24px;
+    }
+    .form-group{
+      margin-bottom: 20px;
+    }
+    label{
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    input[type="email"]{
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--ring);
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s;
+      outline: none;
+    }
+    input[type="email"]:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+    .btn{
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+    }
+    .btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(102,126,234,0.4);
+    }
+    .btn:disabled{
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .error{
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .info-box{
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border: 1px solid rgba(102,126,234,0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .back-link{
+      text-align: center;
+      margin-top: 20px;
+    }
+    .back-link a{
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .back-link a:hover{
+      text-decoration: underline;
+    }
+    @media (max-width: 640px){
+      .card{ padding: 30px 24px; }
+      h1{ font-size: 28px; }
+      .price-amount{ font-size: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="peak1.png" alt="PeekPay" class="logo">
+      <h1>Únete como Creador</h1>
+      <p class="subtitle">Monetiza tu contenido con el modelo más justo. Pago único de acceso, sin mensualidades.</p>
+    </div>
+
+    <div class="grid">
+      <!-- Pricing Card -->
+      <div class="card price-card">
+        <div class="badge">💎 LIFETIME ACCESS</div>
+        
+        <div class="price">
+          <div class="price-amount">$4.99</div>
+          <div class="price-note">Pago único • Sin comisiones mes 1</div>
+        </div>
+
+        <div class="benefits">
+          <h3>Lo que obtienes:</h3>
+          <ul>
+            <li>0% comisión primer mes (5 contenidos)</li>
+            <li>10% comisión (con rostro) después</li>
+            <li>15% comisión (sin rostro) después</li>
+            <li>Pagos semanales directos</li>
+            <li>Dashboard de analytics completo</li>
+            <li>Uploads ilimitados</li>
+            <li>Badge de "Early Creator"</li>
+            <li>Comunidad VIP de creadores</li>
+          </ul>
+        </div>
+
+        <div class="commission-table">
+          <h4>📊 Modelo de comisiones</h4>
+          <div class="commission-row">
+            <span>Mes 1 (primeros 5 peeks)</span>
+            <strong style="color: var(--green);">0%</strong>
+          </div>
+          <div class="commission-row">
+            <span>Mes 2+ (con rostro visible)</span>
+            <strong>10%</strong>
+          </div>
+          <div class="commission-row">
+            <span>Mes 2+ (sin rostro)</span>
+            <strong>15%</strong>
+          </div>
+          <div class="commission-row">
+            <span>Pedidos especiales</span>
+            <strong>5%</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Earnings Example Card -->
+      <div class="card">
+        <div class="benefits">
+          <h3>💰 Ejemplo de ganancias</h3>
+          <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">
+            Basado en 100 usuarios activos comprando tus peeks
+          </p>
+        </div>
+
+        <div class="earnings-example">
+          <h4>Mes 1 (0% comisión):</h4>
+          <div class="earnings-calc">
+            <span>100 sets @ $5 cada uno</span>
+            <strong>$500</strong>
+          </div>
+          <div class="earnings-calc">
+            <span>Comisión PeekPay</span>
+            <strong style="color: var(--green);">$0</strong>
+          </div>
+          <div class="earnings-total">
+            <span>Total mes 1:</span>
+            <span>$500</span>
+          </div>
+        </div>
+
+        <div class="earnings-example" style="background: #e0e7ff; border-color: var(--accent);">
+          <h4>Mes 2+ (con rostro, 10%):</h4>
+          <div class="earnings-calc">
+            <span>200 sets @ $5 cada uno</span>
+            <strong>$1,000</strong>
+          </div>
+          <div class="earnings-calc">
+            <span>Comisión PeekPay (10%)</span>
+            <strong>-$100</strong>
+          </div>
+          <div class="earnings-calc">
+            <span>Pedidos especiales (10 @ $20)</span>
+            <strong style="color: var(--green);">+$190</strong>
+          </div>
+          <div class="earnings-total">
+            <span>Total mes 2:</span>
+            <span>$1,090</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; padding: 16px; background: white; border: 1px solid var(--ring); border-radius: 12px;">
+          <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">Ingreso promedio proyectado:</div>
+          <div style="font-size: 28px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            $600-1,200/mes
+          </div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">
+            *Basado en 100-200 usuarios activos
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signup Form -->
+    <div class="card">
+      <h3 style="font-size: 24px; margin-bottom: 12px; font-weight: 800;">Completa tu registro</h3>
+      <p style="color: var(--muted); font-size: 15px; margin-bottom: 24px;">
+        Ingresa tu email para continuar al pago. Recibirás acceso inmediato.
+      </p>
+
+      <div id="errorMsg" class="error"></div>
+
+      <form id="creatorSignupForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="tu@email.com"
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">
+          Continuar al pago • $4.99
+        </button>
+      </form>
+
+      <div class="info-box">
+        📌 <strong>Nota importante:</strong> El soft launch es en Q1 2025. Al registrarte ahora:
+        <ul style="margin: 8px 0 0 20px; padding: 0;">
+          <li>Aseguras tu lugar como Early Creator</li>
+          <li>Puedes preparar tu contenido</li>
+          <li>Tendrás prioridad en el lanzamiento</li>
+        </ul>
+      </div>
+
+      <div class="back-link">
+        <a href="./index.html">← Volver al inicio</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('creatorSignupForm');
+    const emailInput = document.getElementById('email');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorMsg = document.getElementById('errorMsg');
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+    }
+
+    function hideError() {
+      errorMsg.style.display = 'none';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const email = emailInput.value.trim();
+      
+      if (!email) {
+        showError('Por favor ingresa tu email');
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError('Email inválido');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Redirigiendo...';
+
+      try {
+        // Create Stripe Checkout Session for creator
+        const response = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email,
+            type: 'creator' // Indica que es registro de creador
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Error al crear sesión de pago');
+        }
+
+        const { url } = await response.json();
+        
+        // Redirect to Stripe Checkout
+        window.location.href = url;
+
+      } catch (error) {
+        showError(error.message || 'Error al procesar. Intenta de nuevo.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Continuar al pago • $4.99';
+      }
+    });
+  </script>
+</body>
+</html>
