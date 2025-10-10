@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
 
 export default async function handler(req, res) {
-  // CORS básico
+  // CORS básico para formularios estáticos
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -12,44 +12,62 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { email } = req.body || {};
-    if (!email) return res.status(400).json({ error: 'Email requerido' });
-    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!ok) return res.status(400).json({ error: 'Email inválido' });
+    const body = (req.body || {});
+    // Acepta varias formas de indicar el tipo
+    const rawType =
+      (body.type ?? body.role ?? req.query?.t ?? '').toString().trim().toLowerCase();
 
-    // Detecta local vs prod correctamente
+    const customerEmail = (body.email || '').toString().trim();
+    if (!customerEmail) return res.status(400).json({ error: 'Email requerido' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+      return res.status(400).json({ error: 'Email inválido' });
+    }
+
+    // creator => 4.99 USD, user => 9.99 USD
+    const isCreator = rawType === 'creator';
+    const unitAmount = isCreator ? 499 : 999;
+    const productName = isCreator ? 'PeekPay Early Access (Creator)' : 'PeekPay Early Access (User)';
+
+    // Detecta local vs prod (para construir URLs de retorno)
     const origin = req.headers.origin || '';
-    const isLocal = /^(http:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
-
-    // En prod: archivos de public están en raíz (Vercel sirve desde public/)
-    // En local (Vite): archivos están bajo /public
+    const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
     const BASE_URL = isLocal
       ? (origin || 'http://localhost:5173')
       : (process.env.NEXT_PUBLIC_BASE_URL || 'https://peak-pay.vercel.app');
 
-    const PATH_PREFIX = isLocal ? '/public' : '';
-    const successUrl = `${BASE_URL}/payment-complete?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl  = `${BASE_URL}/signup`;
+    // Éxito/cancel — agregamos tipo y email para redirigir bien en payment-complete
+    const successUrl = `${BASE_URL}/payment-complete.html?session_id={CHECKOUT_SESSION_ID}&t=${isCreator ? 'creator' : 'user'}&e=${encodeURIComponent(customerEmail)}`;
+    const cancelUrl  = isCreator
+      ? `${BASE_URL}/creator-signup.html?canceled=1`
+      : `${BASE_URL}/signup.html?canceled=1`;
 
     const session = await stripe.checkout.sessions.create({
-      customer_email: email,
       mode: 'payment',
+      customer_email: customerEmail,
       payment_method_types: ['card'],
-      line_items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: 'PeekPay Early Access',
-            description: 'Acceso anticipado + 1,000 Peak Credits + Beneficios exclusivos',
-            images: [`${BASE_URL}/peak1.png`],
+      allow_promotion_codes: true,     // SIEMPRE permitir promo codes
+      automatic_tax: { enabled: false }, // desactiva cálculo automático de impuestos
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: productName,
+              description: 'Acceso anticipado + 1,000 Peak Credits + Beneficios exclusivos',
+              images: [`${BASE_URL}/peak1.png`],
+            },
+            unit_amount: unitAmount, // 499 o 999
           },
-          unit_amount: 999,
+          quantity: 1,
         },
-        quantity: 1,
-      }],
+      ],
       success_url: successUrl,
       cancel_url: cancelUrl,
-      metadata: { email, product: 'early_access' },
+      metadata: {
+        email: customerEmail,
+        product: isCreator ? 'early_access_creator' : 'early_access_user',
+        type: isCreator ? 'creator' : 'user',
+      },
     });
 
     return res.status(200).json({ url: session.url });

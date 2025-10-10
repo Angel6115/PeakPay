@@ -6,7 +6,6 @@
   <title>¡Bienvenido Creador! — PeekPay</title>
   <link rel="icon" href="./favicon.ico">
 
-  <!-- mismo look & feel -->
   <style>
     :root{
       --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
@@ -198,70 +197,79 @@
   </div>
 
   <script>
-    // Utilidades URL y paths (local vs prod)
-    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
-    const setupPath = isLocal ? '/public/profile-setup.html' : '/profile-setup.html';
+    // 1) Paths seguros (local vs. Vercel)
+    const isLocalHost = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+    const SETUP_URL = isLocalHost ? '/public/profile-setup.html' : '/profile-setup.html';
 
-    // Prefill desde Stripe (?e= & ?from=stripe)
-    (function prefill(){
-      const p = new URLSearchParams(location.search);
-      const email = p.get('e') || '';
-      if (email) document.getElementById('email').value = email;
+    // 2) Helpers
+    const $ = (id) => document.getElementById(id);
+    const normHandle = (v) =>
+      (v || '')
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')        // espacios -> guiones
+        .replace(/[^\w-]/g, '')      // limpia caracteres no válidos
+        .replace(/-+/g, '-');        // colapsa guiones
 
-      // si tenemos un handle sugerido por demo (?c=)
-      const handle = (p.get('c') || '').toLowerCase().trim();
-      if (handle) document.getElementById('handle').value = handle.replace(/\s+/g,'-').replace(/[^\w-]/g,'');
+    // 3) Prefill desde query (?e=, ?c=, ?from=stripe)
+    (function prefillFromQuery(){
+      const q = new URLSearchParams(location.search);
+      const e = q.get('e') || q.get('email');
+      if (e) {
+        $('email').value = decodeURIComponent(e);
+        $('email').readOnly = true;
+        $('email').style.background = '#f8fafc';
+      }
+      const c = normHandle(q.get('c'));
+      if (c) $('handle').value = c;
 
-      // pequeño aviso opcional si viene de Stripe
-      if (p.get('from') === 'stripe') {
-        console.log('Stripe OK · session_id=', p.get('session_id') || '(n/a)');
+      if (q.get('from') === 'stripe') {
+        console.log('Stripe OK · session_id =', q.get('session_id') || '(n/a)');
       }
     })();
 
-    // Validación rápida
+    // 4) Validación mínima
     function validate(form){
       const email = form.email.value.trim();
       const displayName = form.displayName.value.trim();
-      const handle = form.handle.value.trim();
+      const handle = normHandle(form.handle.value);
       const category = form.category.value;
 
-      if (!email || !/^\S+@\S+\.\S+$/.test(email)) { alert('Ingresa un email válido'); return false; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Ingresa un email válido'); return false; }
       if (!displayName) { alert('Ingresa tu nombre para mostrar'); return false; }
-      if (!handle || !/^[a-z0-9-]{3,}$/.test(handle)) {
-        alert('Usuario inválido. Usa solo minúsculas, números y guiones (3+).'); return false;
-      }
+      if (!handle || handle.length < 3) { alert('Usuario inválido (mínimo 3, minúsculas y guiones).'); return false; }
       if (!category) { alert('Selecciona una categoría'); return false; }
+
+      // normaliza en el input para que viaje limpio
+      form.handle.value = handle;
       return true;
     }
 
-    // Guardar borrador y enviar a profile-setup
-    document.getElementById('creatorForm').addEventListener('submit', function(e){
-      e.preventDefault();
+    // 5) Guardar borrador y redirigir a setup
+    $('creatorForm').addEventListener('submit', function(ev){
+      ev.preventDefault();
       if (!validate(this)) return;
 
       const data = {
         role: 'creator',
         email: this.email.value.trim(),
         displayName: this.displayName.value.trim(),
-        handle: this.handle.value.trim(),
+        handle: normHandle(this.handle.value),
         category: this.category.value,
-        country: this.country.value.trim(),
-        instagram: this.instagram.value.trim(),
-        twitter: this.twitter.value.trim(),
-        bio: this.bio.value.trim(),
+        country: (this.country.value || '').trim(),
+        instagram: (this.instagram.value || '').trim(),
+        twitter: (this.twitter.value || '').trim(),
+        bio: (this.bio.value || '').trim(),
         ts: Date.now()
       };
 
-      // Guarda borrador local para que profile-setup lo lea si quiere (no rompe nada)
-      try { localStorage.setItem('creatorDraft', JSON.stringify(data)); } catch(_) {}
+      try { localStorage.setItem('creatorDraft', JSON.stringify(data)); } catch {}
 
-      // Construye URL de setup con params básicos
-      const u = new URL(setupPath, location.origin);
-      u.searchParams.set('role','creator');
-      u.searchParams.set('email', data.email);
-      u.searchParams.set('handle', data.handle);
-
-      location.href = u.toString();
+      const next = new URL(SETUP_URL, location.origin);
+      next.searchParams.set('role','creator');
+      next.searchParams.set('email', data.email);
+      next.searchParams.set('handle', data.handle);
+      location.href = next.toString();
     });
   </script>
 </body>

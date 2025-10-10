@@ -65,52 +65,54 @@
     .benefits li::before{ content: "✓"; color: var(--green); font-weight: 900; font-size: 18px; flex-shrink: 0; }
     .commission-table{
       background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
-      border: 1px solid rgba(102,126,234,0.2); border-radius: 16px; padding: 20px; margin-top: 24px;
+      border: 1px solid rgba(102,126,234,0.2);
+      border-radius: 16px; padding: 20px; margin-top: 24px;
     }
     .commission-table h4{ font-size: 16px; margin-bottom: 12px; font-weight: 700; color: var(--accent); }
-    .commission-row{ display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--ring); font-size: 14px; }
+    .commission-row{
+      display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--ring); font-size: 14px;
+    }
     .commission-row:last-child{ border-bottom: none; font-weight: 700; }
     .earnings-example{ margin-top: 24px; padding: 20px; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 16px; }
     .earnings-example h4{ font-size: 16px; margin-bottom: 12px; color: #78350f; font-weight: 800; }
     .earnings-calc{ display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: #78350f; }
     .earnings-total{
-      margin-top: 12px; padding-top: 12px; border-top: 2px solid #fbbf24;
-      display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; color: #78350f;
+      margin-top: 12px; padding-top: 12px; border-top: 2px solid #fbbf24; display: flex; justify-content: space-between;
+      font-size: 18px; font-weight: 900; color: #78350f;
     }
-    .info-box{
-      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
-      border: 1px solid rgba(102,126,234,0.2); border-radius: 12px; padding: 16px; margin-top: 20px;
-      font-size: 13px; color: var(--muted); line-height: 1.6;
-    }
-    .back-link{ text-align: center; margin-top: 20px; }
-    .back-link a{ color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; }
-    .back-link a:hover{ text-decoration: underline; }
-
     .form-group{ margin-bottom: 20px; }
     label{ display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
     input[type="email"]{
-      width: 100%; padding: 14px 16px; border: 2px solid var(--ring); border-radius: 12px; font-size: 16px;
-      transition: all 0.3s; outline: none;
+      width: 100%; padding: 14px 16px; border: 2px solid var(--ring); border-radius: 12px; font-size: 16px; transition: all .3s; outline: none;
     }
     input[type="email"]:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
     .btn{
-      width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent), var(--purple));
-      color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer;
-      transition: all 0.3s; box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; transition: all .3s;
+      box-shadow: 0 8px 20px rgba(102,126,234,0.3);
     }
     .btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 28px rgba(102,126,234,0.4); }
     .btn:disabled{ opacity: .6; cursor: not-allowed; transform: none; }
     .error{
-      background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px 16px; border-radius: 12px;
-      font-size: 14px; margin-bottom: 20px; display: none;
+      background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b;
+      padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 20px; display: none;
     }
+    .info-box{
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border: 1px solid rgba(102,126,234,0.2);
+      border-radius: 12px; padding: 16px; margin-top: 20px; font-size: 13px; color: var(--muted); line-height: 1.6;
+    }
+    .back-link{ text-align: center; margin-top: 20px; }
+    .back-link a{ color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; }
+    .back-link a:hover{ text-decoration: underline; }
     @media (max-width: 640px){ .card{ padding: 30px 24px; } h1{ font-size: 28px; } .price-amount{ font-size: 48px; } }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <img src="./peak1.png" alt="PeekPay" class="logo">
+      <img src="peak1.png" alt="PeekPay" class="logo">
       <h1>Únete como Creador</h1>
       <p class="subtitle">Monetiza tu contenido con el modelo más justo. Pago único de acceso, sin mensualidades.</p>
     </div>
@@ -151,62 +153,48 @@
           <h3>💰 Ejemplo de ganancias</h3>
           <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Basado en 100 usuarios activos comprando tus peeks</p>
         </div>
-
         <div class="earnings-example">
           <h4>Mes 1 (0% comisión):</h4>
           <div class="earnings-calc"><span>100 sets @ $5 cada uno</span><strong>$500</strong></div>
           <div class="earnings-calc"><span>Comisión PeekPay</span><strong style="color: var(--green);">$0</strong></div>
           <div class="earnings-total"><span>Total mes 1:</span><span>$500</span></div>
         </div>
-
-        <div class="earnings-example" style="background: #e0e7ff; border-color: var(--accent);">
+        <div class="earnings-example" style="background:#e0e7ff;border-color:var(--accent);">
           <h4>Mes 2+ (con rostro, 10%):</h4>
           <div class="earnings-calc"><span>200 sets @ $5 cada uno</span><strong>$1,000</strong></div>
           <div class="earnings-calc"><span>Comisión PeekPay (10%)</span><strong>-$100</strong></div>
           <div class="earnings-calc"><span>Pedidos especiales (10 @ $20)</span><strong style="color: var(--green);">+$190</strong></div>
           <div class="earnings-total"><span>Total mes 2:</span><span>$1,090</span></div>
         </div>
-
-        <div style="margin-top: 20px; padding: 16px; background: white; border: 1px solid var(--ring); border-radius: 12px;">
-          <div style="font-size: 13px; color: var(--muted); margin-bottom: 8px;">Ingreso promedio proyectado:</div>
-          <div style="font-size: 28px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-            $600-1,200/mes
-          </div>
-          <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">*Basado en 100-200 usuarios activos</div>
+        <div style="margin-top:20px;padding:16px;background:white;border:1px solid var(--ring);border-radius:12px;">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Ingreso promedio proyectado:</div>
+          <div style="font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">$600-1,200/mes</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">*Basado en 100-200 usuarios activos</div>
         </div>
       </div>
     </div>
 
     <!-- Signup Form -->
     <div class="card">
-      <h3 style="font-size: 24px; margin-bottom: 12px; font-weight: 800;">Completa tu registro</h3>
-      <p style="color: var(--muted); font-size: 15px; margin-bottom: 24px;">
-        Ingresa tu email para continuar al pago. Recibirás acceso inmediato.
-      </p>
-
+      <h3 style="font-size:24px;margin-bottom:12px;font-weight:800;">Completa tu registro</h3>
+      <p style="color:var(--muted);font-size:15px;margin-bottom:24px;">Ingresa tu email para continuar al pago. Recibirás acceso inmediato.</p>
       <div id="errorMsg" class="error"></div>
-
       <form id="creatorSignupForm">
         <div class="form-group">
           <label for="email">Email</label>
           <input type="email" id="email" name="email" placeholder="tu@email.com" required autocomplete="email">
         </div>
-
         <button type="submit" class="btn" id="submitBtn">Continuar al pago • $4.99</button>
       </form>
-
       <div class="info-box">
         📌 <strong>Nota importante:</strong> El soft launch es en Q1 2025. Al registrarte ahora:
-        <ul style="margin: 8px 0 0 20px; padding: 0;">
+        <ul style="margin:8px 0 0 20px;padding:0;">
           <li>Aseguras tu lugar como Early Creator</li>
           <li>Puedes preparar tu contenido</li>
           <li>Tendrás prioridad en el lanzamiento</li>
         </ul>
       </div>
-
-      <div class="back-link">
-        <a href="./index.html">← Volver al inicio</a>
-      </div>
+      <div class="back-link"><a href="./index.html">← Volver al inicio</a></div>
     </div>
   </div>
 
@@ -215,6 +203,12 @@
     const emailInput = document.getElementById('email');
     const submitBtn = document.getElementById('submitBtn');
     const errorMsg = document.getElementById('errorMsg');
+
+    const isLocal = ['localhost','127.0.0.1'].includes(location.hostname);
+    // ⬇️ En local, llamamos a la API alojada en Vercel (CORS permitido)
+    const API_BASE = isLocal
+      ? 'https://peak-pay.vercel.app'            // Prod estable (puedes cambiar al preview si quieres)
+      : '';                                       // En Vercel usamos ruta relativa
 
     function showError(msg){ errorMsg.textContent = msg; errorMsg.style.display = 'block'; }
     function hideError(){ errorMsg.style.display = 'none'; }
@@ -229,59 +223,29 @@
       if (!emailRegex.test(email)) return showError('Email inválido');
 
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Redirigiendo...';
+      submitBtn.textContent = 'Creando sesión...';
 
-      const isLocal = ['localhost','127.0.0.1'].includes(location.hostname);
-      const successPath = isLocal ? '/public/creator-welcome.html' : '/creator-welcome.html';
-      const cancelPath  = isLocal ? '/public/creator-signup.html'   : '/creator-signup.html';
-
-      const successUrl = new URL(successPath, location.origin);
-      successUrl.searchParams.set('from', 'stripe');
-      successUrl.searchParams.set('e', email);
-      successUrl.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}');
-
-      const cancelUrl = new URL(cancelPath, location.origin);
-      cancelUrl.searchParams.set('canceled', '1');
-
-      // Intento real: backend /api/create-checkout-session (existe en Vercel/prod)
       try {
-        const response = await fetch('/api/create-checkout-session', {
+        const response = await fetch(`${API_BASE}/api/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'creator',
-            customer_email: email,
-            success_url: successUrl.toString(),
-            cancel_url: cancelUrl.toString(),
-            metadata: { role: 'creator', intent: 'early_access' }
-          })
+          body: JSON.stringify({ email, type: 'creator' })
         });
 
-        if (response.ok) {
-          const { url } = await response.json();
-          if (!url) throw new Error('No recibimos URL de pago');
-          window.location.href = url; // Stripe Checkout
-          return;
+        if (!response.ok) {
+          let msg = 'Error al crear sesión de pago';
+          try { const err = await response.json(); msg = err.message || err.error || msg; } catch(_){}
+          throw new Error(msg);
         }
 
-        // Si no hay backend en local (404/405/etc), simulamos
-        if (isLocal && (response.status === 404 || response.status === 405)) {
-          console.warn('[creator-signup] Fallback local: simulando pago y yendo a creator-welcome.');
-          window.location.href = successUrl.toString().replace('from=stripe','from=sim');
-          return;
-        }
+        const { url } = await response.json();
+        if (!url) throw new Error('Respuesta inválida de la API');
 
-        const err = await response.json().catch(()=>({message:'Error al crear sesión de pago'}));
-        throw new Error(err.message || 'Error al crear sesión de pago');
+        // Redirige a Stripe Checkout (real), NO al formulario
+        window.location.href = url;
 
-      } catch (error) {
-        if (isLocal) {
-          // Fallback local por error de red/servidor: simular
-          console.warn('[creator-signup] Fallback local por error. Simulación → creator-welcome.', error);
-          window.location.href = successUrl.toString().replace('from=stripe','from=sim');
-          return;
-        }
-        showError(error.message || 'Error al procesar. Intenta de nuevo.');
+      } catch (err) {
+        showError(err.message || 'Error al procesar. Intenta de nuevo.');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Continuar al pago • $4.99';
       }
