@@ -1,0 +1,940 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay Early Access - Solo $9.99</title>
+  <link rel="icon" href="./favicon.ico">
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-gradient: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --accent:#667eea;
+      --accent-light:#818cf8;
+      --purple:#764ba2;
+      --success:#10b981;
+      --warning:#f59e0b;
+      --border:#e2e8f0;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      background: var(--bg-gradient);
+      color: var(--text); 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    .header{
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .header-content{
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo-area{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-area img{
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+    .logo-area h1{
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .badge{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+    }
+
+    /* Hero Section */
+    .hero{
+      max-width: 780px;
+      margin: 60px auto 40px;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .hero h2{
+      font-size: clamp(36px, 6vw, 58px);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    .hero .gradient-text{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle{
+      font-size: clamp(18px, 3vw, 22px);
+      color: var(--muted);
+      margin-bottom: 16px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .hero .price{
+      font-size: 80px;
+      font-weight: 900;
+      margin: 40px 0 12px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .price small{
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .hero .price-note{
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 35px;
+    }
+
+    /* CTA Button */
+    .cta-btn{
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #fff;
+      padding: 20px 55px;
+      border-radius: 16px;
+      font-size: 20px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+    .cta-btn:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+    .cta-btn:active{
+      transform: translateY(-1px);
+    }
+
+    /* How It Works Section */
+    .how-it-works{
+      background: var(--card);
+      max-width: 1100px;
+      margin: 50px auto;
+      border-radius: 24px;
+      padding: 50px 40px;
+      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.12);
+      border: 1px solid var(--border);
+    }
+    .how-it-works h3{
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 16px;
+      color: var(--text);
+      font-weight: 800;
+    }
+    .how-it-works .subtitle-section{
+      text-align: center;
+      font-size: 20px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 50px;
+    }
+    
+    /* Slider Container */
+    .slider-container{
+      max-width: 600px;
+      margin: 0 auto 40px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+    }
+    .slider{
+      display: flex;
+      transition: transform 0.8s ease-in-out;
+    }
+    .slide{
+      min-width: 100%;
+      padding: 40px;
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    }
+    .slide-title{
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    
+    /* Grid 4x4 */
+    .grid-demo{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-width: 400px;
+      margin: 0 auto;
+      aspect-ratio: 1;
+    }
+    .tile-demo{
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      background: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .tile-demo.blur{
+      filter: blur(12px);
+      background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+    }
+    .tile-demo.free{
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+    .tile-demo.locked{
+      background: linear-gradient(135deg, #667eea, #818cf8);
+      color: white;
+    }
+    .tile-demo.revealed{
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white;
+      animation: reveal 0.5s ease-out;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes reveal {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Slider dots */
+    .slider-dots{
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .dot{
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .dot.active{
+      background: var(--accent);
+      width: 30px;
+      border-radius: 6px;
+    }
+    
+    /* Pricing Grid */
+    .pricing-info{
+      display: grid;
+      gap: 20px;
+      margin-top: 40px;
+    }
+    @media (min-width: 768px){
+      .pricing-info{
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .pricing-card{
+      background: var(--bg-gradient);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+    .pricing-card:hover{
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    }
+    .pricing-card h4{
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .pricing-card .price-big{
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .pricing-card p{
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .pricing-card ul{
+      list-style: none;
+      margin-top: 16px;
+    }
+    .pricing-card li{
+      padding: 8px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .pricing-card li:before{
+      content: "✓ ";
+      color: var(--success);
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    
+    /* Adult Notice */
+    .adult-notice{
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 2px solid #f59e0b;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 30px;
+      text-align: center;
+    }
+    .adult-notice p{
+      color: #92400e;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    /* Urgency Bar */
+    .urgency{
+      background: var(--card);
+      border: 2px solid var(--accent);
+      padding: 24px 20px;
+      margin: 35px auto;
+      max-width: 650px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.12);
+      text-align: center;
+    }
+    .urgency strong{
+      font-size: 20px;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 16px;
+    }
+    .countdown{
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+    .countdown-item{
+      text-align: center;
+      background: var(--bg-gradient);
+      padding: 16px 20px;
+      border-radius: 12px;
+      min-width: 80px;
+    }
+    .countdown-item .number{
+      font-size: 36px;
+      font-weight: 900;
+      display: block;
+      color: var(--accent);
+    }
+    .countdown-item .label{
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Social Proof */
+    .social-proof{
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .avatars{
+      display: flex;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .avatars .avatar{
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 3px solid var(--card);
+      margin-left: -12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background: linear-gradient(135deg, var(--accent-light), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .avatars .avatar:first-child{
+      margin-left: 0;
+    }
+    .social-proof p{
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .social-proof strong{
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* Benefits Card */
+    .benefits{
+      background: var(--card);
+      max-width: 1000px;
+      margin: 50px auto;
+      border-radius: 24px;
+      padding: 50px 40px;
+      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.12);
+      border: 1px solid var(--border);
+    }
+    .benefits h3{
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 48px;
+      color: var(--text);
+      font-weight: 800;
+    }
+    .benefits-grid{
+      display: grid;
+      gap: 28px;
+    }
+    @media (min-width: 768px){
+      .benefits-grid{
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .benefit-item{
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      padding: 20px;
+      border-radius: 16px;
+      background: var(--bg-gradient);
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .benefit-item:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.1);
+    }
+    .benefit-icon{
+      font-size: 36px;
+      flex-shrink: 0;
+    }
+    .benefit-text h4{
+      font-size: 18px;
+      margin-bottom: 6px;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .benefit-text p{
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* FAQ */
+    .faq{
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+    .faq h3{
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 40px;
+      color: var(--text);
+      font-weight: 800;
+    }
+    .faq-item{
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 16px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: all 0.3s;
+    }
+    .faq-item:hover{
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.1);
+      border-color: var(--accent);
+    }
+    .faq-item h4{
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .faq-item p{
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Final CTA */
+    .final-cta{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      max-width: 800px;
+      margin: 60px auto 80px;
+      padding: 60px 40px;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(102, 126, 234, 0.25);
+      color: white;
+    }
+    .final-cta h3{
+      font-size: 40px;
+      margin-bottom: 20px;
+      font-weight: 900;
+    }
+    .final-cta p{
+      font-size: 20px;
+      margin-bottom: 35px;
+      opacity: 0.95;
+    }
+    .final-cta .cta-btn{
+      background: white;
+      color: var(--accent);
+    }
+    .final-cta .cta-btn:hover{
+      background: #f8fafc;
+    }
+
+    /* Guarantee */
+    .guarantee{
+      text-align: center;
+      margin-top: 24px;
+      font-size: 15px;
+      opacity: 0.9;
+    }
+    .guarantee strong{
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px){
+      .hero h2{ font-size: 32px }
+      .hero .price{ font-size: 64px }
+      .how-it-works{ padding: 35px 20px }
+      .benefits{ padding: 35px 24px }
+      .final-cta{ padding: 40px 24px }
+      .final-cta h3{ font-size: 32px }
+      .countdown{ gap: 12px }
+      .countdown-item{ min-width: 70px; padding: 12px 14px }
+      .countdown-item .number{ font-size: 28px }
+      .benefit-item{ padding: 16px }
+      .cta-btn{ padding: 18px 40px; font-size: 18px }
+      .slide{ padding: 30px 20px }
+      .grid-demo{ max-width: 300px; gap: 6px }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo-area">
+        <img src="peak1.png" alt="PeekPay">
+        <h1>PeekPay</h1>
+      </div>
+      <div class="badge">✨ Early Access</div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h2>Sé de los primeros <span class="gradient-text">1,000</span> en PeekPay</h2>
+    <p class="subtitle">Acceso exclusivo a la plataforma que revoluciona cómo descubres y apoyas contenido visual único</p>
+    
+    <div class="price">
+      $9<small>.99</small>
+    </div>
+    <p class="price-note">Pago único • Acceso de por vida • Nunca más a este precio</p>
+    
+    <a href="https://buy.stripe.com/test_8x27sE5J274cgNg8M55AQ00" class="cta-btn" id="ctaButton">
+      Asegurar mi lugar ahora
+    </a>
+
+    <div class="urgency">
+      <strong>Solo quedan <span id="spotsLeft">847</span> de 1,000 lugares disponibles</strong>
+      <div class="countdown">
+        <div class="countdown-item">
+          <span class="number" id="days">05</span>
+          <span class="label">Días</span>
+        </div>
+        <div class="countdown-item">
+          <span class="number" id="hours">14</span>
+          <span class="label">Horas</span>
+        </div>
+        <div class="countdown-item">
+          <span class="number" id="minutes">32</span>
+          <span class="label">Min</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <h3>Cómo funciona PeekPay</h3>
+    <p class="subtitle-section">Paga solo por lo que quieres ver. Tú tienes el control.</p>
+    
+    <!-- Slider -->
+    <div class="slider-container">
+      <div class="slider" id="slider">
+        <!-- Slide 1: Blur -->
+        <div class="slide">
+          <div class="slide-title">1. Foto en mosaico blur (4×4 = 16 cuadros)</div>
+          <div class="grid-demo">
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+            <div class="tile-demo blur"></div>
+          </div>
+        </div>
+        
+        <!-- Slide 2: 3 Free -->
+        <div class="slide">
+          <div class="slide-title">2. Siempre 3 cuadros GRATIS como preview</div>
+          <div class="grid-demo">
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo locked">LOCK</div>
+          </div>
+        </div>
+        
+        <!-- Slide 3: Revealing -->
+        <div class="slide">
+          <div class="slide-title">3. Desbloquea con créditos (tú decides cuántos)</div>
+          <div class="grid-demo">
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo locked">LOCK</div>
+            <div class="tile-demo revealed">✓</div>
+            <div class="tile-demo free">FREE</div>
+            <div class="tile-demo locked">LOCK</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="slider-dots">
+        <div class="dot active" data-slide="0"></div>
+        <div class="dot" data-slide="1"></div>
+        <div class="dot" data-slide="2"></div>
+      </div>
+    </div>
+    
+    <!-- Pricing Info -->
+    <div class="pricing-info">
+      <div class="pricing-card">
+        <h4>Precios por cuadro</h4>
+        <div class="price-big">$0.25</div>
+        <p>Precio fijo por cuadro revelado</p>
+        <ul>
+          <li>1 cuadro = 25 créditos ($0.25)</li>
+          <li>3 cuadros = 75 créditos ($0.75)</li>
+          <li>Foto completa (13 cuadros) = $3.25</li>
+        </ul>
+      </div>
+      
+      <div class="pricing-card">
+        <h4>Tus 1,000 créditos</h4>
+        <div class="price-big">$10</div>
+        <p>Valor incluido en early access</p>
+        <ul>
+          <li>Puedes revelar ~40 cuadros completos</li>
+          <li>O explorar +300 cuadros parciales</li>
+          <li>Tú decides cómo usarlos</li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Adult Notice -->
+    <div class="adult-notice">
+      <p>Contenido para adultos (+18) • Incluye lifestyle, fitness, lencería y más • Verificación de edad requerida</p>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
+  <div class="social-proof">
+    <div class="avatars">
+      <div class="avatar">M</div>
+      <div class="avatar">A</div>
+      <div class="avatar">J</div>
+      <div class="avatar">C</div>
+      <div class="avatar">S</div>
+    </div>
+    <p><strong>153 personas</strong> se unieron en las últimas 24 horas</p>
+  </div>
+
+  <!-- Benefits -->
+  <section class="benefits">
+    <h3>Lo que obtienes por $9.99</h3>
+    <div class="benefits-grid">
+      <div class="benefit-item">
+        <div class="benefit-icon">💰</div>
+        <div class="benefit-text">
+          <h4>1,000 Peak Credits</h4>
+          <p>Valor de $10. Comienza a revelar contenido desde el día 1.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">🎯</div>
+        <div class="benefit-text">
+          <h4>Acceso de por vida</h4>
+          <p>Una sola vez. Sin suscripciones. Tuyo para siempre.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">👑</div>
+        <div class="benefit-text">
+          <h4>Badge "Founder"</h4>
+          <p>Reconocimiento especial como miembro fundador en tu perfil.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">💬</div>
+        <div class="benefit-text">
+          <h4>Comunidad VIP</h4>
+          <p>Acceso exclusivo a Discord y feedback directo con el fundador.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">⚡</div>
+        <div class="benefit-text">
+          <h4>Early access a features</h4>
+          <p>Prueba nuevas funcionalidades antes que el público general.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">🔒</div>
+        <div class="benefit-text">
+          <h4>Privacidad garantizada</h4>
+          <p>Tu información protegida. Sin rastreo. Sin spam. Sin compartir datos.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">🎁</div>
+        <div class="benefit-text">
+          <h4>Bonos exclusivos</h4>
+          <p>Sorpresas mensuales y recompensas solo para miembros fundadores.</p>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-icon">📈</div>
+        <div class="benefit-text">
+          <h4>Precio bloqueado</h4>
+          <p>$9.99 es único. Precio regular será $19.99+ después del early access.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h3>Preguntas frecuentes</h3>
+    
+    <div class="faq-item">
+      <h4>¿Cuándo estará disponible la plataforma?</h4>
+      <p>Estimado de 6-8 semanas. Te avisaremos por email cuando esté lista para que accedas con tu cuenta.</p>
+    </div>
+    
+    <div class="faq-item">
+      <h4>¿Cómo funcionan los créditos exactamente?</h4>
+      <p>Cada foto tiene 16 cuadros (4×4). Siempre hay 3 gratis como preview. Los otros 13 se desbloquean con créditos. 1 cuadro = 25 créditos = $0.25</p>
+    </div>
+    
+    <div class="faq-item">
+      <h4>¿Es reembolsable?</h4>
+      <p>Sí, 100% reembolsable si no lanzamos en 90 días o si no estás satisfecho en los primeros 14 días de uso después del lanzamiento.</p>
+    </div>
+    
+    <div class="faq-item">
+      <h4>¿Qué tipo de contenido habrá?</h4>
+      <p>Inicio con contenido lifestyle, fitness, arte, lencería y fotografía artística. Todo el contenido es +18 y requiere verificación de edad.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4>¿Puedo ser creador también?</h4>
+      <p>Absolutamente. Con tu cuenta puedes consumir y crear contenido. Creadores fundadores tendrán 0% de comisión los primeros 2 meses.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4>¿Por qué solo 1,000 lugares?</h4>
+      <p>Queremos construir con una comunidad pequeña primero, recopilar feedback de calidad y perfeccionar la experiencia antes de escalar.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4>¿Puedo comprar más créditos después?</h4>
+      <p>Sí, podrás comprar paquetes de créditos adicionales dentro de la plataforma cuando quieras.</p>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta">
+    <h3>No pierdas esta oportunidad</h3>
+    <p>Solo 1,000 lugares disponibles a $9.99. Después será $19.99 o más.</p>
+    <a href="https://buy.stripe.com/test_8x27sE5J274cgNg8M55AQ00" class="cta-btn">
+      Asegurar mi lugar ahora
+    </a>
+    <div class="guarantee">
+      ✅ Garantía de 90 días • Pago seguro con Stripe • Sin cargos ocultos
+    </div>
+  </section>
+
+  <script>
+    // Slider auto-play
+    let currentSlide = 0;
+    const slider = document.getElementById('slider');
+    const dots = document.querySelectorAll('.dot');
+    const totalSlides = 3;
+    
+    function goToSlide(n) {
+      currentSlide = n;
+      slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+    }
+    
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % totalSlides;
+      goToSlide(currentSlide);
+    }
+    
+    // Auto-play every 4 seconds
+    let autoPlay = setInterval(nextSlide, 4000);
+    
+    // Manual control
+    dots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        clearInterval(autoPlay);
+        goToSlide(parseInt(e.target.dataset.slide));
+        autoPlay = setInterval(nextSlide, 4000);
+      });
+    });
+    
+    // Countdown timer
+    function updateCountdown() {
+      const now = new Date();
+      const end = new Date(now.getTime() + (5.5 * 24 * 60 * 60 * 1000));
+      const diff = end - now;
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      document.getElementById('days').textContent = String(days).padStart(2, '0');
+      document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+    
+    // Spots left simulation
+    let spots = 847;
+    const spotsEl = document.getElementById('spotsLeft');
+    
+    setInterval(() => {
+      if (Math.random() > 0.7 && spots > 100) {
+        spots--;
+        spotsEl.textContent = spots;
+        localStorage.setItem('peekpay_spots', spots);
+      }
+    }, 30000);
+    
+    const savedSpots = localStorage.getItem('peekpay_spots');
+    if (savedSpots && parseInt(savedSpots) < spots) {
+      spots = parseInt(savedSpots);
+      spotsEl.textContent = spots;
+    }
+    
+    // Analytics tracking
+    document.querySelectorAll('.cta-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (window.plausible) {
+          plausible('CTA Click', {props: {location: btn.id || 'early-access'}});
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

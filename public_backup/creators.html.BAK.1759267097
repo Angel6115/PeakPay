@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Creadores</title>
+
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <link rel="icon" href="./favicon.ico">
+  <link rel="canonical" href="https://peak-pay.vercel.app/creators">
+
+  <!-- Meta share -->
+  <meta name="description" content="Explora creadores, desbloquea mosaicos con Peek Credits y arma la historia imagen por imagen. Privacidad primero.">
+  <meta property="og:site_name" content="PeekPay">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Creadores — PeekPay">
+  <meta property="og:description" content="Explora perfiles y desbloquea mosaicos con créditos.">
+  <meta property="og:url" content="https://peak-pay.vercel.app/creators">
+  <meta property="og:image" content="https://peak-pay.vercel.app/peak1.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Creadores — PeekPay">
+  <meta name="twitter:description" content="Explora perfiles y desbloquea mosaicos con créditos.">
+  <meta name="twitter:image" content="https://peak-pay.vercel.app/peak1.png">
+  <link rel="preconnect" href="https://plausible.io">
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+
+  <style>
+    :root{
+      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c; --indigo:#4f46e5; --blue:#2563eb;
+    }
+    *{ box-sizing:border-box }
+    body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
+    .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 64px }
+
+    /* Header minimal */
+    .head{ display:flex; align-items:center; gap:12px; justify-content:space-between; margin-bottom:8px }
+    header{ display:flex; align-items:center; gap:10px }
+    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    .brand h1{ margin:0; font-size:18px }
+    .brand p{ margin:0; color:var(--muted); font-size:12px }
+
+    .nav{ display:flex; gap:8px; flex-wrap:wrap; align-items:center }
+    .link{ color:var(--indigo); text-decoration:none; font-size:14px; padding:8px 10px; border:1px solid var(--ring); border-radius:10px; background:#fff }
+    .link:hover{ filter:brightness(1.02) }
+
+    .btn{
+      border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
+      color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none;
+      box-shadow: 0 6px 16px rgba(79,70,229,.25); white-space:nowrap; display:inline-block;
+    }
+    .btn:hover{ filter: brightness(1.05) }
+    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
+
+    .panel{ border:1px solid var(--ring); background:var(--card); border-radius:16px; padding:16px; margin-top:12px; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    .muted{ color:var(--muted); font-size:12px }
+
+    /* Chips categorías */
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 10px }
+    .chip{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--ring); background:#fff; cursor:pointer; user-select:none }
+    .chip.active{ background:var(--indigo); color:#fff; border-color:transparent }
+
+    /* Grid creadores */
+    .grid{ display:grid; gap:12px; margin-top:12px }
+    @media (min-width:720px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (min-width:1024px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+
+    .card{ border:1px solid var(--ring); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column }
+    .frame{ width:100%; aspect-ratio:4/3; background:#000; position:relative }
+    .frame img{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center;
+      display:block; transition:transform .35s ease;
+    }
+    .card:hover .frame img{ transform:scale(1.02) }
+    .meta{ padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px }
+    .meta h3{ margin:0; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+
+    /* Bloque explicativo */
+    .about{ display:grid; gap:12px; margin-top:12px }
+    @media (min-width:900px){ .about{ grid-template-columns: 1.05fr .95fr } }
+    .about .card{ height:100% }
+
+    .tiny{ font-size:12px; color:var(--muted) }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Header -->
+    <div class="head">
+      <div style="display:flex;align-items:center;gap:10px">
+        <header><img src="./peak1.png" alt="PeekPay"></header>
+        <div class="brand">
+          <h1>PeekPay</h1>
+          <p>Unblur your curiosity</p>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Navegación">
+        <a class="link" href="./index.html">Inicio</a>
+        <a class="link" href="./categories.html">Categorías</a>
+        <a class="link" href="./creators.html" aria-current="page">Creadores</a>
+        <a class="btn secondary" href="./login.html">Entrar</a>
+        <a class="btn" id="btnSignupTop" href="./signup.html">Crear cuenta</a>
+      </nav>
+    </div>
+
+    <!-- Banda -->
+    <div class="panel" style="display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:10px">
+      <span class="tiny">🔒 Privacidad primero</span>
+      <span class="tiny">🎯 Desbloqueos diarios con Peek Credits</span>
+      <span class="tiny">🧩 Mosaicos que revelan la historia</span>
+    </div>
+
+    <!-- Título + chips -->
+    <section class="panel" style="padding-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <h2 style="margin:0">Creadores destacados</h2>
+        <div class="chips" id="chips">
+          <span class="chip active" data-cat="all">Todos</span>
+          <span class="chip" data-cat="arte">Arte</span>
+          <span class="chip" data-cat="artistico">Artístico</span>
+          <span class="chip" data-cat="cosplay">Cosplay</span>
+          <span class="chip" data-cat="fitness">Fitness</span>
+          <span class="chip" data-cat="lenceria">Lencería</span>
+        </div>
+      </div>
+      <div id="grid" class="grid" aria-live="polite"></div>
+      <p id="empty" class="muted" style="display:none">No hay creadores para mostrar.</p>
+    </section>
+
+    <!-- Copy inspiracional / explicación -->
+    <section class="about">
+      <article class="card">
+        <div class="meta" style="justify-content:flex-start; gap:10px"><h3 style="font-size:16px">¿Qué es PeekPay?</h3></div>
+        <div style="padding:12px; display:grid; gap:10px">
+          <p class="tiny" style="font-size:14px">
+            PeekPay es una experiencia visual y lúdica. Cada set es un <b>mosaico</b>:
+            algunas celdas son preview, el resto se desbloquea con <b>Peek Credits</b>.
+            Gana <b>puntos de racha</b> con tus revelaciones diarias y arma la historia imagen por imagen.
+          </p>
+          <ul class="tiny" style="margin:0 0 4px 16px">
+            <li>🎁 <b>Desbloqueos diarios</b>: entra a menudo y usa tus créditos para avanzar más rápido.</li>
+            <li>🛡️ <b>Privacidad primero</b>: control de previews, datos mínimos, verificación por email.</li>
+            <li>💬 <b>Para todos</b>: usuarios exploran; creadores monetizan cada revelación.</li>
+          </ul>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+            <a class="btn" href="./signup.html">Crear cuenta</a>
+            <a class="btn secondary" href="./login.html">Entrar</a>
+          </div>
+          <p class="tiny" style="margin-top:6px">Consejo: guarda tus favoritos y vuelve mañana para continuar el mosaico. 😉</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="meta" style="justify-content:flex-start; gap:10px"><h3 style="font-size:16px">Para creadores</h3></div>
+        <div style="padding:12px; display:grid; gap:10px">
+          <p class="tiny" style="font-size:14px">
+            Sube tus sets, define previews y precios por desbloqueo. Cada revelación genera ingresos.
+            Obtén analíticas simples y destaca en categorías.
+          </p>
+          <ul class="tiny" style="margin:0 0 4px 16px">
+            <li>⚡ <b>Monetización por paso</b>: ingresos en cada celda revelada.</li>
+            <li>🎯 <b>Control creativo</b>: qué se muestra, cuánto cuesta, cuándo publicas.</li>
+            <li>🚀 <b>Visibilidad anticipada</b>: los primeros perfiles reciben impulso en el lanzamiento.</li>
+          </ul>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+            <a class="btn" href="./signup.html?role=creador">Quiero monetizar</a>
+            <a class="btn secondary" href="./categories.html">Ver categorías</a>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="tiny" style="margin-top:18px">© PeekPay • Diseño unificado • Fase 0</footer>
+  </div>
+
+  <noscript>
+    <div class="wrap">
+      <section class="panel">
+        <h3>Necesitas activar JavaScript</h3>
+        <p class="tiny">Activa JavaScript para continuar o <a href="./signup.html">crea tu cuenta aquí</a>.</p>
+      </section>
+    </div>
+  </noscript>
+
+  <script>
+    // --- util: primer recurso que exista ---
+    async function firstOk(urls){
+      for (const u of urls){
+        try{ const r = await fetch(u, { method:'HEAD' }); if (r.ok) return u; }catch(_){}
+      }
+      return './peak1.png';
+    }
+
+    // Ajustes de "encuadre" por creador cuando la foto queda rara
+    const IMAGE_POS = {
+      'val-cos': 'center 35%',
+      'lina-fit': 'center 40%',
+      'rio-out': 'center 30%',
+    };
+
+    // Fallback local basado en tu estructura /public/photos
+    const FALLBACK_CREATORS = [
+      { handle:'ink-aria',    name:'ink aria',    cat:'arte',      candidates:['./photos/arte/ink-aria/arte1.jpg','./photos/artistico/ink-aria/inkart.jpg','./photos/cosplay/ink-aria/cover.jpg'] },
+      { handle:'lina-fit',    name:'lina fit',    cat:'fitness',   candidates:['./photos/fitness/lina-fit/linafit.jpg','./photos/arte/lina-fit/linaarte.jpg','./photos/artistico/lina-fit/lianart.jpg'] },
+      { handle:'noa-lace',    name:'noa lace',    cat:'lenceria',  candidates:['./photos/lenceria/noa-lace/noalen.jpg','./photos/arte/noa-lace/noaarte.jpg','./photos/cosplay/noa-lace/cover.jpg'] },
+      { handle:'rio-out',     name:'rio out',     cat:'artistico', candidates:['./photos/artistico/rio-out/rioart.jpg','./photos/arte/rio-out/rioarte.jpg','./photos/fitness/rio-out/riofit.jpg'] },
+      { handle:'sasha-dance', name:'sasha dance', cat:'fitness',   candidates:['./photos/fitness/sasha-dance/sashafit.jpg','./photos/artistico/sasha-dance/sahsaart.jpg'] },
+      { handle:'sol-light',   name:'sol light',   cat:'cosplay',   candidates:['./photos/cosplay/sol-light/sol1.jpg','./photos/artistico/sol-light/solart.jpg'] },
+      { handle:'val-cos',     name:'val cos',     cat:'cosplay',   candidates:['./photos/cosplay/val-cos/val1.jpg','./photos/arte/val-cos/valarte.jpg'] },
+      { handle:'zen-well',    name:'zen well',    cat:'arte',      candidates:['./photos/arte/zen-well/zenarte.jpg','./photos/fitness/zen-well/zenfit.jpg'] },
+    ];
+
+    // Carga peeks.json si existe; si no, usa fallback
+    async function tryJson(urls){
+      for (const u of urls){
+        try{ const r = await fetch(u); if (r.ok) return r.json(); }catch(_){}
+      }
+      return null;
+    }
+
+    (async function loadCreators(){
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+
+      const data = await tryJson([
+        '/peeks.json?ts='+Date.now(),
+        '/public/peeks.json?ts='+Date.now(),
+        '/public/peeks.local.json?ts='+Date.now(),
+        './peeks.local.json?ts='+Date.now()
+      ]);
+
+      let creators = Array.isArray(data?.creators) ? data.creators : null;
+
+      if (!creators) {
+        creators = FALLBACK_CREATORS.map(c => ({ id:c.handle, handle:c.handle, name:c.name, sets:0, cat:c.cat, _candidates:c.candidates }));
+      } else {
+        creators = creators.map(c=>{
+          const fb = FALLBACK_CREATORS.find(f=>f.handle === (c.handle||c.id));
+          return { ...c, cat: c.cat || fb?.cat || 'arte', _candidates: c.cover ? [c.cover] : (fb ? fb.candidates : []) };
+        });
+      }
+
+      if (!creators.length){ empty.style.display='block'; return; }
+
+      // Render
+      const frag = document.createDocumentFragment();
+      for (const c of creators){
+        const cover = await firstOk(c._candidates?.length ? c._candidates : ['./peak1.png']);
+        const a = document.createElement('a');
+        a.href = './peek.html?creator=' + encodeURIComponent(c.id || c.handle || '');
+        a.className = 'card';
+        a.setAttribute('data-cat', c.cat || 'arte');
+        a.innerHTML = `
+          <div class="frame">
+            <img loading="lazy" decoding="async" src="${cover}" alt="${(c.name||c.handle||'Creator')}">
+          </div>
+          <div class="meta">
+            <h3>${c.name || c.handle || 'Creator'}</h3>
+            <span class="tiny">${(c.sets||0)} sets</span>
+          </div>
+        `;
+        const img = a.querySelector('img');
+        const pos = IMAGE_POS[(c.handle||'').toLowerCase()];
+        if (pos) img.style.objectPosition = pos;
+        frag.appendChild(a);
+      }
+      grid.appendChild(frag);
+
+      // Filtros por chips
+      const chips = document.getElementById('chips');
+      chips.addEventListener('click', (e)=>{
+        const chip = e.target.closest('.chip'); if(!chip) return;
+        chips.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+        const cat = chip.dataset.cat;
+        document.querySelectorAll('#grid .card').forEach(card=>{
+          card.style.display = (cat==='all' || card.dataset.cat===cat) ? '' : 'none';
+        });
+      });
+    })();
+  </script>
+
+  <!-- Router local -->
+  <script src="./_header.js" defer></script>
+</body>
+</html>

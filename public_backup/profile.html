@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mi perfil — PeekPay</title>
+  <link rel="icon" href="./favicon.ico">
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --accent:#667eea;
+      --purple:#764ba2;
+      --green:#10b981;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container{
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .logo-area{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .logo{
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(102,126,234,0.15);
+    }
+    .brand-text h1{
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 2px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand-text p{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .nav{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .nav-btn{
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .nav-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* Grid Layout */
+    .grid{
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    
+    /* Card */
+    .card{
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(102,126,234,0.08);
+    }
+    
+    /* Profile Card */
+    .profile-header{
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .avatar{
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      object-fit: cover;
+    }
+    .profile-info{
+      flex: 1;
+    }
+    .profile-name{
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .profile-handle{
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .badges{
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .badge{
+      font-size: 11px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+      border: 1px solid rgba(102,126,234,0.3);
+      border-radius: 12px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    /* Stats */
+    .stats{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat{
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border: 1px solid var(--ring);
+      border-radius: 16px;
+      text-align: center;
+    }
+    .stat-value{
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+    .stat-label{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    
+    /* Actions */
+    .actions{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .btn{
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+    .btn-primary{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+    }
+    .btn-primary:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(102,126,234,0.4);
+    }
+    .btn-secondary{
+      background: white;
+      color: var(--text);
+      border: 2px solid var(--ring);
+    }
+    .btn-secondary:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* Quick Links */
+    .quick-links{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .quick-link{
+      padding: 12px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    .quick-link:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* Hint */
+    .hint{
+      margin-top: 16px;
+      padding: 12px;
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #78350f;
+      line-height: 1.5;
+    }
+    
+    /* Sections */
+    .section{
+      margin-bottom: 28px;
+    }
+    .section:last-child{
+      margin-bottom: 0;
+    }
+    .section-header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title{
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .section-action{
+      font-size: 13px;
+      padding: 6px 14px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    .section-action:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* List Items */
+    .list{
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .list-item{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .list-item:hover{
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(102,126,234,0.1);
+    }
+    .list-item-left{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .list-item-avatar{
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--ring);
+      object-fit: cover;
+    }
+    .list-item-info{
+      display: flex;
+      flex-direction: column;
+    }
+    .list-item-name{
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .list-item-meta{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    /* Empty State */
+    .empty{
+      padding: 32px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    
+    /* Settings */
+    .settings-list{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .setting-item{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+    }
+    .setting-label{
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    @media (max-width: 640px){
+      .card{ padding: 24px 20px; }
+      .stats{ grid-template-columns: 1fr; }
+      .actions{ grid-template-columns: 1fr; }
+      .quick-links{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-area" onclick="location.href='./index.html'">
+        <img src="./peak1.png" alt="PeekPay" class="logo">
+        <div class="brand-text">
+          <h1>PeekPay</h1>
+          <p>Mi perfil</p>
+        </div>
+      </div>
+      <div class="nav">
+        <a href="./index.html" class="nav-btn">Inicio</a>
+        <a href="./creators.html" class="nav-btn">Explorar</a>
+        <a href="./wallet.html" class="nav-btn">Wallet</a>
+        <a href="./settings.html" class="nav-btn">Ajustes</a>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid">
+      <!-- Left Column: Profile Card -->
+      <div class="card">
+        <div class="profile-header">
+          <img id="u-avatar" src="./peak1.png" alt="Avatar" class="avatar">
+          <div class="profile-info">
+            <div class="profile-name" id="u-name">Demo User</div>
+            <div class="profile-handle" id="u-handle">@demo-user</div>
+            <div class="badges">
+              <span class="badge">🎉 Founder</span>
+              <span class="badge" id="u-country">Global</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-value" id="stat-credits">0</div>
+            <div class="stat-label">Peak Credits</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-points">0</div>
+            <div class="stat-label">Puntos</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a href="./wallet.html" class="btn btn-primary">Wallet</a>
+          <button class="btn btn-secondary" onclick="alert('Mensajería próximamente ✨')">Mensajes</button>
+        </div>
+
+        <div class="quick-links">
+          <button class="quick-link" onclick="location.href='./index.html'">Home</button>
+          <button class="quick-link" onclick="location.href='./creators.html'">Creadores</button>
+          <button class="quick-link" onclick="location.href='./categories.html'">Categorías</button>
+          <button class="quick-link" onclick="location.href='./notifications.html'">Notificaciones</button>
+        </div>
+
+        <div class="hint">
+          💡 <strong>Consejo:</strong> Explora creadores y usa tus Peak Credits para desbloquear contenido exclusivo.
+        </div>
+
+        <div style="margin-top: 12px; font-size: 12px; color: var(--muted); text-align: center;" id="sbHint">
+          Sin Supabase (modo demo local)
+        </div>
+      </div>
+
+      <!-- Right Column: Content -->
+      <div>
+        <!-- Favorites -->
+        <div class="card section">
+          <div class="section-header">
+            <h2 class="section-title">Favoritos recientes</h2>
+            <button class="section-action" onclick="location.href='./creators.html'">Explorar</button>
+          </div>
+          <div id="favList" class="list" style="display: none;"></div>
+          <div id="favEmpty" class="empty">
+            Explora creadores y agrega tus favoritos
+          </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="card section">
+          <div class="section-header">
+            <h2 class="section-title">Actividad reciente</h2>
+            <button class="section-action" onclick="location.href='./wallet.html'">Ver wallet</button>
+          </div>
+          <div id="activityList" class="list">
+            <div class="list-item">
+              <span style="font-size: 14px; color: var(--muted);">No hay actividad aún</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="card section">
+          <div class="section-header">
+            <h2 class="section-title">Privacidad</h2>
+            <button class="section-action" onclick="location.href='./settings.html'">Ajustes</button>
+          </div>
+          <div class="settings-list">
+            <label class="setting-item" style="cursor: pointer;">
+              <span class="setting-label">Perfil público</span>
+              <input type="checkbox" id="p_public">
+            </label>
+            <label class="setting-item" style="cursor: pointer;">
+              <span class="setting-label">Mostrar @handle</span>
+              <input type="checkbox" id="p_handle" checked>
+            </label>
+            <label class="setting-item" style="cursor: pointer;">
+              <span class="setting-label">Permitir mensajes</span>
+              <input type="checkbox" id="p_msgs" checked>
+            </label>
+          </div>
+        </div>
+
+        <!-- Account Actions -->
+        <div class="card section">
+          <div class="section-header">
+            <h2 class="section-title">Cuenta</h2>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btnResetPwd">Cambiar contraseña</button>
+            <button class="btn btn-secondary" id="btnSignout">Cerrar sesión</button>
+          </div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 12px; text-align: center;" id="sbNote">
+            Sin Supabase configurado
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const sb = window.supabaseClient || null;
+    const CREDIT_TO_USD = 0.25;
+    const fmtUSD = v => Number(v||0).toLocaleString('en-US',{style:'currency',currency:'USD'});
+
+    // Profile info
+    async function loadProfile(){
+      const sbHint = $('#sbHint');
+      if (!sb){ 
+        sbHint.textContent = 'Sin Supabase (modo demo local)';
+        
+        // Load from localStorage
+        const handle = localStorage.getItem('pp_handle') || 'demo-user';
+        $('#u-handle').textContent = '@' + handle;
+        $('#u-name').textContent = handle.charAt(0).toUpperCase() + handle.slice(1);
+        return;
+      }
+
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session){ 
+        sbHint.textContent = 'Sin sesión activa';
+        return;
+      }
+
+      sbHint.textContent = 'Conectado con Supabase';
+      const u = session.user;
+      const name = u.user_metadata?.name || u.email || 'Mi cuenta';
+      const handle = u.user_metadata?.handle || (u.email||'user').split('@')[0];
+      const country = u.user_metadata?.country;
+      const pic = u.user_metadata?.avatar_url || u.user_metadata?.picture;
+
+      $('#u-name').textContent = name;
+      $('#u-handle').textContent = '@' + handle;
+      if (country) $('#u-country').textContent = country;
+      if (pic){
+        const img = new Image();
+        img.onload = () => { $('#u-avatar').src = pic };
+        img.src = pic;
+      }
+    }
+
+    // Wallet stats
+    async function loadWalletStats(){
+      if (!sb){
+        $('#stat-credits').textContent = '0';
+        $('#stat-points').textContent = '0';
+        return;
+      }
+
+      try{
+        const { data } = await sb.from('v_user_wallet').select('credits,points').limit(1);
+        if (data && data[0]){
+          $('#stat-credits').textContent = data[0].credits || 0;
+          $('#stat-points').textContent = data[0].points || 0;
+        }
+      }catch{
+        $('#stat-credits').textContent = '0';
+        $('#stat-points').textContent = '0';
+      }
+    }
+
+    // Favorites
+    async function loadFavorites(){
+      const list = $('#favList');
+      const empty = $('#favEmpty');
+      
+      if (!sb) return;
+
+      try{
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return;
+
+        const { data } = await sb.from('v_user_favorites')
+          .select('creator_id, creator_handle, creator_name, creator_avatar_url')
+          .order('last_seen',{ascending:false}).limit(5);
+
+        if (data && data.length){
+          empty.style.display = 'none';
+          list.style.display = 'flex';
+          list.innerHTML = '';
+          
+          data.forEach(creator => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            item.style.cursor = 'pointer';
+            item.onclick = () => location.href = `./peek.html?creator=${encodeURIComponent(creator.creator_handle)}`;
+            item.innerHTML = `
+              <div class="list-item-left">
+                <img class="list-item-avatar" src="${creator.creator_avatar_url || './peak1.png'}" alt="">
+                <div class="list-item-info">
+                  <div class="list-item-name">${creator.creator_name || creator.creator_handle}</div>
+                  <div class="list-item-meta">@${creator.creator_handle}</div>
+                </div>
+              </div>
+              <button class="section-action" onclick="event.stopPropagation();">Ver</button>
+            `;
+            list.appendChild(item);
+          });
+        }
+      }catch{}
+    }
+
+    // Activity
+    async function loadActivity(){
+      const list = $('#activityList');
+      
+      if (!sb){
+        list.innerHTML = '<div class="list-item"><span style="font-size: 14px; color: var(--muted);">No hay actividad aún</span></div>';
+        return;
+      }
+
+      try{
+        const { data } = await sb.from('v_wallet_activity_recent')
+          .select('ts,type,credits,usd,points')
+          .order('ts',{ascending:false}).limit(10);
+
+        if (data && data.length){
+          list.innerHTML = '';
+          data.forEach(activity => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            
+            let label = activity.type;
+            if (activity.type === 'topup') label = `Recarga ${fmtUSD(activity.usd)}`;
+            else if (activity.type === 'unlock') label = `Desbloqueo (${activity.credits} cr)`;
+            else if (activity.type === 'weekly_streak_bonus') label = `Bono semanal (+${activity.points} pts)`;
+            
+            const date = new Date(activity.ts).toLocaleDateString();
+            
+            item.innerHTML = `
+              <span style="font-size: 14px;">${label}</span>
+              <span style="font-size: 12px; color: var(--muted);">${date}</span>
+            `;
+            list.appendChild(item);
+          });
+        }
+      }catch{}
+    }
+
+    // Security actions
+    function setupSecurityActions(){
+      const sbNote = $('#sbNote');
+      
+      if (!sb){
+        sbNote.textContent = 'Sin Supabase configurado';
+        $('#btnResetPwd').onclick = () => alert('Supabase no configurado');
+        $('#btnSignout').onclick = () => {
+          localStorage.clear();
+          location.href = './index.html';
+        };
+        return;
+      }
+
+      sbNote.textContent = 'Gestiona tu cuenta';
+      
+      $('#btnResetPwd').onclick = async () => {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session){ alert('Inicia sesión primero'); return; }
+        
+        try{
+          await sb.auth.resetPasswordForEmail(session.user.email);
+          alert('Te enviamos un enlace para cambiar tu contraseña');
+        }catch(e){
+          alert(e.message || 'Error al enviar email');
+        }
+      };
+
+      $('#btnSignout').onclick = async () => {
+        try{
+          await sb.auth.signOut();
+        }catch{}
+        location.href = './index.html';
+      };
+    }
+
+    // Bootstrap
+    (async function init(){
+      await Promise.all([
+        loadProfile(),
+        loadWalletStats(),
+        loadFavorites(),
+        loadActivity()
+      ]);
+      setupSecurityActions();
+
+      // Refresh on focus
+      window.addEventListener('focus', () => {
+        setTimeout(() => {
+          loadProfile();
+          loadWalletStats();
+          loadActivity();
+        }, 300);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./_header.js" defer></script>  <title>PeekPay — Revisa tu correo</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <style>
+    :root{ --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0; --indigo:#4f46e5; }
+    body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
+    .wrap{ max-width:720px; margin:0 auto; padding:28px 16px 64px }
+    .panel{ border:1px solid var(--ring); background:var(--card); border-radius:16px; padding:20px; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    .btn{ border:0; background:linear-gradient(90deg,#4f46e5,#2563eb); color:#fff; border-radius:10px; padding:10px 14px; text-decoration:none; display:inline-block }
+    .muted{ color:var(--muted); font-size:14px }
+    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+  </style>
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+  <link rel="preconnect" href="https://plausible.io">
+</head>
+<body>
+  <div class="wrap">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px">
+      <header><img src="./peak1.png" alt="PeekPay"></header>
+      <div>
+        <h1 style="margin:0; font-size:20px">PeekPay</h1>
+        <p class="muted" style="margin:0">Confidencialidad primero</p>
+      </div>
+    </div>
+
+    <section class="panel">
+      <h2 style="margin-top:0">Revisa tu correo 📬</h2>
+      <p>Enviamos un enlace de verificación a tu email. Ábrelo para activar tu cuenta.</p>
+      <ul class="muted">
+        <li>Puede tardar 1–2 minutos. Revisa “Spam” o “Promociones”.</li>
+        <li>Si no te llega, vuelve a intentar el registro o pide uno nuevo desde la app.</li>
+      </ul>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
+        <a class="btn" href="/index.html">Ir al inicio</a>
+        <a class="btn" style="background:#fff;color:#4f46e5;border:1px solid var(--ring)" href="/signup.html">Volver al registro</a>
+      </div>
+    </section>
+  </div>
+  <script src="./_header.js" defer></script>
+</body>
+</html>

@@ -1,277 +1,920 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PeekPay — Descubre, desbloquea y gana</title>
-
-  <link rel="icon" href="/public/favicon.ico">
-  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
-
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>PeekPay — Descubre, desbloquea y apoya</title>
+  <link rel="icon" href="./favicon.ico">
   <style>
     :root{
-      /* Tokens alineados con wallet/creators */
-      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
-      --ok:#059669; --err:#b91c1c;
-      --indigo:#4f46e5; --blue:#2563eb; --indigo-soft:#eef2ff;
+      --bg:#ffffff;
+      --bg-soft: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --glass:rgba(248,250,252,0.85);
+      --accent:#667eea;
+      --indigo:#4f46e5;
+      --blue:#2563eb;
+      --purple:#764ba2;
+      --ok:#059669;
+      --err:#b91c1c;
     }
-    *{ box-sizing:border-box }
-    body{ margin:0; background:var(--bg); color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
-
-    .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 64px }
-
-    /* Header + nav consistente */
-    .head{ display:flex; align-items:center; gap:10px; }
-    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover;
-      box-shadow:0 6px 14px rgba(79,70,229,.06) }
-    .brand h1{ margin:0; font-size:18px }
-    .brand p{ margin:0; color:var(--muted); font-size:12px }
-    .nav-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; margin-left:54px }
-    @media (max-width:520px){ .nav-row{ margin-left:0 } }
-
-    .btn{
-      border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
-      color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none;
-      box-shadow: 0 6px 16px rgba(79,70,229,.25); white-space:nowrap; display:inline-block;
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      background: var(--bg-soft);
+      color: var(--text); 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
     }
-    .btn:hover{ filter: brightness(1.05) }
-    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
-
-    /* Paneles */
-    .panel{
-      border:1px solid var(--ring); background:var(--card);
-      border-radius:16px; padding:16px; margin-top:12px;
-      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    
+    /* NUEVO LOGO CON DISEÑO OJO + TARJETA */
+    .logo-img{ 
+      width:80px; 
+      height:80px; 
+      border-radius:20px; 
+      object-fit:cover; 
+      box-shadow:0 8px 20px rgba(102,126,234,.15);
+      transition: transform 0.3s;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-img::before {
+      content: '';
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .logo-img::after {
+      content: '';
+      width: 20px;
+      height: 15px;
+      background: #f8fafc;
+      border-radius: 3px;
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Early Access Banner */
+    .early-banner{
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
+      color: white;
+      padding: 14px 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 12px rgba(79,70,229,0.3);
+      animation: slideDown 0.6s ease-out;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .early-banner-content{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .early-banner-text{
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .early-banner-text strong{
+      font-weight: 900;
+      font-size: 17px;
+    }
+    .early-banner-btn{
+      background: white;
+      color: var(--indigo);
+      padding: 10px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .early-banner-btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+    .early-banner-close{
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .early-banner-close:hover{
+      opacity: 1;
+    }
+    .early-banner.hidden{
+      display: none;
+    }
+    
+    .wrap{ max-width:1120px; margin:0 auto; padding:30px 20px 70px }
+    
+    /* Header */
+    .head{ 
+      display:flex; 
+      align-items:center; 
+      justify-content:space-between; 
+      padding-bottom:20px;
+      margin-bottom: 20px;
+    }
+    .logo-block{ 
+      display:flex; 
+      align-items:center; 
+      gap:16px;
+      cursor: pointer;
+    }
+    .logo-block:hover .logo-img{
+      transform: scale(1.05);
+    }
+    .brand h1{ 
+      margin:0; 
+      font-size:28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand p{ 
+      margin:0; 
+      color:var(--muted); 
+      font-size:15px;
+      font-weight: 500;
+    }
+    .nav-row{ 
+      display:flex; 
+      gap:14px; 
+    }
+    .btn{ 
+      border:0; 
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
+      color:#fff; 
+      border-radius:14px; 
+      padding:14px 32px; 
+      cursor:pointer; 
+      text-decoration:none;
+      box-shadow: 0 8px 20px rgba(79,70,229,.2); 
+      font-weight:700; 
+      font-size:16px;
+      transition: all 0.3s;
+      white-space:nowrap; 
+      display:inline-block;
+    }
+    .btn:hover{ 
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(79,70,229,.3);
+    }
+    
+    .panel{ 
+      border:1px solid var(--ring); 
+      background:var(--card); 
+      border-radius:24px; 
+      padding:40px 30px; 
+      margin-top:24px;
+      box-shadow: 0 10px 30px rgba(102,126,234,.08);
+    }
+    
+    .trust { 
+      display:flex;
+      gap:20px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border-radius: 16px;
+      border: 1px solid rgba(102,126,234,0.1);
+    }
+    .trust-item{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    
+    /* Hero */
+    .hero{ 
+      display:grid; 
+      gap:40px; 
+      align-items:center;
+      margin-bottom: 30px;
+    }
+    @media (min-width:980px){ 
+      .hero{ grid-template-columns: 1.2fr 1fr } 
+    }
+    .hero h2{ 
+      margin:0 0 20px; 
+      font-size:clamp(32px,5vw,48px); 
+      line-height:1.1; 
+      font-weight: 900;
+      color: var(--text);
+    }
+    .hero p{ 
+      margin:0 0 28px; 
+      color:var(--muted); 
+      font-size:clamp(16px,2.6vw,20px);
+      line-height: 1.6;
+    }
+    .cta-row{ 
+      display:flex; 
+      gap:16px; 
+      flex-wrap:wrap;
+    }
+    
+    /* Preview */
+    .preview-block{ 
+      position:relative; 
+      width:100%; 
+      max-width:420px;
+      height:auto;
+      margin:0 auto;
+    }
+    .preview-img{ 
+      width:100%; 
+      aspect-ratio:4/3; 
+      border-radius:20px; 
+      object-fit:cover; 
+      filter:blur(20px) brightness(0.9); 
+      box-shadow:0 10px 30px rgba(102,126,234,.2);
+    }
+    .mosaic{ 
+      position:absolute; 
+      top:0; 
+      left:0; 
+      width:100%; 
+      height:100%; 
+      display:grid; 
+      grid-template-columns:repeat(4,1fr); 
+      grid-template-rows:repeat(3,1fr); 
+      gap:6px; 
+      padding:10px;
+    }
+    .tile{ 
+      border-radius:10px; 
+      background: linear-gradient(135deg,#cbd5e1 0%,#94a3b8 100%);
+      filter: blur(8px) brightness(1.1) opacity(0.75); 
+      box-shadow: 0 4px 10px rgba(79,70,229,.15);
+    }
+    .tile.free{ 
+      filter:none; 
+      background: linear-gradient(135deg,#10b981 0%,#059669 100%);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .preview-label{ 
+      position:absolute; 
+      left:0; 
+      right:0; 
+      bottom:8px; 
+      text-align:center; 
+      color:#fff; 
+      font-size:16px; 
+      font-weight:700; 
+      background:rgba(102,126,234,0.9); 
+      padding:8px 0;
+      border-radius: 0 0 20px 20px;
+    }
+    
+    /* SLIDER COMO EN PEAK-PAY.VERCEL.APP */
+    .slides-section {
+      position: relative;
+      height: 500px;
+      margin: 4rem 0;
+      overflow: hidden;
     }
 
-    /* HERO con slideshow */
-    .hero{ display:grid; gap:16px; align-items:center }
-    @media (min-width:980px){ .hero{ grid-template-columns: 1.05fr .95fr } }
-    .hero h2{ margin:0 0 6px; font-size:clamp(24px,5.4vw,40px); line-height:1.08 }
-    .hero p{ margin:0; color:var(--muted); font-size:clamp(14px,2.6vw,16px) }
-    .cta-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
-
-    .shot{
-      position:relative; aspect-ratio:4/3; border-radius:14px; overflow:hidden;
-      border:1px solid var(--ring); background:#fff; box-shadow:0 6px 14px rgba(79,70,229,.06);
-      isolation:isolate;
-    }
-    .slide{
-      position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 35%;
-      opacity:0; transition: opacity .7s ease;
-    }
-    .slide.active{ opacity:1 }
-    .overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.35) 100%) }
-
-    /* Selector de rol (tarjetas) */
-    .roles{ display:grid; gap:12px; margin-top:12px }
-    @media (min-width:900px){ .roles{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    .role{
-      border:1px solid var(--ring); background:#fff; border-radius:14px; padding:14px;
-      box-shadow:0 6px 14px rgba(79,70,229,.06); display:flex; flex-direction:column; gap:10px;
-    }
-    .role h3{ margin:0; font-size:16px }
-    .role p{ margin:0; color:var(--muted); font-size:14px; flex:1 }
-    .role .actions{ display:flex; gap:8px; flex-wrap:wrap }
-
-    /* Cómo funciona + social proof */
-    .steps{ display:grid; gap:12px; margin-top:12px }
-    @media (min-width:900px){ .steps{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    .step{
-      border:1px solid var(--ring); background:#fff; border-radius:14px; padding:14px;
-      box-shadow:0 6px 14px rgba(79,70,229,.06);
-    }
-    .step h4{ margin:0 0 6px; font-size:15px }
-    .step p{ margin:0; color:var(--muted); font-size:14px }
-
-    /* Categorías destacadas (igual estilo) */
-    .cats{ display:grid; gap:12px; margin-top:12px }
-    @media (min-width:700px){ .cats{ grid-template-columns: repeat(5, minmax(0,1fr)); } }
-    .cat{
-      display:block; text-align:center; padding:10px 12px; border-radius:12px; text-decoration:none; color:#fff;
-      background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
-      box-shadow:0 6px 14px rgba(79,70,229,.12);
+    .slides-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    footer{ margin-top:20px; color:var(--muted); font-size:12px }
-    .tiny{ font-size:12px; color:var(--muted) }
+    .slide {
+      position: absolute;
+      width: 300px;
+      height: 400px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.5s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .slide:nth-child(1) {
+      transform: translateX(-80%) scale(0.8);
+      opacity: 0.6;
+      z-index: 1;
+    }
+
+    .slide:nth-child(2) {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+      z-index: 3;
+    }
+
+    .slide:nth-child(3) {
+      transform: translateX(80%) scale(0.8);
+      opacity: 0.6;
+      z-index: 1;
+    }
+
+    .slide-content {
+      width: 100%;
+    }
+
+    .slide-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-description {
+      color: var(--muted);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .credit-cost {
+      background: rgba(79, 70, 229, 0.8);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    /* How It Works Section */
+    .how-section{
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 24px;
+      padding: 50px 40px;
+      margin-top: 40px;
+      box-shadow: 0 10px 30px rgba(102,126,234,.08);
+    }
+    .how-section h3{
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 16px;
+      font-weight: 800;
+    }
+    .how-section .subtitle{
+      text-align: center;
+      font-size: 18px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 40px;
+    }
+    
+    /* MEJORA: Sección de créditos más destacada */
+    .credits-section {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(118, 75, 162, 0.05));
+      border: 2px solid rgba(79, 70, 229, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      margin: 30px 0;
+      text-align: center;
+    }
+    .credits-section h4 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: var(--indigo);
+      font-weight: 700;
+    }
+    .credits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .credit-option {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      border: 2px solid var(--ring);
+      transition: all 0.3s;
+    }
+    .credit-option:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+    }
+    .credit-amount {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--indigo), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .credit-price {
+      color: var(--muted);
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    
+    /* Roles / Pricing */
+    .roles{ 
+      display:grid; 
+      gap:20px; 
+      margin-top:20px;
+    }
+    @media (min-width:900px){ 
+      .roles{ grid-template-columns: repeat(3, 1fr); } 
+    }
+    .role{ 
+      border:2px solid var(--ring); 
+      background:var(--card); 
+      border-radius:20px; 
+      padding:28px;
+      box-shadow:0 6px 18px rgba(102,126,234,.06); 
+      display:flex; 
+      flex-direction:column; 
+      gap:16px;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .role:hover{
+      transform: translateY(-4px);
+      box-shadow:0 12px 28px rgba(102,126,234,.12);
+      border-color: var(--accent);
+    }
+    .role h3{ 
+      margin:0; 
+      font-size:20px;
+      font-weight: 700;
+    }
+    .role p{ 
+      margin:0; 
+      color:var(--muted); 
+      font-size:15px; 
+      line-height: 1.6;
+    }
+    .role .actions{ 
+      display:flex; 
+      gap:12px; 
+      flex-wrap:wrap;
+    }
+    .role .btn{
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+    .btn.secondary{
+      background: var(--card);
+      color: var(--indigo);
+      border: 2px solid var(--ring);
+      box-shadow: none;
+    }
+    .btn.secondary:hover{
+      background: rgba(102,126,234,0.05);
+      border-color: var(--accent);
+    }
+    
+    /* Categories */
+    .cats-section{
+      margin-top: 40px;
+    }
+    .cats-section h3{
+      font-size: 32px;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+    .cats-section .subtitle{
+      color: var(--muted);
+      font-size: 16px;
+      margin-bottom: 28px;
+    }
+    .cats{ 
+      display:grid; 
+      gap:16px;
+    }
+    @media (min-width:640px){ 
+      .cats{ grid-template-columns: repeat(2, 1fr); } 
+    }
+    @media (min-width:900px){ 
+      .cats{ grid-template-columns: repeat(3, 1fr); } 
+    }
+    .cat{ 
+      display:flex;
+      align-items: center;
+      gap: 16px;
+      padding:24px;
+      border-radius:16px; 
+      text-decoration:none; 
+      color:var(--text); 
+      font-weight:600; 
+      font-size:17px;
+      background: var(--card);
+      border:2px solid var(--ring);
+      transition: all 0.3s;
+      cursor:pointer;
+    }
+    .cat:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102,126,234,.12);
+      border-color: var(--accent);
+    }
+    .cat-color{
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+    .cat:nth-child(1) .cat-color{ background: linear-gradient(135deg, #ec4899, #be185d); }
+    .cat:nth-child(2) .cat-color{ background: linear-gradient(135deg, #3b82f6, #1e40af); }
+    .cat:nth-child(3) .cat-color{ background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+    .cat:nth-child(4) .cat-color{ background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .cat:nth-child(5) .cat-color{ background: linear-gradient(135deg, #10b981, #059669); }
+    
+    footer{ 
+      margin-top:50px; 
+      color:var(--muted); 
+      font-size:14px;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    @media (max-width:640px){
+      .early-banner-content{ gap: 12px; padding: 0 40px; }
+      .early-banner-text{ font-size: 14px; }
+      .early-banner-text strong{ font-size: 15px; }
+      .early-banner-btn{ padding: 8px 20px; font-size: 13px; }
+      .early-banner-close{ right: 10px; font-size: 24px; }
+      .wrap{padding:20px 16px 50px;}
+      .panel{padding:28px 20px;}
+      .logo-img{width:60px;height:60px;}
+      .brand h1{font-size:22px;}
+      .btn{padding:12px 24px; font-size:15px;}
+      .role{padding:20px;}
+      .slide{width: 250px; height: 350px; padding: 1.5rem;}
+      .slides-section{height: 400px;}
+      .credits-grid{grid-template-columns: 1fr;}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- Header + nav -->
-    <div class="head">
-      <header>
-        <img src="/public/peak1.PNG" alt="PeekPay logo">
-      </header>
+  
+<!-- Early Access Banner -->
+<div class="early-banner" id="earlyBanner">
+  <div class="early-banner-content">
+    <span class="early-banner-text">
+      <strong>🔥 Early Access</strong> — Solo quedan <strong><span id="bannerSpots">1900</span></strong> de 2,000 lugares a $9.99
+    </span>
+    <a href="./signup.html" class="early-banner-btn">Ver oferta</a>
+  </div>
+  <button class="early-banner-close" id="closeBanner" aria-label="Cerrar banner">×</button>
+</div>
+
+<div class="wrap">
+  <!-- Header -->
+  <div class="head">
+    <div class="logo-block" onclick="window.location.href='./'">
+      <div class="logo-img"></div>
       <div class="brand">
         <h1>PeekPay</h1>
         <p>Unblur your curiosity</p>
       </div>
     </div>
-    <nav class="nav-row" aria-label="Atajos">
-      <a class="btn" href="./categories.html">Categorías</a>
-      <a class="btn" href="./creators.html">Creadores</a>
-      <a class="btn" href="./wallet.html">Wallet</a>
-    </nav>
-
-    <!-- HERO -->
-    <section class="panel hero" aria-labelledby="hero-title">
-      <div>
-        <h2 id="hero-title">Crea tu cuenta. Descubre peeks. Apoya a tus favoritos.</h2>
-        <p>
-          Una experiencia <b>visual</b> y <b>lúdica</b>: revela mosaicos con <b>Peak Credits</b>,
-          gana puntos por racha y disfruta contenido con privacidad.
-        </p>
-        <div class="cta-row">
-          <a class="btn" href="#roles">Crear cuenta</a>
-          <a class="btn secondary" href="./creators.html">Explorar primero</a>
-        </div>
-        <p class="tiny" style="margin-top:8px">Sin tarjetas aún — acceso temprano. Podrás cambiar a plan de pago luego.</p>
-      </div>
-      <div class="shot" aria-hidden="true">
-        <!-- 2 capas para crossfade -->
-        <img class="slide active" id="slideA" src="/public/peak1.PNG" alt="">
-        <img class="slide" id="slideB" src="/public/peak1.PNG" alt="">
-        <div class="overlay"></div>
-      </div>
-    </section>
-
-    <!-- Selector de rol -->
-    <section id="roles" class="panel" aria-labelledby="roles-title">
-      <h3 id="roles-title" style="margin:0 0 8px">Elige cómo quieres empezar</h3>
-      <div class="roles">
-        <article class="role">
-          <h3>Como Usuario</h3>
-          <p>Explora perfiles, desbloquea en packs y arma la imagen completa. Gana puntos y bonos semanales.</p>
-          <div class="actions">
-            <a class="btn" href="./signup.html?role=usuario">Crear cuenta</a>
-            <a class="btn secondary" href="./peek.html">Ver demo</a>
-          </div>
-        </article>
-        <article class="role">
-          <h3>Como Creador/a</h3>
-          <p>Publica sets en mosaico y monetiza cada desbloqueo. Controla vistas previas y precios.</p>
-          <div class="actions">
-            <a class="btn" href="./signup.html?role=creador">Quiero monetizar</a>
-            <a class="btn secondary" href="./creators.html">Ver creadores</a>
-          </div>
-        </article>
-        <article class="role">
-          <h3>Ambos</h3>
-          <p>Consume y crea. Desbloquea contenido mientras construyes tu comunidad con peeks.</p>
-          <div class="actions">
-            <a class="btn" href="./signup.html?role=ambos">Empezar ahora</a>
-            <a class="btn secondary" href="./categories.html">Explorar categorías</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Cómo funciona -->
-    <section class="panel" aria-labelledby="how-title">
-      <h3 id="how-title" style="margin:0 0 8px">¿Cómo funciona?</h3>
-      <div class="steps">
-        <div class="step">
-          <h4>1) Mosaico con preview</h4>
-          <p>Algunas celdas FREE. El resto, difuminadas hasta que las desbloqueas.</p>
-        </div>
-        <div class="step">
-          <h4>2) Desbloquea con créditos</h4>
-          <p>Compra 1, 3 o 9. Cada acción suma <b>puntos de racha</b> y bonos.</p>
-        </div>
-        <div class="step">
-          <h4>3) Reveal total</h4>
-          <p>Completa la cuadrícula y obtén la imagen full HD del set.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Categorías -->
-    <section class="panel" aria-labelledby="cats-title">
-      <h3 id="cats-title" style="margin:0 0 8px">Explora por categoría</h3>
-      <div class="cats">
-        <a class="cat" href="./creators.html?cat=lenceria">Lencería</a>
-        <a class="cat" href="./creators.html?cat=fitness">Fitness</a>
-        <a class="cat" href="./creators.html?cat=arte">Arte Corporal</a>
-        <a class="cat" href="./creators.html?cat=artistico">Artístico</a>
-        <a class="cat" href="./creators.html?cat=cosplay">Cosplay</a>
-      </div>
-    </section>
-
-    <footer>Fase 0 — SFW • Diseño unificado con Wallet/Creators • © PeekPay</footer>
   </div>
+  <!-- Trust badges -->
+  <div class="trust">
+    <span class="trust-item">🔒 Privacidad primero</span>
+    <span class="trust-item">✓ Verificación por email</span>
+    <span class="trust-item">💳 Pago seguro</span>
+  </div>
+  
+  <!-- Hero -->
+  <section class="panel hero" aria-labelledby="hero-title">
+    <div>
+      <h2 id="hero-title">Descubre contenido único. Revela mosaicos. Apoya creadores.</h2>
+      <p>Experiencia visual y lúdica donde TÚ decides qué revelar. Paga solo por lo que quieres ver con Peak Credits.</p>
+      <div class="cta-row">
+        <a class="btn" href="./signup.html">Acceso anticipado $9.99</a>
+        <a class="btn secondary" href="./creators.html">Explorar creadores</a>
+      </div>
+    </div>
+    <div class="preview-block" aria-hidden="true">
+      <img class="preview-img" src="./photos/lenceria/noa-lace/sets/set-01/full.jpg" alt="Mosaico Preview">
+      <div class="mosaic">
+        <div class="tile free"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile free"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile free"></div>
+      </div>
+      <div class="preview-label">Preview · 3 gratis + 9 bloqueados</div>
+    </div>
+  </section>
+  
+  <!-- How It Works Section -->
+  <section class="how-section">
+    <h3>¿Cómo funciona?</h3>
+    <p class="subtitle">Paga solo por lo que quieres ver</p>
+    
+    <!-- SLIDER COMO EN PEAK-PAY.VERCEL.APP -->
+    <div class="slides-section">
+      <div class="slides-container">
+        <div class="slide">
+          <div class="slide-content">
+            <div class="slide-title">LOCA</div>
+            <p class="slide-description">Contenido exclusivo y premium para tus gustos específicos.</p>
+            <div class="credit-cost">5 créditos</div>
+          </div>
+        </div>
+        <div class="slide">
+          <div class="slide-content">
+            <div class="slide-title">FACE</div>
+            <p class="slide-description">Descubre rostros y expresiones únicas detrás del blur.</p>
+            <div class="credit-cost">3 créditos</div>
+          </div>
+        </div>
+        <div class="slide">
+          <div class="slide-content">
+            <div class="slide-title">LOCA</div>
+            <p class="slide-description">Experiencias locas que no encontrarás en ningún otro lugar.</p>
+            <div class="credit-cost">7 créditos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Nueva sección de créditos mejorada -->
+  <section class="credits-section">
+    <h4>Desbloquea con créditos</h4>
+    <p style="color: var(--muted); margin-bottom: 20px;">Elige el paquete que mejor se adapte a tus necesidades</p>
+    <div class="credits-grid">
+      <div class="credit-option">
+        <div class="credit-amount">100 créditos</div>
+        <div class="credit-price">$5.00</div>
+        <button class="btn" style="width: 100%; padding: 10px;">Comprar</button>
+      </div>
+      <div class="credit-option">
+        <div class="credit-amount">250 créditos</div>
+        <div class="credit-price">$10.00</div>
+        <div style="color: var(--ok); font-size: 14px; font-weight: 600; margin-bottom: 10px;">+50 créditos gratis</div>
+        <button class="btn" style="width: 100%; padding: 10px;">Comprar</button>
+      </div>
+      <div class="credit-option">
+        <div class="credit-amount">600 créditos</div>
+        <div class="credit-price">$20.00</div>
+        <div style="color: var(--ok); font-size: 14px; font-weight: 600; margin-bottom: 10px;">+150 créditos gratis</div>
+        <button class="btn" style="width: 100%; padding: 10px;">Comprar</button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Pricing / Roles -->
+  <section id="roles" class="panel" aria-labelledby="roles-title">
+    <h3 id="roles-title" style="margin-bottom:12px; font-size:32px; font-weight:800; text-align:center;">Acceso Anticipado Limitado</h3>
+    <p style="text-align:center; color:var(--muted); margin-bottom:32px; font-size:18px;">
+      Inversión única de por vida. Solo para los primeros 2,000.
+    </p>
+    <div class="roles">
+      
+      <!-- Usuario -->
+      <article class="role">
+        <span style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:6px 20px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:0.5px;">🎉 FOUNDER</span>
+        <h3 style="margin-top:12px;">Usuario Early Access</h3>
+        <p style="font-size:48px; font-weight:900; margin:12px 0; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1;">$9.99</p>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Pago único • Acceso de por vida</p>
+        <ul style="list-style:none; padding:0; margin:20px 0; text-align:left; flex:1;">
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>1,000 Peak Credits gratis ($10 valor)</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Badge de Founder exclusivo</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Comunidad VIP privada</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Sin anuncios nunca</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Acumulación de puntos semanales</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Privacidad 100% garantizada</span></li>
+        </ul>
+        <div class="actions">
+          <a class="btn" href="./signup.html" style="width:100%;">Unirme ahora</a>
+        </div>
+      </article>
+      
+      <!-- Creador -->
+      <article class="role">
+        <span style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:6px 20px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:0.5px;">💎 LIFETIME</span>
+        <h3 style="margin-top:12px;">Creador Early Access</h3>
+        <p style="font-size:48px; font-weight:900; margin:12px 0; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1;">$4.99</p>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Pago único • Sin comisiones iniciales</p>
+        <ul style="list-style:none; padding:0; margin:20px 0; text-align:left; flex:1;">
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>0% comisión mes 1 (5 contenidos)</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>10% comisión mes 2 (con rostro)</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>15% comisión mes 2 (sin rostro)</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Pagos semanales directos</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Dashboard de analytics</span></li>
+          <li style="padding:10px 0; display:flex; gap:10px; align-items:start;"><span style="color:#10b981; font-weight:700; font-size:18px;">✓</span><span>Sin límite de uploads</span></li>
+        </ul>
+        <div class="actions">
+          <a class="btn" href="./creator-signup.html" style="width:100%;">Empezar a crear</a>
+        </div>
+      </article>
+      
+      <!-- Ganancias -->
+      <article class="role">
+        <h3 style="margin-top:12px;">💰 Potencial de Ganancias</h3>
+        <p style="margin-bottom:20px; font-size:14px;">Ejemplo con 100 usuarios activos:</p>
+        <div style="background:#f8fafc; border-radius:16px; padding:20px; margin:16px 0; border:1px solid var(--ring);">
+          <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--ring); font-size:15px;">
+            <span>100 sets vendidos @ $5</span>
+            <span style="font-weight:700; color:var(--text);">$500</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--ring); font-size:15px;">
+            <span>Comisión PeekPay (16%)</span>
+            <span style="color:var(--muted);">-$80</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--ring); font-size:15px;">
+            <span>Pedidos especiales (10)</span>
+            <span style="font-weight:700; color:var(--text);">+$200</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:16px 0 0; font-size:18px; font-weight:900;">
+            <span>Total estimado/mes</span>
+            <span style="font-size:28px; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">$620</span>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--muted); line-height:1.5; margin-top:16px;">
+          * Cálculo estimado. Ganancias reales varían según contenido, engagement y estrategia de pricing.
+        </p>
+        <div class="actions" style="margin-top:20px;">
+          <a class="btn secondary" href="./creator-signup.html" style="width:100%;">Más información</a>
+        </div>
+      </article>
+      
+    </div>
+  </section>
+  
+  <!-- Categories -->
+  <section class="panel cats-section" aria-labelledby="cats-title">
+    <h3 id="cats-title">Explora por categoría</h3>
+    <p class="subtitle">Variedad de contenido para todos los gustos. Crea tu cuenta para acceder.</p>
+    <div class="cats">
+      <a class="cat" href="./signup.html">
+        <div class="cat-color"></div>
+        <span>Cosplay</span>
+      </a>
+      <a class="cat" href="./signup.html">
+        <div class="cat-color"></div>
+        <span>Fitness</span>
+      </a>
+      <a class="cat" href="./signup.html">
+        <div class="cat-color"></div>
+        <span>Arte</span>
+      </a>
+      <a class="cat" href="./signup.html">
+        <div class="cat-color"></div>
+        <span>Fotografía</span>
+      </a>
+      <a class="cat" href="./signup.html">
+        <div class="cat-color"></div>
+        <span>Moda</span>
+      </a>
+    </div>
+    <div style="margin-top:28px; text-align:center;">
+      <a class="btn" href="./signup.html" style="display:inline-block;">Obtener acceso anticipado</a>
+    </div>
+  </section>
+  
+  <footer>Early Access — Lanzamiento completo próximamente • © 2025 PeekPay</footer>
+</div>
 
-  <!-- Slideshow aleatorio (cambia solo con crossfade y preloading) -->
-  <script>
-    // Curado mixto H/M (Unsplash). Puedes editar o ampliar.
-    const HERO_POOL = [
-      "https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1519340333755-5063a0f06ac5?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1521119989659-a83eee488004?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=1600&h=1066&q=80",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1600&h=1066&q=80"
-    ];
+<script>
+  // Banner functionality
+  const banner = document.getElementById('earlyBanner');
+  const closeBtn = document.getElementById('closeBanner');
+  
+  closeBtn.addEventListener('click', () => {
+    banner.classList.add('hidden');
+    localStorage.setItem('peekpay_banner_closed', 'true');
+  });
+  
+  if (localStorage.getItem('peekpay_banner_closed') === 'true') {
+    banner.classList.add('hidden');
+  }
+  
+  // Update spots counter from Supabase
+  async function updateSpotsCounter() {
+    try {
+      const bannerSpots = document.getElementById('bannerSpots');
+      // TODO: Conectar con Supabase real
+      // Por ahora simula entre 1800-1950
+      const baseSpots = 100;
+      const randomUsed = Math.floor(Math.random() * 150);
+      const spotsLeft = 2000 - (baseSpots + randomUsed);
+      
+      bannerSpots.textContent = spotsLeft;
+      localStorage.setItem('peekpay_spots', spotsLeft);
+    } catch (error) {
+      console.error('Error updating spots:', error);
+    }
+  }
+  
+  updateSpotsCounter();
+  setInterval(updateSpotsCounter, 30000); // Update every 30 seconds
+  
+  // SLIDER FUNCTIONALITY COMO EN PEAK-PAY.VERCEL.APP
+  let currentSlide = 1;
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
 
-    (function heroSlideshow(){
-      const a = document.getElementById('slideA');
-      const b = document.getElementById('slideB');
-      if (!a || !b) return;
-
-      let current = a; let next = b;
-      let idx = Math.floor(Math.random()*HERO_POOL.length);
-
-      function preload(src){
-        return new Promise(res=>{
-          const im = new Image();
-          im.onload = ()=>res(src);
-          im.onerror = ()=>res("/public/peak1.PNG");
-          im.decoding = "async";
-          im.src = src;
-        });
+  function rotateSlides() {
+    // Update current slide
+    currentSlide = currentSlide % totalSlides + 1;
+    
+    // Apply transformations
+    slides.forEach((slide, index) => {
+      const slideNumber = index + 1;
+      let transform = '';
+      let opacity = 0.6;
+      let zIndex = 1;
+      
+      if (slideNumber === currentSlide) {
+        transform = 'translateX(0) scale(1)';
+        opacity = 1;
+        zIndex = 3;
+      } else if (slideNumber === currentSlide - 1 || (currentSlide === 1 && slideNumber === totalSlides)) {
+        transform = 'translateX(-80%) scale(0.8)';
+      } else {
+        transform = 'translateX(80%) scale(0.8)';
       }
-
-      async function swap(){
-        idx = (idx + 1) % HERO_POOL.length;
-        const url = await preload(HERO_POOL[idx]);
-        next.src = url;
-        // crossfade
-        next.classList.add('active');
-        current.classList.remove('active');
-        // intercambia referencias
-        const tmp = current; current = next; next = tmp;
-      }
-
-      // Arranque inicial (carga 1ª aleatoria)
-      preload(HERO_POOL[idx]).then(url=>{
-        current.src = url;
-        current.classList.add('active');
-      });
-
-      // Cambia cada 6.5s
-      setInterval(swap, 6500);
-    })();
-
-    // Guarda rol de signup (si existe esa vista luego)
-    document.querySelectorAll('a[href^="./signup.html"]').forEach(a=>{
-      try{
-        const u = new URL(a.href, location.origin);
-        const role = u.searchParams.get('role');
-        a.addEventListener('click', ()=> localStorage.setItem('pp_signup_role', role||'usuario'));
-      }catch(e){}
+      
+      slide.style.transform = transform;
+      slide.style.opacity = opacity;
+      slide.style.zIndex = zIndex;
     });
+  }
 
-    // Tracking de CTA
-    document.querySelectorAll('.cta-row .btn, .role .btn').forEach(b=>{
-      b.addEventListener('click', ()=> {
-        try{ if(window.plausible){ plausible('landing_cta', { props:{ label: b.textContent.trim() } }) } }catch(e){}
-      });
+  // Auto-rotate slides every 3 seconds
+  setInterval(rotateSlides, 3000);
+
+  // Manual slide navigation (optional)
+  document.querySelectorAll('.slide').forEach((slide, index) => {
+    slide.addEventListener('click', () => {
+      currentSlide = index + 1;
+      rotateSlides();
     });
-  </script>
+  });
+</script>
 </body>
 </html>

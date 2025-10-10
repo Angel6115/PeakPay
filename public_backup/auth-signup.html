@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Entrar</title>
+
+  <!-- Orden estable: Supabase CDN -> _header.js (crea el cliente único) -->
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./_header.js" defer></script>
+
+  <link rel="icon" href="./favicon.ico">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+
+  <style>
+    :root{
+      --bg:#fff; --text:#0b1020; --muted:#475569; --ring:#e2e8f0; --card:#f8fafc;
+      --indigo:#4f46e5; --blue:#2563eb;
+      --radius:12px; --h:44px;
+      --ok:#065f46; --ok-bg:#d1fae5; --ok-br:#a7f3d0;
+      --err:#7f1d1d; --err-bg:#fee2e2; --err-br:#fecaca;
+    }
+    body{ font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif; margin:0; background:var(--bg); color:var(--text) }
+    .wrap{ max-width:520px; margin:0 auto; padding:28px 16px 72px }
+    .panel{ border:1px solid var(--ring); background:var(--card); border-radius:16px; padding:18px; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    header{ display:flex; align-items:center; gap:10px; margin-bottom:14px }
+    header img{ width:36px; border-radius:8px; box-shadow:0 6px 14px rgba(79,70,229,.12) }
+    .crumbs{ font-size:12px; color:var(--muted) }
+    .crumbs a:hover{ text-decoration:underline }
+    h1{ font-size:20px; margin:6px 0 8px }
+    .desc{ font-size:13px; color:var(--muted) }
+
+    .stack{ display:grid; gap:10px; margin-top:14px }
+
+    /* Campo email */
+    .field{ height:var(--h); border:1px solid var(--ring); background:#fff; border-radius:var(--radius);
+      display:flex; align-items:center; padding:0 12px; gap:10px; }
+    .field:focus-within{ border-color:#c7d2fe; box-shadow:0 0 0 3px rgba(99,102,241,.15) }
+    .field input{ flex:1; height:100%; border:0; outline:0; background:transparent; font-size:14px; }
+
+    /* Botón primario */
+    .btn{ height:var(--h); border:0; border-radius:var(--radius); cursor:pointer;
+      background:linear-gradient(90deg,var(--indigo),var(--blue)); color:#fff; font-weight:600; }
+    .btn:disabled{ opacity:.6; cursor:not-allowed }
+
+    /* OAuth */
+    .oauth{ display:grid; gap:10px }
+    .oauth-btn{ height:var(--h); border-radius:var(--radius); border:1px solid var(--ring); background:#fff;
+      display:flex; align-items:center; justify-content:center; gap:10px; font-weight:600; }
+    .oauth-btn .ico{ width:18px; height:18px }
+    .oauth-btn.dark{ background:#111827; color:#fff; border-color:#111827 }
+
+    /* Secundario */
+    .btn-secondary{ height:var(--h); border-radius:var(--radius); border:1px solid var(--ring); background:#fff; color:var(--indigo); font-weight:600 }
+
+    /* Mensajes */
+    .ok{ font-size:13px; color:var(--ok); background:var(--ok-bg); border:1px solid var(--ok-br); border-radius:var(--radius); padding:8px 10px }
+    .note{ font-size:12px; color:var(--err); background:var(--err-bg); border:1px solid var(--err-br); border-radius:var(--radius); padding:8px 10px }
+
+    /* Bullets simples */
+    .bullets{ display:grid; gap:6px; margin:6px 0 0; padding:0; list-style:none; color:var(--muted); font-size:13px }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="./peak1.png" alt="PeekPay">
+      <div class="crumbs"><a href="./index.html">Inicio</a> / Entrar</div>
+    </header>
+
+    <section class="panel">
+      <h1>Accede a PeekPay</h1>
+      <div class="desc">Envíate un enlace mágico a tu correo o usa Google/Apple.</div>
+
+      <div class="stack">
+        <label class="desc" for="email">Correo</label>
+        <div class="field">
+          <input id="email" type="email" placeholder="tu@email.com" autocomplete="email" />
+        </div>
+
+        <button id="btnEmail" class="btn">Enviar enlace</button>
+
+        <div class="oauth">
+          <button id="btnGoogle" class="oauth-btn" type="button" aria-label="Continuar con Google">
+            <svg class="ico" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.826 31.91 29.303 35 24 35 16.82 35 11 29.18 11 22S16.82 9 24 9c3.31 0 6.315 1.23 8.597 3.245l5.657-5.657C34.978 3.012 29.74 1 24 1 10.745 1 0 11.745 0 25s10.745 24 24 24c13.255 0 24-10.745 24-24 0-1.6-.165-3.163-.389-4.917Z"/>
+              <path fill="#FF3D00" d="M6.306 14.691l6.571 4.818C14.51 16.353 18.879 13 24 13c3.31 0 6.315 1.23 8.597 3.245l5.657-5.657C34.978 7.012 29.74 5 24 5 15.317 5 7.862 9.953 6.306 14.691Z"/>
+              <path fill="#4CAF50" d="M24 43c5.242 0 10.048-2.01 13.656-5.289l-6.29-5.318C29.189 33.525 26.77 34.5 24 34.5c-5.258 0-9.718-3.553-11.31-8.36l-6.55 5.043C8.622 38.028 15.64 43 24 43Z"/>
+              <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.099 3.202-4.21 6.5-11.303 6.5-5.258 0-9.718-3.553-11.31-8.36l-6.55 5.043C8.622 38.028 15.64 43 24 43c7.2 0 19-4.167 19-19 0-1.6-.165-3.163-.389-4.917Z"/>
+            </svg>
+            Continuar con Google
+          </button>
+
+          <button id="btnApple" class="oauth-btn dark" type="button" aria-label="Continuar con Apple">
+            <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M16.365 12.27c.012 2.58 2.278 3.44 2.29 3.442-.018.058-.358 1.226-1.18 2.43-.71 1.032-1.45 2.058-2.615 2.078-1.143.02-1.51-.67-2.815-.67-1.304 0-1.71.65-2.79.69-1.12.04-1.98-1.12-2.703-2.15-1.47-2.09-2.598-5.9-1.086-8.47.75-1.29 2.09-2.11 3.548-2.13 1.11-.02 2.16.74 2.815.74.655 0 1.95-.91 3.287-.78.56.024 2.143.226 3.158 1.7-.082.05-1.885 1.11-1.908 3.12Zm-2.01-5.92c.548-.664.92-1.59.82-2.52-.79.032-1.75.526-2.313 1.19-.508.59-.95 1.54-.83 2.46.88.07 1.77-.46 2.323-1.13Z"/>
+            </svg>
+            Continuar con Apple
+          </button>
+        </div>
+
+        <a href="./profile.html"><button class="btn-secondary" type="button">Volver al perfil</button></a>
+
+        <div id="msg" class="ok" hidden></div>
+        <div id="demoNote" class="note" hidden>Supabase no configurado (modo demo).</div>
+
+        <ul class="bullets">
+          <li>Acceso rápido con enlace mágico (sin contraseñas).</li>
+          <li>También puedes usar Google o Apple en un clic.</li>
+          <li>Tu correo solo se usa para autenticarte. 🔒</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+
+    function waitForSB(timeoutMs = 2200){
+      return new Promise(resolve=>{
+        const ready = ()=> (window.__SB || window.supabaseClient || null);
+        if (ready()) return resolve(ready());
+        const t0 = Date.now();
+        const i = setInterval(()=>{
+          const sb = ready();
+          if (sb){ clearInterval(i); resolve(sb); }
+          else if (Date.now()-t0 > timeoutMs){ clearInterval(i); resolve(null); }
+        }, 40);
+      });
+    }
+    function getRedirectTo(){
+      const base = location.origin + (location.pathname.startsWith('/public') ? '/public' : '');
+      return base + '/auth-callback.html';
+    }
+    function setBusy(b){
+      $('#btnEmail').disabled = b;
+      $('#btnGoogle').disabled = b;
+      $('#btnApple').disabled  = b;
+    }
+
+    (async function init(){
+      const sb = await waitForSB();
+      $('#demoNote').hidden = !!sb;
+
+      // Email link
+      $('#btnEmail').onclick = async ()=>{
+        if (!sb){ $('#demoNote').hidden=false; return; }
+        const email = ($('#email').value||'').trim();
+        if (!email){ $('#msg').hidden=false; $('#msg').textContent='Escribe tu correo.'; return; }
+        setBusy(true); $('#msg').hidden=true;
+        try{
+          const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: getRedirectTo() }});
+          if (error) throw error;
+          $('#msg').hidden=false; $('#msg').textContent='¡Listo! Revisa tu correo y abre el enlace en este navegador.';
+        }catch(e){
+          $('#msg').hidden=false; $('#msg').textContent='No se pudo enviar el enlace: ' + (e.message||e);
+        }finally{ setBusy(false); }
+      };
+
+      // Google
+      $('#btnGoogle').onclick = async ()=>{
+        if (!sb){ $('#demoNote').hidden=false; return; }
+        setBusy(true);
+        try{
+          const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo:getRedirectTo() }});
+          if (error) throw error;
+        }catch(e){
+          $('#msg').hidden=false; $('#msg').textContent='No se pudo iniciar con Google: ' + (e.message||e);
+          setBusy(false);
+        }
+      };
+
+      // Apple
+      $('#btnApple').onclick = async ()=>{
+        if (!sb){ $('#demoNote').hidden=false; return; }
+        setBusy(true);
+        try{
+          const { error } = await sb.auth.signInWithOAuth({ provider:'apple', options:{ redirectTo:getRedirectTo() }});
+          if (error) throw error;
+        }catch(e){
+          $('#msg').hidden=false; $('#msg').textContent='No se pudo iniciar con Apple: ' + (e.message||e);
+          setBusy(false);
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

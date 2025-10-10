@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./_header.js" defer></script>
+  <title>PeekPay — Categorías</title>
+
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
+
+  <style>
+    :root{ --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0; --indigo:#4f46e5; --blue:#2563eb; --mint:#10b981; }
+    body{ background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif; margin:0 }
+    .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 56px }
+
+    .topbar{ display:flex; align-items:center; gap:12px; margin-bottom:12px }
+    header{ display:flex; align-items:center; gap:10px }
+    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.12) }
+    .brand h1{ font-size:18px; margin:0 }
+    .brand p{ margin:0; color:var(--muted); font-size:12px }
+    .spacer{ flex:1 }
+    .btn{ border:0; background:linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; font-size:14px; box-shadow:0 6px 16px rgba(79,70,229,.25) }
+    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
+
+    .hero{ border:1px solid var(--ring); background:var(--card); border-radius:16px; padding:18px; margin:12px 0 18px; box-shadow:0 6px 14px rgba(79,70,229,.06) }
+    .hero h2{ margin:0 0 6px; font-size:clamp(22px,4.3vw,28px) }
+    .hero p{ margin:0; color:var(--muted) }
+
+    .grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px }
+    @media (min-width:720px){ .grid{ grid-template-columns:repeat(3,1fr) } }
+    @media (min-width:1024px){ .grid{ grid-template-columns:repeat(4,1fr) } }
+
+    .card{ position:relative; overflow:hidden; border-radius:14px; border:1px solid var(--ring); background:linear-gradient(135deg,#eef2ff,#f8fafc); min-height:180px; display:flex; align-items:flex-end; text-decoration:none; color:inherit; box-shadow:0 6px 14px rgba(79,70,229,.06); transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease; }
+    .card:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(79,70,229,.16); border-color:#dbeafe }
+    .thumb{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.92) saturate(1.06) }
+    .overlay{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.22) 40%, rgba(0,0,0,.55) 100%); pointer-events:none; }
+    .info{ position:relative; z-index:1; width:100%; color:#fff; padding:12px 12px 13px; display:flex; flex-direction:column; gap:8px }
+    .name{ font-weight:800; text-shadow:0 1px 2px rgba(0,0,0,.55) }
+
+    .examples{ align-self:flex-start; display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:600; letter-spacing:.2px; color:#fff; padding:6px 10px; border-radius:999px; background:rgba(9,14,30,.55); border:1px solid rgba(255,255,255,.35); backdrop-filter:saturate(140%) blur(6px); box-shadow:0 10px 20px rgba(0,0,0,.18), 0 0 0 1px rgba(255,255,255,.06) inset; text-shadow:0 1px 1px rgba(0,0,0,.35); }
+    .dot{ width:8px; height:8px; border-radius:999px; background:conic-gradient(#00c853, #ffd600, #ff3d6e, #00c853); box-shadow:0 0 0 2px rgba(255,255,255,.25) inset; }
+    .badge{ position:absolute; top:10px; left:10px; z-index:2; font-size:11px; color:#fff; padding:4px 8px; border-radius:999px; background:linear-gradient(90deg, var(--mint) 0%, #34d399 100%); border:1px solid rgba(255,255,255,.35); box-shadow:0 8px 18px rgba(16,185,129,.25) }
+
+    .skeleton{ border-radius:14px; min-height:180px; border:1px solid var(--ring); overflow:hidden; background: linear-gradient(90deg, #eef2f7 0%, #e6ebf2 50%, #f4f6fa 100%); background-size:200% 100%; animation: shimmer 1.1s linear infinite; }
+    @keyframes shimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .footer{ margin-top:24px; color:var(--muted); font-size:12px }
+    .empty{ color:var(--muted); font-size:14px }
+  </style>
+
+  <link rel="canonical" href="https://peak-pay.vercel.app/categories.html">
+  <meta name="description" content="Explora categorías y descubre creadores. Desbloquea peeks en packs de 3 o 9.">
+  <meta property="og:site_name" content="PeekPay"><meta property="og:type" content="website">
+  <meta property="og:title" content="PeekPay — Categorías">
+  <meta property="og:description" content="Explora categorías y descubre creadores. Desbloquea peeks en packs de 3 o 9.">
+  <meta property="og:url" content="https://peak-pay.vercel.app/categories.html">
+  <meta property="og:image" content="https://peak-pay.vercel.app/peak1.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PeekPay — Categorías">
+  <meta name="twitter:description" content="Explora categorías y descubre creadores. Desbloquea peeks en packs de 3 o 9.">
+  <meta name="twitter:image" content="https://peak-pay.vercel.app/peak1.png">
+  <link rel="preconnect" href="https://plausible.io">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <header>
+        <img src="./peak1.png" alt="PeekPay logo">
+        <div class="brand">
+          <h1>PeekPay</h1>
+          <p>Elige una categoría para explorar Peeks</p>
+        </div>
+      </header>
+      <div class="spacer"></div>
+      <a class="btn secondary" href="./index.html">Inicio</a>
+      <a class="btn" href="./creators.html">Creadores</a>
+      <a class="btn" href="./wallet.html">Wallet</a>
+    </div>
+
+    <section class="hero">
+      <h2>Categorías</h2>
+      <p>Explora creadores por tema. En cada perfil podrás <b>desbloquear Peeks</b> (mosaicos) en packs de 3 o 9.</p>
+    </section>
+
+    <div id="grid" class="grid" aria-live="polite">
+      <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
+      <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
+      <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
+      <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
+    </div>
+    <p id="empty" class="empty" hidden>Aún no hay categorías con creadores publicados.</p>
+
+    <p class="footer">Fase 0 — SFW · Las tarjetas usan <i>placeholder</i> si aún no subiste un cover.</p>
+  </div>
+
+  <script>
+    const NICE = {
+      lenceria:{ name:'Lencería Sensual (SFW)', examples:'Detalles y texturas' },
+      fitness:{ name:'Fitness SFW', examples:'Gym, yoga, running' },
+      arte:{ name:'Arte Corporal', examples:'Tatuaje, henna' },
+      artistico:{ name:'Artístico (SFW)', examples:'Luz y encuadre' },
+      cosplay:{ name:'Cosplay Fantasía', examples:'Props y trajes (SFW)' },
+    };
+    const ORDER=['lenceria','fitness','arte','artistico','cosplay'];
+    const CAT_SLUGS=ORDER;
+
+    const $grid=document.getElementById('grid');
+    const $empty=document.getElementById('empty');
+
+    const imgForCat=(slug,fallback)=>{
+      const webp=`./photos/${slug}/cover.webp`;
+      const jpg=`./photos/${slug}/cover.jpg`;
+      return new Promise(res=>{
+        const i=new Image();
+        i.onload=()=>res(webp);
+        i.onerror=()=>{
+          const j=new Image();
+          j.onload=()=>res(jpg);
+          j.onerror=()=>res(fallback);
+          j.src=jpg;
+        };
+        i.src=webp;
+      });
+    };
+
+    async function buildCard(slug,firstThumb,count){
+      const meta=NICE[slug]||{name:slug,examples:''};
+      const a=document.createElement('a');
+      a.href=`./creators.html?cat=${encodeURIComponent(slug)}`;
+      a.className='card';
+      a.setAttribute('aria-label',meta.name);
+
+      const cover=await imgForCat(slug,firstThumb||'/peak1.png');
+      if(cover!='/peak1.png'||firstThumb){
+        const img=document.createElement('img');
+        img.className='thumb'; img.alt=`${meta.name} cover`;
+        img.src=cover; img.loading='lazy'; img.decoding='async';
+        a.appendChild(img);
+      }
+      if(typeof count==='number'){
+        const b=document.createElement('div');
+        b.className='badge';
+        b.textContent=`${count} creador${count===1?'':'es'}`;
+        a.appendChild(b);
+      }
+      const overlay=document.createElement('div'); overlay.className='overlay';
+      const info=document.createElement('div'); info.className='info';
+      info.innerHTML=`<div class="name">${meta.name}</div><div class="examples"><span class="dot" aria-hidden="true"></span>${meta.examples}</div>`;
+      a.appendChild(overlay); a.appendChild(info);
+      return a;
+    }
+
+    async function tryJson(urls){
+      for(const u of urls){
+        try{ const r=await fetch(u); if(r.ok) return r.json(); }catch(_){}
+      }
+      return null;
+    }
+
+    function normalizeCreatorsFromCategories(categories){
+      const map={}; for(const s of CAT_SLUGS) map[s]=(categories[s]||[]).slice(); return map;
+    }
+    function inferCategoriesFromCreators(creators){
+      const map={}; for(const s of CAT_SLUGS) map[s]=[];
+      creators.forEach(c=>{
+        const cov=(c.cover||'')+'';
+        const cat=CAT_SLUGS.find(s=>cov.includes(`/photos/${s}/`)||cov.includes(`/public/photos/${s}/`));
+        if(cat) map[cat].push({thumb:c.cover,handle:c.handle||c.id||''});
+      });
+      return map;
+    }
+
+    (async function load(){
+      try{
+        const data = await tryJson([
+          '/peeks.json?ts='+Date.now(),
+          '/public/peeks.json?ts='+Date.now(),
+          '/public/peeks.local.json?ts='+Date.now(),
+          './peeks.local.json?ts='+Date.now(),
+        ]) || {};
+
+        let catsMap = data.categories ? normalizeCreatorsFromCategories(data.categories) : null;
+        if(!catsMap && Array.isArray(data.creators)) catsMap = inferCategoriesFromCreators(data.creators);
+
+        if(!catsMap){
+          $grid.innerHTML=''; $empty.hidden=false; return;
+        }
+
+        const present=ORDER.filter(k=>Array.isArray(catsMap[k])&&catsMap[k].length>0);
+        $grid.innerHTML='';
+        if(present.length===0){ $empty.hidden=false; return; }
+
+        for(const slug of present){
+          const arr=catsMap[slug]||[];
+          const first=arr[0];
+          const thumb=first?.thumb||first?.cover||'/peak1.png';
+          const card=await buildCard(slug,thumb,arr.length);
+          $grid.appendChild(card);
+        }
+      }catch(e){
+        console.error('categories load error',e);
+        $grid.innerHTML=''; $empty.hidden=false;
+      }
+    })();
+  </script>
+  <script src="./_header.js" defer></script>
+</body>
+</html>

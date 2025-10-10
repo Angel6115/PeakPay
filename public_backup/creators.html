@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PeekPay — Creadores</title>
+
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <link rel="icon" href="./favicon.ico">
+  <link rel="canonical" href="https://peak-pay.vercel.app/creators">
+
+  <meta name="description" content="Explora creadores en Early Access y visualiza la demo.">
+  <meta property="og:site_name" content="PeekPay">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Creadores — PeekPay">
+  <meta property="og:description" content="Explora perfiles y vista demo (Early Access).">
+  <meta property="og:url" content="https://peak-pay.vercel.app/creators">
+  <meta property="og:image" content="https://peak-pay.vercel.app/peak1.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style>
+    :root{
+      --bg-grad: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0b1020; --muted:#475569; --card:#ffffff; --ring:#e2e8f0;
+      --indigo:#667eea; --blue:#764ba2;
+    }
+    *{ box-sizing:border-box }
+    body{
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
+      background: var(--bg-grad);
+    }
+    .wrap{ max-width:1120px; margin:0 auto; padding:20px 16px 64px }
+
+    /* Header mínimo (solo marca + volver) */
+    .head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; flex-wrap:wrap }
+    .brand{ display:flex; align-items:center; gap:10px }
+    .brand img{ width:52px; height:52px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(102,126,234,.15) }
+    .brand h1{
+      margin:0; font-size:20px; font-weight:800; letter-spacing:.2px;
+      background:linear-gradient(135deg,var(--indigo),var(--blue));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .muted{ color:var(--muted); font-size:12px }
+
+    .btn-back{
+      border:1px solid var(--ring); background:#fff; color:#111827;
+      border-radius:10px; padding:9px 12px; text-decoration:none; font-weight:700;
+      box-shadow:0 3px 10px rgba(102,126,234,.15);
+    }
+
+    .panel{
+      border:1px solid var(--ring); background:var(--card);
+      border-radius:16px; padding:16px; margin-top:12px;
+      box-shadow:0 10px 30px rgba(102,126,234,.10);
+    }
+
+    /* Chips categorías */
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px }
+    .chip{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid var(--ring); background:#fff; cursor:pointer; user-select:none
+    }
+    .chip.active{ background:var(--indigo); color:#fff; border-color:transparent; box-shadow:0 4px 10px rgba(102,126,234,.25) }
+
+    /* Grid */
+    .grid{ display:grid; gap:12px; margin-top:12px; grid-template-columns:repeat(2,minmax(0,1fr)) }
+    @media (min-width:900px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (min-width:1200px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+
+    .card{ border:1px solid var(--ring); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; transition:box-shadow .25s ease }
+    .card:hover{ box-shadow:0 12px 28px rgba(0,0,0,.08) }
+    .frame{ width:100%; aspect-ratio:3/4; background:#0b1020; position:relative }
+    .frame.wide{ aspect-ratio:4/3 }
+    .frame img{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center 22%;
+      display:block; transition:transform .35s ease; filter:saturate(.92) contrast(.98);
+    }
+    .frame.wide img{ object-position:center center }
+    .card:hover .frame img{ transform:scale(1.02) }
+
+    .meta{ padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px }
+    .meta h3{ margin:0; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:800 }
+    .badge-sets{ font-size:11px; color:#64748b; border:1px solid #e5e7eb; border-radius:8px; padding:3px 8px; background:#f8fafc }
+
+    /* Band minimal sin iconos */
+    .band{ display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Header mínimo -->
+    <div class="head">
+      <div class="brand">
+        <img src="./peak1.png" alt="PeekPay">
+        <div>
+          <h1>PeekPay</h1>
+          <p class="muted">Demo interactivo (Early Access)</p>
+        </div>
+      </div>
+      <a href="./index.html" class="btn-back">← Volver</a>
+    </div>
+
+    <!-- Band sin iconos -->
+    <div class="panel band">
+      <span class="muted">Privacidad primero</span>
+      <span class="muted">Peek Credits</span>
+      <span class="muted">Mosaicos</span>
+    </div>
+
+    <!-- Título + chips -->
+    <section class="panel" style="padding-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <h2 style="margin:0;font-weight:900">Creadores destacados</h2>
+        <div class="chips" id="chips">
+          <span class="chip" data-cat="all">Todos</span>
+          <span class="chip" data-cat="arte">Arte</span>
+          <span class="chip" data-cat="artistico">Artístico</span>
+          <span class="chip" data-cat="cosplay">Cosplay</span>
+          <span class="chip" data-cat="fitness">Fitness</span>
+          <span class="chip" data-cat="lenceria">Lencería</span>
+        </div>
+      </div>
+      <div id="grid" class="grid" aria-live="polite"></div>
+      <p id="empty" class="muted" style="display:none">No hay creadores para mostrar.</p>
+    </section>
+
+    <!-- About corto -->
+    <section class="panel" style="display:grid;gap:12px;grid-template-columns:1fr 1fr">
+      <article class="card">
+        <div class="meta" style="justify-content:flex-start; gap:10px"><h3 style="font-size:16px">¿Qué es PeekPay?</h3></div>
+        <div style="padding:12px" class="muted">Cada set es un mosaico: algunas celdas son preview y el resto se desbloquea con Peek Credits. Esta es una vista de demostración durante Early Access.</div>
+      </article>
+      <article class="card">
+        <div class="meta" style="justify-content:flex-start; gap:10px"><h3 style="font-size:16px">Para creadores</h3></div>
+        <div style="padding:12px" class="muted">Únete como creador y prepara tus sets para el Soft Launch.</div>
+      </article>
+    </section>
+
+    <footer class="muted" style="margin-top:18px">© PeekPay • Fase 0</footer>
+  </div>
+
+  <script>
+    // Utilidad simple para comprobar si existe la portada (HEAD)
+    async function exists(url){
+      try{ const r=await fetch(url,{method:'HEAD'}); return r.ok; }catch(_){ return false; }
+    }
+
+    // === Rutas por CATEGORÍA (coinciden con /public/photos) ===
+    const CREATOR_SOURCES = {
+      'ink-aria': { name:'ink aria',
+        arte:'./photos/arte/ink-aria/arte1.jpg',
+        artistico:'./photos/artistico/ink-aria/inkart.jpg',
+        cosplay:'./photos/cosplay/ink-aria/ink1.jpg',
+        fitness:'./photos/fitness/ink-aria/inkfit.jpg',
+        lenceria:'./photos/lenceria/ink-aria/inklen.jpg',
+      },
+      'lina-fit': { name:'lina fit',
+        arte:'./photos/arte/lina-fit/linaarte.jpg',
+        artistico:'./photos/artistico/lina-fit/lianart.jpg',
+        cosplay:'./photos/cosplay/lina-fit/lina1.jpg',
+        fitness:'./photos/fitness/lina-fit/linafit.jpg',
+        lenceria:'./photos/lenceria/lina-fit/linalen.jpg',
+      },
+      'noa-lace': { name:'noa lace',
+        arte:'./photos/arte/noa-lace/noaarte.jpg',
+        artistico:'./photos/artistico/noa-lace/noaart.jpg',
+        cosplay:'./photos/cosplay/noa-lace/noa1.jpg',
+        fitness:'./photos/fitness/noa-lace/noafit.jpg',
+        lenceria:'./photos/lenceria/noa-lace/noalen.jpg',
+      },
+      'rio-out': { name:'rio out',
+        arte:'./photos/arte/rio-out/rioarte.jpg',
+        artistico:'./photos/artistico/rio-out/rioart.jpg',
+        cosplay:'./photos/cosplay/rio-out/rio1.jpg',
+        fitness:'./photos/fitness/rio-out/riofit.jpg',
+        lenceria:'./photos/lenceria/rio-out/riolen.jpg',
+      },
+      'sasha-dance': { name:'sasha dance',
+        arte:'./photos/arte/sasha-dance/sashaarte.jpg',
+        artistico:'./photos/artistico/sasha-dance/sahsaart.jpg',
+        cosplay:'./photos/cosplay/sasha-dance/sasha1.jpg',
+        fitness:'./photos/fitness/sasha-dance/sashafit.jpg',
+        lenceria:'./photos/lenceria/sasha-dance/sashalen.jpg',
+      },
+      'sol-light': { name:'sol light',
+        arte:'./photos/arte/sol-light/solarte.jpg',
+        artistico:'./photos/artistico/sol-light/solart.jpg',
+        cosplay:'./photos/cosplay/sol-light/sol1.jpg',
+        fitness:'./photos/fitness/sol-light/solfit.jpg',
+        lenceria:'./photos/lenceria/sol-light/sollen.jpg',
+      },
+      'val-cos': { name:'val cos',
+        arte:'./photos/arte/val-cos/valarte.jpg',
+        artistico:'./photos/artistico/val-cos/valart.jpg',
+        cosplay:'./photos/cosplay/val-cos/val1.jpg',
+        fitness:'./photos/fitness/val-cos/valfit.jpg',
+        lenceria:'./photos/lenceria/val-cos/vallen.jpg',
+      },
+      'zen-well': { name:'zen well',
+        arte:'./photos/arte/zen-well/zenarte.jpg',
+        artistico:'./photos/artistico/zen-well/zenart.jpg',
+        cosplay:'./photos/cosplay/zen-well/zen1.jpg',
+        fitness:'./photos/fitness/zen-well/zenfit.jpg',
+        lenceria:'./photos/lenceria/zen-well/zenlen.jpg',
+      },
+    };
+
+    // Prioridad para "Todos"
+    const ALL_PRIORITY = ['lenceria','cosplay','fitness','arte','artistico'];
+
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+
+    async function buildEntries(category){
+      const entries = [];
+      const handles = Object.keys(CREATOR_SOURCES);
+
+      if (category === 'all') {
+        for (const h of handles){
+          const srcs = CREATOR_SOURCES[h];
+          let chosenCat = null, chosenUrl = null;
+          for (const cat of ALL_PRIORITY){
+            if (!srcs[cat]) continue;
+            if (await exists(srcs[cat])) { chosenCat = cat; chosenUrl = srcs[cat]; break; }
+          }
+          if (!chosenUrl){
+            for (const [cat,url] of Object.entries(srcs)){
+              if (cat === 'name') continue;
+              if (await exists(url)){ chosenCat=cat; chosenUrl=url; break; }
+            }
+          }
+          if (chosenUrl){
+            entries.push({ handle:h, name:srcs.name, cat:chosenCat, cover:chosenUrl });
+          }
+        }
+        return entries;
+      }
+
+      // Categoría concreta
+      for (const h of handles){
+        const srcs = CREATOR_SOURCES[h];
+        const url = srcs[category];
+        if (url && await exists(url)){
+          entries.push({ handle:h, name:srcs.name, cat:category, cover:url });
+        }
+      }
+      return entries;
+    }
+
+    function cardFor({handle,name,cat,cover}){
+      const a = document.createElement('a');
+
+      // Ruta ABSOLUTA a demo: en producción es /demo.html; en Vite local es /public/demo.html
+      const isLocal = ['localhost','127.0.0.1'].includes(location.hostname);
+      const demoPath = isLocal ? '/public/demo.html' : '/demo.html';
+      const demoUrl = new URL(demoPath, location.origin);
+      demoUrl.searchParams.set('c', handle);
+      demoUrl.hash = 'ea';
+      a.href = demoUrl.toString();
+
+      a.className = 'card';
+      a.setAttribute('data-cat', cat);
+      a.title = 'Demo (Early Access)';
+
+      const frame = document.createElement('div');
+      frame.className = 'frame';
+
+      const img = document.createElement('img');
+      img.loading = 'lazy'; img.decoding = 'async';
+      img.alt = name || handle || 'Creator';
+      img.src = cover;
+      img.addEventListener('load', ()=>{
+        const wide = img.naturalWidth >= img.naturalHeight;
+        if (wide) frame.classList.add('wide');
+      });
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.innerHTML = `<h3>${name}</h3><span class="badge-sets">0 sets</span>`;
+
+      frame.appendChild(img);
+      a.appendChild(frame);
+      a.appendChild(meta);
+      return a;
+    }
+
+    async function render(category){
+      grid.innerHTML = '';
+      empty.style.display = 'none';
+      const entries = await buildEntries(category);
+      if (!entries.length){ empty.style.display='block'; return; }
+      const frag = document.createDocumentFragment();
+      entries.forEach(e=> frag.appendChild(cardFor(e)));
+      grid.appendChild(frag);
+    }
+
+    // Chips + ?cat=
+    (function initFilters(){
+      const params = new URLSearchParams(location.search);
+      const initial = (params.get('cat') || 'all').toLowerCase();
+      const chips = document.getElementById('chips');
+
+      const initialChip = chips.querySelector(`.chip[data-cat="${initial}"]`) || chips.querySelector('.chip[data-cat="all"]');
+      initialChip.classList.add('active');
+
+      render(initialChip.dataset.cat);
+
+      chips.addEventListener('click', (e)=>{
+        const chip = e.target.closest('.chip'); if(!chip) return;
+        chips.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+        const p = new URLSearchParams(location.search);
+        if (chip.dataset.cat==='all') p.delete('cat'); else p.set('cat', chip.dataset.cat);
+        history.replaceState(null,'', location.pathname + (p.toString()?`?${p}`:''));
+        render(chip.dataset.cat);
+      });
+    })();
+  </script>
+</body>
+</html>

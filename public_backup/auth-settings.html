@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PeekPay — Ajustes de cuenta</title>
+
+  <!-- Supabase + header -->
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./_header.js" defer></script>
+
+  <link rel="icon" href="./favicon.ico">
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+
+  <style>
+    :root{ --text:#0b1020; --muted:#475569; --ring:#e5e7eb; --card:#f8fafc; --indigo:#4f46e5; --blue:#2563eb;
+           --ok:#065f46; --okbg:#d1fae5; --err:#7f1d1d; --errbg:#fee2e2; }
+    html,body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;color:var(--text)}
+    .wrap{max-width:820px;margin:0 auto;padding:18px 14px 80px}
+    .back{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;text-decoration:none}
+    .back:hover{background:#eef2ff;border-color:#c7d2fe}
+    .card{margin-top:12px;background:#fff;border:1px solid var(--ring);border-radius:16px;box-shadow:0 8px 20px rgba(79,70,229,.10)}
+    .inner{padding:14px}
+    .row{display:flex;gap:12px;align-items:center}
+    .avatar{width:86px;height:86px;border-radius:14px;border:1px solid #e6e6e6;object-fit:cover;background:#fff}
+    .btn{border:1px solid var(--ring);background:#fff;border-radius:10px;padding:9px 12px;cursor:pointer}
+    .btn.primary{border:0;background:linear-gradient(90deg,var(--indigo),var(--blue));color:#fff;box-shadow:0 8px 18px rgba(79,70,229,.25)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    @media (max-width:640px){ .grid{grid-template-columns:1fr} }
+    label{font-size:12px;color:#334155;margin-bottom:4px;display:block}
+    input[type=text],input[type=password]{width:100%;border:1px solid var(--ring);border-radius:10px;padding:10px;font-size:14px}
+    .muted{font-size:12px;color:var(--muted)}
+    .msg{margin-top:8px;font-size:13px;min-height:18px}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+    .note{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px}
+    .okbg{background:var(--okbg);border:1px solid #a7f3d0;color:var(--ok)}
+    .errbg{background:var(--errbg);border:1px solid #fecaca;color:var(--err)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a id="backLink" class="back" href="./profile.html">Volver al perfil</a>
+
+    <div class="card">
+      <div class="inner">
+        <h2 style="margin:0 0 6px 0;font-size:18px">Ajustes de cuenta</h2>
+        <div class="muted">Actualiza tu información básica y contraseña.</div>
+
+        <div class="row" style="margin-top:12px">
+          <img id="avatarImg" class="avatar" src="./peak1.png" alt="avatar">
+          <div>
+            <div class="muted">Sesión:</div>
+            <div id="userEmail" style="font-weight:600">—</div>
+            <div id="authState" class="muted" style="margin-top:4px">Sin iniciar sesión.</div>
+          </div>
+          <div style="margin-left:auto">
+            <button id="btnPick" class="btn">Subir avatar</button>
+            <input id="fileAvatar" type="file" accept=".jpg,.jpeg,.png,.webp" style="display:none">
+          </div>
+        </div>
+        <div id="avatarMsg" class="msg"></div>
+
+        <div class="grid" style="margin-top:12px">
+          <div>
+            <label>Nombre para mostrar</label>
+            <input id="inpName" type="text" placeholder="Tu nombre" maxlength="60" disabled>
+          </div>
+          <div>
+            <label>URL del avatar (opcional)</label>
+            <input id="inpAvatarUrl" type="text" placeholder="https://…" disabled>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px;justify-content:flex-end">
+          <button id="btnSaveProfile" class="btn primary" disabled>Guardar perfil</button>
+        </div>
+
+        <div id="lockNote" class="note errbg" style="display:none;margin-top:12px">
+          Inicia sesión para editar tu cuenta.
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--ring);margin:14px 0">
+
+        <div>
+          <h3 style="margin:0 0 8px 0;font-size:15px">Nueva contraseña</h3>
+          <div class="grid">
+            <div>
+              <label>Nueva contraseña</label>
+              <input id="pwd1" type="password" placeholder="Mínimo 8 caracteres" minlength="8" disabled>
+            </div>
+            <div>
+              <label>Repetir contraseña</label>
+              <input id="pwd2" type="password" placeholder="Repite la contraseña" minlength="8" disabled>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px;justify-content:flex-end">
+            <button id="btnChangePwd" class="btn" disabled>Cambiar contraseña</button>
+          </div>
+          <div class="muted" style="margin-top:6px">
+            Por seguridad, es posible que se cierren sesiones antiguas en otros dispositivos.
+          </div>
+          <div id="pwdMsg" class="msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const sb = window.sb || window.__SB || null;
+
+    // ---- Back link (respeta ?return=) ----
+    (function wireBack(){
+      const u = new URL(location.href);
+      const ret = u.searchParams.get('return') || './profile.html';
+      $('#backLink').href = ret;
+    })();
+
+    const MAX_MB = 5;
+    const ALLOWED = ['image/jpeg','image/png','image/webp'];
+    let CURRENT_USER = null;
+
+    function setMsg(el, text, kind){
+      el.textContent = text || '';
+      el.className = 'msg ' + (kind || '');
+    }
+
+    function inferExt(type){
+      if (type === 'image/png') return 'png';
+      if (type === 'image/webp') return 'webp';
+      return 'jpg';
+    }
+
+    async function bootstrap(){
+      if (!sb){
+        $('#lockNote').style.display = 'block';
+        return;
+      }
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session){
+        $('#lockNote').style.display = 'block';
+        return;
+      }
+      CURRENT_USER = session.user;
+
+      // Prefill
+      $('#authState').textContent = 'Sesión activa';
+      $('#userEmail').textContent = CURRENT_USER.email || '(sin email)';
+      $('#inpName').disabled = false;
+      $('#inpAvatarUrl').disabled = false;
+      $('#btnSaveProfile').disabled = false;
+      $('#pwd1').disabled = false;
+      $('#pwd2').disabled = false;
+      $('#btnChangePwd').disabled = false;
+
+      // Toma datos de profiles si existen
+      let name = CURRENT_USER.user_metadata?.name || '';
+      let avatar = CURRENT_USER.user_metadata?.avatar_url || CURRENT_USER.user_metadata?.picture || '';
+      try{
+        const { data: p } = await sb.from('profiles').select('name,avatar_url').eq('id', CURRENT_USER.id).maybeSingle();
+        if (p){
+          if (p.name) name = p.name;
+          if (p.avatar_url) avatar = p.avatar_url;
+        }
+      }catch{}
+
+      $('#inpName').value = name || '';
+      $('#inpAvatarUrl').value = avatar || '';
+      if (avatar){
+        const img = new Image();
+        img.onload = ()=> $('#avatarImg').src = avatar;
+        img.src = avatar;
+      }
+    }
+
+    // ---- Guardar perfil (nombre + URL avatar opcional) ----
+    $('#btnSaveProfile').addEventListener('click', async ()=>{
+      if (!sb || !CURRENT_USER) return;
+      const name = $('#inpName').value.trim().slice(0,60);
+      const avatarUrl = $('#inpAvatarUrl').value.trim() || null;
+      try{
+        const up = { id: CURRENT_USER.id, name };
+        if (avatarUrl) up.avatar_url = avatarUrl;
+        const { error } = await sb.from('profiles').upsert(up, { onConflict: 'id' });
+        if (error) throw error;
+
+        // Refleja también en user_metadata
+        const md = { name };
+        if (avatarUrl) md.avatar_url = avatarUrl;
+        await sb.auth.updateUser({ data: md });
+
+        if (avatarUrl){
+          const bust = avatarUrl + (avatarUrl.includes('?')?'&':'?') + 'v=' + Date.now();
+          $('#avatarImg').src = bust;
+        }
+        setMsg($('#avatarMsg'), 'Perfil guardado ✔︎', 'ok');
+        setTimeout(()=> setMsg($('#avatarMsg'), '', ''), 2500);
+      }catch(e){
+        setMsg($('#avatarMsg'), e.message || 'No se pudo guardar el perfil', 'err');
+      }
+    });
+
+    // ---- Subir avatar a Storage (bucket: avatars) ----
+    $('#btnPick').addEventListener('click', ()=>{
+      if (!CURRENT_USER){ alert('Inicia sesión para cambiar tu avatar.'); return; }
+      $('#fileAvatar').click();
+    });
+
+    $('#fileAvatar').addEventListener('change', async (e)=>{
+      const file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      if (!ALLOWED.includes(file.type)){ setMsg($('#avatarMsg'),'Formato no soportado. Usa JPG, PNG o WEBP.','err'); return; }
+      if (file.size > MAX_MB*1024*1024){ setMsg($('#avatarMsg'),`Máximo ${MAX_MB} MB.`,'err'); return; }
+
+      setMsg($('#avatarMsg'),'Subiendo foto…');
+      // Vista previa local inmediata
+      const blobUrl = URL.createObjectURL(file);
+      $('#avatarImg').src = blobUrl;
+
+      const ext = inferExt(file.type);
+      const path = `${CURRENT_USER.id}/avatar-${Date.now()}.${ext}`;
+      try{
+        const { error: upErr } = await sb.storage.from('avatars').upload(path, file, {
+          cacheControl: '3600', upsert: true, contentType: file.type
+        });
+        if (upErr) throw upErr;
+        const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
+        const publicUrl = pub?.publicUrl;
+
+        // Guarda en profiles + metadata
+        await sb.from('profiles').upsert({ id: CURRENT_USER.id, avatar_url: publicUrl }, { onConflict:'id' });
+        await sb.auth.updateUser({ data: { avatar_url: publicUrl } });
+
+        const bust = publicUrl + (publicUrl.includes('?')?'&':'?') + 'v=' + Date.now();
+        $('#avatarImg').src = bust;
+        setMsg($('#avatarMsg'),'Foto actualizada ✔︎','ok');
+        setTimeout(()=> setMsg($('#avatarMsg'),'',''), 2500);
+      }catch(e){
+        setMsg($('#avatarMsg'), e.message || 'No se pudo subir la foto', 'err');
+      }
+    });
+
+    // ---- Cambiar contraseña ----
+    $('#btnChangePwd').addEventListener('click', async ()=>{
+      if (!sb || !CURRENT_USER) return;
+      const a = $('#pwd1').value;
+      const b = $('#pwd2').value;
+      if (a.length < 8){ setMsg($('#pwdMsg'),'La contraseña debe tener al menos 8 caracteres.','err'); return; }
+      if (a !== b){ setMsg($('#pwdMsg'),'Las contraseñas no coinciden.','err'); return; }
+      try{
+        await sb.auth.updateUser({ password: a });
+        $('#pwd1').value = ''; $('#pwd2').value = '';
+        setMsg($('#pwdMsg'),'Contraseña actualizada ✔︎','ok');
+        setTimeout(()=> setMsg($('#pwdMsg'),'',''), 2500);
+      }catch(e){
+        setMsg($('#pwdMsg'), e.message || 'No se pudo cambiar la contraseña', 'err');
+      }
+    });
+
+    bootstrap();
+  </script>
+</body>
+</html>

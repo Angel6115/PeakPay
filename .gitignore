@@ -7,3 +7,5 @@ dist
 
 # editor backups
 public/*.bak
+
+public-backup/

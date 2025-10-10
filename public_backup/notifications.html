@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PeekPay — Notificaciones</title>
+
+  <!-- Supabase + header (router, auth pill) -->
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./_header.js" defer></script>
+
+  <link rel="icon" href="./favicon.ico">
+  <style>
+    :root{
+      --bg:#fff; --text:#0b1020; --muted:#64748b; --ring:#e5e7eb; --card:#ffffff;
+      --indigo:#4f46e5; --blue:#2563eb; --danger:#ef4444; --ok:#10b981;
+      --shadow:0 8px 20px rgba(79,70,229,.08);
+      --radius:14px;
+    }
+    html,body{margin:0;background:var(--bg);color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif}
+    .wrap{max-width:900px;margin:0 auto;padding:20px 14px 64px}
+
+    .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:8px}
+    .brand img{width:24px;height:24px;border-radius:6px;box-shadow:0 6px 12px rgba(79,70,229,.12)}
+    .title{font-size:20px;margin:0}
+    .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-size:13px;cursor:pointer}
+    .btn.primary{border:0;background:linear-gradient(90deg,var(--indigo),var(--blue));color:#fff;box-shadow:0 8px 18px rgba(79,70,229,.20)}
+    .btn.ghost{background:#fff;color:#111827}
+    .muted{color:var(--muted);font-size:13px}
+
+    .list{display:grid;gap:10px;margin-top:16px}
+    .item{border:1px solid var(--ring);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);padding:12px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .left{display:flex;align-items:center;gap:10px}
+    .pill{font-size:11px;border:1px solid var(--ring);background:#fff;border-radius:999px;padding:3px 8px}
+    .pill.unread{background:#fee2e2;border-color:#fecaca;color:#7f1d1d}
+    .when{font-size:12px;color:var(--muted)}
+    .i-actions{display:flex;gap:8px}
+
+    .empty{margin-top:16px}
+    .bar{margin-top:8px}
+
+    /* Estado visual de leído/no leído */
+    .item.unread{outline:2px solid rgba(79,70,229,.12)}
+    .item.read{opacity:.95}
+    @media (max-width:520px){
+      .row{align-items:flex-start}
+      .i-actions{width:100%;justify-content:flex-end}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <img src="./peak1.png" alt="PeekPay">
+        <h1 class="title">Notificaciones</h1>
+      </div>
+      <div class="actions">
+        <a href="./profile.html"><button class="btn ghost">Volver al perfil</button></a>
+        <button id="markAll" class="btn">Marcar todo como leído</button>
+        <button id="refresh" class="btn">Actualizar</button>
+      </div>
+    </div>
+
+    <div id="state" class="muted bar">Comprobando sesión…</div>
+    <div id="empty" class="muted empty">Inicia sesión para ver tus notificaciones.</div>
+    <div id="list" class="list" style="display:none"></div>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const sb = window.__SB || window.supabaseClient || null;
+
+    let CURRENT = []; // cache local
+
+    function fmtWhen(iso){
+      try{ return new Date(iso).toLocaleString(); }catch{ return '—'; }
+    }
+
+    function render(items){
+      const list = $('#list');
+      const empty = $('#empty');
+      if (!items || !items.length){
+        list.style.display='none'; empty.style.display='block';
+        empty.textContent = 'No tienes notificaciones por ahora.';
+        return;
+      }
+      empty.style.display='none'; list.style.display='grid';
+      list.innerHTML='';
+
+      for (const n of items){
+        const el = document.createElement('div');
+        el.className = `item ${n.is_read ? 'read' : 'unread'}`;
+        el.dataset.id = n.id;
+
+        const pill = n.is_read ? '' : '<span class="pill unread">Nuevo</span>';
+
+        el.innerHTML = `
+          <div class="row">
+            <div class="left">
+              ${pill}
+              <strong>${n.title || n.kind}</strong>
+            </div>
+            <span class="when">${fmtWhen(n.created_at)}</span>
+          </div>
+          <div class="muted" style="margin-top:6px">${n.body || ''}</div>
+          <div class="i-actions" style="margin-top:8px">
+            ${n.is_read ? '' : '<button class="btn" data-action="mark">Marcar leído</button>'}
+            <button class="btn ghost" data-action="del">Descartar</button>
+          </div>
+        `;
+
+        // Delegar clicks
+        el.addEventListener('click', async (e)=>{
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          const action = btn.dataset.action;
+          if (action === 'mark') await markOne(n.id, el);
+          if (action === 'del')  await discardOne(n.id, el);
+        });
+
+        list.appendChild(el);
+      }
+    }
+
+    async function fetchAll(){
+      const state=$('#state');
+      if (!sb){ state.textContent='Supabase no configurado.'; return; }
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session){ state.textContent='Sin sesión.'; return; }
+      state.textContent='Cargando…';
+
+      const { data, error } = await sb
+        .from('notifications')
+        .select('id,kind,title,body,created_at,is_read')
+        .order('created_at',{ ascending:false })
+        .limit(100);
+
+      if (error){ state.textContent='Error al cargar.'; console.warn(error); return; }
+      CURRENT = data || [];
+      render(CURRENT);
+      state.textContent = `Mostrando ${CURRENT.length} notificación(es).`;
+    }
+
+    async function markAllRead(){
+      const state=$('#state');
+      state.textContent='Marcando…';
+      try{
+        const { error } = await sb
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('is_read', false); // RLS limita a tus filas (policy notif_user_upd)
+        if (error) throw error;
+        // Optimista
+        CURRENT = CURRENT.map(n => ({...n, is_read:true}));
+        render(CURRENT);
+        state.textContent='Todo marcado como leído.';
+      }catch(e){
+        state.textContent='No se pudo marcar.';
+        console.warn(e);
+      }
+    }
+
+    async function markOne(id, el){
+      try{
+        // Optimista
+        el.classList.remove('unread'); el.classList.add('read');
+        el.querySelector('[data-action="mark"]')?.remove();
+        el.querySelector('.pill.unread')?.remove();
+
+        const { error } = await sb
+          .from('notifications')
+          .update({ is_read:true })
+          .eq('id', id)
+          .limit(1);
+        if (error) throw error;
+
+        // sync cache
+        CURRENT = CURRENT.map(n => n.id===id ? {...n, is_read:true} : n);
+      }catch(e){
+        alert('No se pudo marcar como leído.');
+        console.warn(e);
+        // fallback: vuelve a cargar
+        fetchAll();
+      }
+    }
+
+    async function discardOne(id, el){
+      try{
+        // Opcional: si no quieres borrar del server, sólo ocultas en UI
+        el.style.display='none';
+      }catch{}
+    }
+
+    // Botones superiores
+    $('#markAll').addEventListener('click', markAllRead);
+    $('#refresh').addEventListener('click', fetchAll);
+
+    // Cargar al abrir
+    (async function init(){
+      const state=$('#state');
+      if (!sb){ state.textContent='Supabase no configurado.'; return; }
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session){ state.textContent='Sin sesión. Usa Entrar para continuar.'; return; }
+      state.textContent = 'Sesión activa. Cargando notificaciones…';
+      await fetchAll();
+
+      // (Opcional) Realtime — si activas Realtime en la tabla
+      try{
+        const ch = sb.channel('notif-feed')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'notifications', filter:`user_id=eq.${session.user.id}` },
+            (payload)=>{ fetchAll(); }
+          ).subscribe();
+        window.addEventListener('beforeunload', ()=>{ try{ sb.removeChannel(ch); }catch{} });
+      }catch{}
+    })();
+  </script>
+</body>
+</html>
