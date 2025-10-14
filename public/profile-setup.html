@@ -218,22 +218,30 @@
       document.getElementById('finishBtn').disabled = selectedCategories.size < 2;
     });
 
-    // ---- Redirección por rol (usa PATH_PREFIX) ----
+    // ---- ✅ NUEVA FUNCIÓN: Redirigir a login después del onboarding ----
     function redirectAfterSetup(data){
-      const email  = (data.email  || emailParam || '').trim();
-      const handle = (data.handle || '').trim();
-
-      if (ROLE === 'creator'){
-        const url = new URL(`${PATH_PREFIX}/creator-dashboard.html`, location.origin);
-        if (email)  url.searchParams.set('email', email);
-        if (handle) url.searchParams.set('handle', handle);
-        url.searchParams.set('welcome','1');
-        location.href = url.toString();
+      const { role, email, handle } = data;
+      
+      // Guardar datos en localStorage para después del login
+      try {
+        localStorage.setItem('pp_handle', handle || '');
+        localStorage.setItem('pp_categories', JSON.stringify([...selectedCategories]));
+      } catch(_) {}
+      
+      if (role === 'creator') {
+        // Creadores van a login con mensaje
+        const loginUrl = new URL(`${PATH_PREFIX}/login.html`, location.origin);
+        loginUrl.searchParams.set('redirect', 'creator-dashboard');
+        loginUrl.searchParams.set('welcome', '1');
+        if (email) loginUrl.searchParams.set('email', email);
+        location.href = loginUrl.toString();
       } else {
-        const url = new URL(`${PATH_PREFIX}/profile.html`, location.origin);
-        if (email) url.searchParams.set('email', email);
-        url.searchParams.set('welcome','1');
-        location.href = url.toString();
+        // Usuarios van a login con mensaje
+        const loginUrl = new URL(`${PATH_PREFIX}/login.html`, location.origin);
+        loginUrl.searchParams.set('redirect', 'profile');
+        loginUrl.searchParams.set('welcome', '1');
+        if (email) loginUrl.searchParams.set('email', email);
+        location.href = loginUrl.toString();
       }
     }
 

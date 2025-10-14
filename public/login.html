@@ -48,6 +48,21 @@
     .pill{display:inline-block;font-size:11px;background:var(--indigo-soft);color:#1e1b4b;border:1px solid #c7d2fe;border-radius:999px;padding:2px 8px;vertical-align:middle}
     .cfgwarn{margin-top:10px; padding:10px; border:1px dashed #cbd5e1; border-radius:10px; font-size:12px; color:#475569; background:#fff; display:none}
     .cfgwarn code{background:#f1f5f9; padding:2px 6px; border-radius:6px}
+    .welcome-banner{
+      margin-bottom:16px;
+      background:linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+      border:2px solid #667eea;
+      border-radius:12px;
+      padding:16px;
+      text-align:center;
+      color:#4f46e5;
+      font-weight:600;
+      animation:slideDown 0.5s ease-out;
+    }
+    @keyframes slideDown{
+      from{opacity:0;transform:translateY(-10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
   </style>
 </head>
 <body>
@@ -77,6 +92,9 @@
         y refresca la página. (En deploy ya viene preconfigurado.)
       </div>
 
+      <!-- ✅ NUEVO: Banner de bienvenida (se muestra con JS) -->
+      <div id="welcomeBanner" style="display:none;"></div>
+
       <div class="row" style="margin-top:8px">
         <div>
           <label for="email">Email</label>
@@ -105,6 +123,42 @@
   </div>
 
   <script>
+    // ✅ NUEVO: Manejar mensaje de bienvenida después del onboarding
+    (function showWelcomeMessage() {
+      const params = new URLSearchParams(location.search);
+      const isWelcome = params.get('welcome') === '1';
+      const prefilledEmail = params.get('email') || '';
+      const redirectTo = params.get('redirect') || '';
+      
+      if (isWelcome) {
+        // Prellenar email si viene de onboarding
+        const emailInput = document.getElementById('email');
+        if (emailInput && prefilledEmail) {
+          emailInput.value = prefilledEmail;
+          // Guardar para después del login
+          localStorage.setItem('pp_email', prefilledEmail);
+        }
+        
+        // Guardar redirect para después del login
+        if (redirectTo) {
+          const redirectMap = {
+            'creator-dashboard': './creator-dashboard.html',
+            'profile': './profile.html'
+          };
+          const targetUrl = redirectMap[redirectTo] || './profile.html';
+          localStorage.setItem('pp_login_next', targetUrl);
+        }
+        
+        // Mostrar mensaje de bienvenida
+        const welcomeBanner = document.getElementById('welcomeBanner');
+        if (welcomeBanner) {
+          welcomeBanner.className = 'welcome-banner';
+          welcomeBanner.innerHTML = '🎉 ¡Registro completado! Inicia sesión para continuar';
+          welcomeBanner.style.display = 'block';
+        }
+      }
+    })();
+
     // Helper "volver" con ?return=
     const getReturnHref = window.__pp_getReturn || function (dft){
       try { const u = new URL(location.href); return u.searchParams.get('return') || dft || './profile.html'; }
@@ -138,7 +192,7 @@
 
     (()=>{
       const e = localStorage.getItem('pp_email');
-      if (e) email.value = e;
+      if (e && !email.value) email.value = e;
     })();
 
     toggle.onclick = ()=>{
