@@ -1,18 +1,21 @@
-
-
-
-octype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Iniciar sesión — PeekPay</title>
+  <title>Mi perfil — PeekPay</title>
   <link rel="icon" href="./favicon.ico">
-  
-  <!-- Cargar env.js y Supabase -->
   <script src="./env.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
+    
+    const supabase = createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon
+    );
+    
+    window.supabaseClient = supabase;
+  </script>
   <style>
     :root{
       --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
@@ -21,361 +24,568 @@ octype html>
       --card:#ffffff;
       --ring:#e2e8f0;
       --accent:#667eea;
-      --indigo:#4f46e5;
       --purple:#764ba2;
+      --green:#10b981;
     }
     *{ box-sizing:border-box; margin:0; padding:0 }
-    body{
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+    body{ 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      padding: 20px;
+    }
+    .container{
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Header mejorado */
+    .header{
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 24px;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
-    .container{ max-width: 450px; width: 100%; }
+    .logo-area{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .logo{
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+    }
+    .brand-text h1{
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 2px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand-text p{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .nav{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .nav-btn{
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .nav-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* Grid Layout */
+    .grid{
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    
+    /* Card */
     .card{
       background: var(--card);
       border: 1px solid var(--ring);
       border-radius: 24px;
-      padding: 40px 32px;
-      box-shadow: 0 20px 60px rgba(102,126,234,0.12);
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(102,126,234,0.08);
     }
-    .logo-area{ text-align:center; margin-bottom: 16px; }
-    .logo{
-      width: 120px;
-      height: auto;
-      display:block;
-      margin: 0 auto 8px;
-      filter: drop-shadow(0 6px 16px rgba(102,126,234,0.20));
+    
+    /* Profile Card */
+    .profile-header{
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
     }
-    h1{ font-size: 26px; font-weight: 900; text-align:center; margin: 4px 0 6px; }
-    .subtitle{ text-align:center; color:var(--muted); font-size: 15px; margin-bottom: 24px; }
-
-    .form-group{ margin-top: 14px; position: relative; }
-    label{ display:block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-    input{
-      width: 100%;
-      padding: 12px 14px;
-      border: 2px solid var(--ring);
+    .avatar{
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      object-fit: cover;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+    }
+    .profile-info{
+      flex: 1;
+    }
+    .profile-name{
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .profile-handle{
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .badges{
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .badge{
+      font-size: 11px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+      border: 1px solid rgba(102,126,234,0.3);
       border-radius: 12px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s;
-      background:#fff;
+      font-weight: 600;
+      color: var(--accent);
     }
-    input:focus{
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+    
+    /* Stats */
+    .stats{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
     }
-
-    .eye-toggle{
-      position: absolute;
-      right: 14px;
-      top: 38px;
-      cursor: pointer;
+    .stat{
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border: 1px solid var(--ring);
+      border-radius: 16px;
+      text-align: center;
+    }
+    .stat-value{
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+    .stat-label{
       font-size: 12px;
       color: var(--muted);
-      user-select: none;
-    }
-
-    .btn{
-      width: 100%;
-      margin-top: 16px;
-      padding: 14px 18px;
-      border: 0;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--indigo), var(--purple));
-      color: #fff;
-      font-weight: 800;
-      font-size: 16px;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(79,70,229,.25);
-      transition: transform .15s, box-shadow .15s;
-    }
-    .btn:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(79,70,229,.3); }
-    .btn:disabled{ opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
-
-    .error{
-      display:none;
-      background:#fee2e2;
-      border:1px solid #fca5a5;
-      color:#991b1b;
-      padding:12px 14px;
-      border-radius:12px;
-      font-size:14px;
-      margin: 10px 0 6px;
-    }
-    .success{
-      display:none;
-      background:#d1fae5;
-      border:1px solid #6ee7b7;
-      color:#065f46;
-      padding:12px 14px;
-      border-radius:12px;
-      font-size:14px;
-      margin: 10px 0 6px;
-    }
-
-    .links{
-      margin-top: 20px;
-      text-align: center;
-      font-size: 14px;
-    }
-    .links a{
-      color: var(--accent);
-      text-decoration: none;
       font-weight: 600;
     }
-    .links a:hover{
-      text-decoration: underline;
+    
+    /* Actions */
+    .actions{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
     }
-    .divider{
-      margin: 20px 0;
+    .btn{
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+    .btn-primary{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+    }
+    .btn-primary:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(102,126,234,0.4);
+    }
+    .btn-secondary{
+      background: white;
+      color: var(--text);
+      border: 2px solid var(--ring);
+    }
+    .btn-secondary:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* Quick Links */
+    .quick-links{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .quick-link{
+      padding: 12px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    .quick-link:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* Hint */
+    .hint{
+      margin-top: 16px;
+      padding: 12px;
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #78350f;
+      line-height: 1.5;
+    }
+    
+    /* Status indicator */
+    .status-indicator{
+      margin-top: 12px;
+      font-size: 12px;
+      text-align: center;
+      padding: 8px;
+      border-radius: 8px;
+    }
+    .status-connected{
+      color: var(--green);
+      background: rgba(16,185,129,0.1);
+    }
+    .status-error{
+      color: #dc2626;
+      background: rgba(220,38,38,0.1);
+    }
+    
+    /* Sections */
+    .section{
+      margin-bottom: 28px;
+    }
+    .section:last-child{
+      margin-bottom: 0;
+    }
+    .section-header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title{
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .section-action{
+      font-size: 13px;
+      padding: 6px 14px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    .section-action:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    
+    /* Empty State */
+    .empty{
+      padding: 32px;
       text-align: center;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 14px;
     }
-
-    @media (max-width:640px){
-      .card{ padding: 28px 22px; }
+    
+    /* Settings */
+    .settings-list{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .setting-item{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+    }
+    .setting-label{
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    @media (max-width: 640px){
+      .card{ padding: 24px 20px; }
+      .stats{ grid-template-columns: 1fr; }
+      .actions{ grid-template-columns: 1fr; }
+      .quick-links{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="card">
-      <div class="logo-area">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-area" onclick="location.href='./index.html'">
         <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
-        <h1>Bienvenido de vuelta</h1>
-        <p class="subtitle">Inicia sesión en tu cuenta</p>
+        <div class="brand-text">
+          <h1>PeekPay</h1>
+          <p>Mi perfil</p>
+        </div>
       </div>
+      <div class="nav">
+        <a href="./index.html" class="nav-btn">Inicio</a>
+        <a href="./creators.html" class="nav-btn">Explorar</a>
+        <a href="./wallet.html" class="nav-btn">Wallet</a>
+        <a href="./settings.html" class="nav-btn">Ajustes</a>
+      </div>
+    </div>
 
-      <div id="errorMsg" class="error"></div>
-      <div id="successMsg" class="success"></div>
-
-      <form id="loginForm" novalidate>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" placeholder="tu@email.com" autocomplete="email" required autofocus>
+    <!-- Grid -->
+    <div class="grid">
+      <!-- Left Column: Profile Card -->
+      <div class="card">
+        <div class="profile-header">
+          <img id="u-avatar" src="./assets/brand/peekpay-mark.svg" alt="Avatar" class="avatar">
+          <div class="profile-info">
+            <div class="profile-name" id="u-name">Cargando...</div>
+            <div class="profile-handle" id="u-handle">@...</div>
+            <div class="badges" id="badges-container">
+              <span class="badge">🎉 Founder</span>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input id="password" name="password" type="password" placeholder="Tu contraseña" autocomplete="current-password" required>
-          <span id="togglePwd" class="eye-toggle">Mostrar</span>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-value" id="stat-credits">0</div>
+            <div class="stat-label">Peak Credits</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-points">0</div>
+            <div class="stat-label">Puntos</div>
+          </div>
         </div>
 
-        <button id="submitBtn" type="submit" class="btn">Iniciar sesión</button>
-      </form>
+        <div class="actions">
+          <a href="./wallet.html" class="btn btn-primary">Wallet</a>
+          <button class="btn btn-secondary" onclick="alert('Mensajería próximamente ✨')">Mensajes</button>
+        </div>
 
-      <div class="links">
-        <a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a>
+        <div class="quick-links">
+          <button class="quick-link" onclick="location.href='./index.html'">Home</button>
+          <button class="quick-link" onclick="location.href='./creators.html'">Creadores</button>
+          <button class="quick-link" onclick="location.href='./categories.html'">Categorías</button>
+          <button class="quick-link" onclick="location.href='./notifications.html'">Notificaciones</button>
+        </div>
+
+        <div class="hint">
+          💡 <strong>Consejo:</strong> Explora creadores y usa tus Peak Credits para desbloquear contenido exclusivo.
+        </div>
+
+        <div id="sbHint" class="status-indicator status-connected">
+          ✅ Conectado
+        </div>
       </div>
 
-      <div class="divider">───────  o  ───────</div>
+      <!-- Right Column: Content -->
+      <div>
+        <!-- Favorites -->
+        <div class="card section">
+          <div class="section-header">
+            <h2 class="section-title">Favoritos recientes</h2>
+            <button class="section-action" onclick="location.href='./creators.html'">Explorar</button>
+          </div>
+          <div id="favEmpty" class="empty">
+            Explora creadores y agrega tus favoritos
+          </div>
+        </div>
 
-      <div class="links">
-        ¿No tienes cuenta? <a href="./signup.html">Crear cuenta</a>
+        <!-- Activity -->
+        <div class="card section">
+          <div class="section-header">
+            <h2 class="section-title">Actividad reciente</h2>
+            <button class="section-action" onclick="location.href='./wallet.html'">Ver wallet</button>
+          </div>
+          <div class="empty">
+            No hay actividad aún
+          </div>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="card section">
+          <div class="section-header">
+            <h2 class="section-title">Privacidad</h2>
+            <button class="section-action" onclick="location.href='./settings.html'">Ajustes</button>
+          </div>
+          <div class="settings-list">
+            <label class="setting-item" style="cursor: pointer;">
+              <span class="setting-label">Perfil público</span>
+              <input type="checkbox" id="p_public">
+            </label>
+            <label class="setting-item" style="cursor: pointer;">
+              <span class="setting-label">Mostrar @handle</span>
+              <input type="checkbox" id="p_handle" checked>
+            </label>
+            <label class="setting-item" style="cursor: pointer;">
+              <span class="setting-label">Permitir mensajes</span>
+              <input type="checkbox" id="p_msgs" checked>
+            </label>
+          </div>
+        </div>
+
+        <!-- Account Actions -->
+        <div class="card section">
+          <div class="section-header">
+            <h2 class="section-title">Cuenta</h2>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btnResetPwd">Cambiar contraseña</button>
+            <button class="btn btn-secondary" id="btnSignout">Cerrar sesión</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <script>
-    // Inicializar Supabase
-    let supabase = null;
+  <script type="module">
+    const $ = s => document.querySelector(s);
     
-    try {
-      if (window.PP_ENV && window.PP_ENV.sb_url && window.PP_ENV.sb_anon) {
-        supabase = window.supabase.createClient(
-          window.PP_ENV.sb_url,
-          window.PP_ENV.sb_anon
-        );
-        console.log('✅ Supabase inicializado');
-      } else {
-        console.error('❌ PP_ENV no está configurado');
+    async function waitForSupabase() {
+      let attempts = 0;
+      while (!window.supabaseClient && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
       }
-    } catch (err) {
-      console.error('❌ Error inicializando Supabase:', err);
+      return window.supabaseClient;
     }
 
-    const form = document.getElementById('loginForm');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const submitBtn = document.getElementById('submitBtn');
-    const errorMsg = document.getElementById('errorMsg');
-    const successMsg = document.getElementById('successMsg');
-    const forgotLink = document.getElementById('forgotLink');
-    const togglePwd = document.getElementById('togglePwd');
-
-    function showError(msg){
-      errorMsg.textContent = msg;
-      errorMsg.style.display = 'block';
-      successMsg.style.display = 'none';
-    }
-    
-    function showSuccess(msg){
-      successMsg.textContent = msg;
-      successMsg.style.display = 'block';
-      errorMsg.style.display = 'none';
-    }
-    
-    function hideMessages(){ 
-      errorMsg.style.display = 'none';
-      successMsg.style.display = 'none';
-    }
-
-    // Toggle password visibility
-    togglePwd.addEventListener('click', () => {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      togglePwd.textContent = type === 'password' ? 'Mostrar' : 'Ocultar';
-    });
-
-    // Login
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideMessages();
-
-      if (!supabase) {
-        showError('Error de configuración. Contacta soporte.');
+    async function loadProfile(){
+      const sbHint = $('#sbHint');
+      const sb = await waitForSupabase();
+      
+      if (!sb){ 
+        sbHint.textContent = '⚠️ Error de conexión';
+        sbHint.className = 'status-indicator status-error';
         return;
       }
-
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      if (!email || !password) {
-        showError('Por favor completa todos los campos.');
-        return;
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        showError('Email inválido.');
-        return;
-      }
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Iniciando sesión...';
 
       try {
-        // Sign in
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.toLowerCase(),
-          password: password
-        });
-
-        if (error) {
-          console.error('Login error:', error);
-          
-          if (error.message.includes('Invalid login credentials')) {
-            throw new Error('Email o contraseña incorrectos.');
-          }
-          if (error.message.includes('Email not confirmed')) {
-            throw new Error('Confirma tu email antes de iniciar sesión.');
-          }
-          
-          throw new Error(error.message || 'Error al iniciar sesión.');
-        }
-
-        if (!data.user) {
-          throw new Error('Error al iniciar sesión.');
-        }
-
-        console.log('✅ Login exitoso:', data.user.email);
+        const { data: { user }, error: userError } = await sb.auth.getUser();
         
-        // Guardar email
-        try {
-          localStorage.setItem('pp_email', data.user.email);
-        } catch {}
+        if (userError || !user) {
+          sbHint.textContent = '⚠️ No has iniciado sesión';
+          sbHint.className = 'status-indicator status-error';
+          console.error('Auth error:', userError);
+          
+          setTimeout(() => {
+            window.location.href = './auth-login.html';
+          }, 2000);
+          return;
+        }
 
-        showSuccess('¡Sesión iniciada! Redirigiendo...');
-
-        // Verificar tipo de usuario y redirigir
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await sb
           .from('profiles')
-          .select('is_creator, early_access')
-          .eq('id', data.user.id)
+          .select('*')
+          .eq('id', user.id)
           .single();
 
-        setTimeout(() => {
-          if (profile?.is_creator) {
-            window.location.href = './creator-dashboard.html';
-          } else {
-            window.location.href = './profile.html';
-          }
-        }, 800);
-
-      } catch (err) {
-        console.error('❌ Login error:', err);
-        showError(err.message || 'Error al iniciar sesión. Intenta nuevamente.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Iniciar sesión';
-      }
-    });
-
-    // Forgot password
-    forgotLink.addEventListener('click', async (e) => {
-      e.preventDefault();
-      
-      if (!supabase) {
-        showError('Error de configuración.');
-        return;
-      }
-      
-      const email = emailInput.value.trim();
-      if (!email) {
-        showError('Por favor ingresa tu email primero.');
-        return;
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        showError('Email inválido.');
-        return;
-      }
-
-      try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email.toLowerCase(), {
-          redirectTo: window.location.origin + '/reset-password.html'
-        });
-        
-        if (error) throw error;
-        
-        showSuccess('✅ Te enviamos un email con instrucciones para recuperar tu contraseña.');
-      } catch (err) {
-        console.error('Reset password error:', err);
-        showError('Error al enviar email. Intenta nuevamente.');
-      }
-    });
-
-    // Check si ya tiene sesión activa
-    (async function checkSession() {
-      if (!supabase) return;
-      
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          console.log('✅ Ya tiene sesión activa, redirigiendo...');
-          window.location.href = './profile.html';
+        if (profileError) {
+          console.error('Profile error:', profileError);
+          sbHint.textContent = '⚠️ Error al cargar perfil';
+          sbHint.className = 'status-indicator status-error';
+          return;
         }
-      } catch (err) {
-        console.error('Check session error:', err);
-      }
-    })();
 
-    // Prefill email si está guardado
-    (function prefillEmail() {
-      try {
-        const savedEmail = localStorage.getItem('pp_email');
-        if (savedEmail) {
-          emailInput.value = savedEmail;
-          passwordInput.focus();
+        console.log('✅ Profile loaded:', profile);
+        sbHint.textContent = '✅ Conectado';
+        sbHint.className = 'status-indicator status-connected';
+
+        $('#u-name').textContent = profile.display_name || profile.email?.split('@')[0] || 'Usuario';
+        $('#u-handle').textContent = '@' + (profile.handle || 'usuario');
+        $('#stat-credits').textContent = (profile.credits || 0).toLocaleString();
+        $('#stat-points').textContent = '0';
+
+        if (profile.avatar_url) {
+          $('#u-avatar').src = profile.avatar_url;
         }
-      } catch {}
+
+        const badgesContainer = $('#badges-container');
+        badgesContainer.innerHTML = '';
+        
+        if (profile.early_access) {
+          badgesContainer.innerHTML += '<span class="badge">🎉 Founder</span>';
+        }
+        if (profile.is_creator) {
+          badgesContainer.innerHTML += '<span class="badge">⭐ Creador</span>';
+        }
+        
+        const country = profile.country || profile.location;
+        if (country) {
+          badgesContainer.innerHTML += `<span class="badge">${country}</span>`;
+        }
+
+      } catch (err) {
+        console.error('Load profile error:', err);
+        sbHint.textContent = '⚠️ Error: ' + err.message;
+        sbHint.className = 'status-indicator status-error';
+      }
+    }
+
+    function setupSecurityActions(){
+      $('#btnResetPwd').onclick = async () => {
+        const sb = await waitForSupabase();
+        if (!sb) return alert('Error de conexión');
+        
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user){ 
+          alert('Inicia sesión primero'); 
+          return; 
+        }
+        
+        try{
+          await sb.auth.resetPasswordForEmail(user.email);
+          alert('✅ Te enviamos un enlace para cambiar tu contraseña');
+        }catch(e){
+          alert('❌ ' + (e.message || 'Error al enviar email'));
+        }
+      };
+
+      $('#btnSignout').onclick = async () => {
+        const sb = await waitForSupabase();
+        if (sb) {
+          try{
+            await sb.auth.signOut();
+          }catch{}
+        }
+        window.location.href = './index.html';
+      };
+    }
+
+    (async function init(){
+      await loadProfile();
+      setupSecurityActions();
     })();
   </script>
 </body>
