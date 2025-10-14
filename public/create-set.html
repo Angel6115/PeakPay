@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Crear set (demo) — PeekPay</title>
+  <link rel="icon" href="./favicon.ico">
+  <style>
+    :root{ --bg:#eef2ff; --bg2:#e0e7ff; --card:#fff; --ring:#e5e7eb; --text:#0f172a; --muted:#64748b; --indigo:#667eea; --purple:#764ba2; --ok:#10b981}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;color:var(--text);
+         background:linear-gradient(135deg,var(--bg),var(--bg2)); min-height:100vh; padding:24px}
+    .wrap{max-width:920px;margin:0 auto}
+    .card{background:var(--card);border:1px solid var(--ring);border-radius:18px;padding:18px;box-shadow:0 12px 40px rgba(102,126,234,.12)}
+    .h{font-weight:900;font-size:20px;margin-bottom:10px}
+    .muted{color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:820px){ .grid{grid-template-columns:1fr} }
+    .fld label{display:block;font-size:12px;color:#334155;font-weight:700;margin-bottom:6px}
+    .fld input,.fld textarea,.fld select{width:100%;padding:10px;border:1px solid var(--ring);border-radius:10px}
+    .fld textarea{min-height:96px;resize:vertical}
+    .btn{appearance:none;border:0;border-radius:10px;background:linear-gradient(135deg,var(--indigo),var(--purple));color:#fff;
+         font-weight:800;padding:10px 14px;cursor:pointer;box-shadow:0 10px 24px rgba(102,126,234,.25)}
+    .btn.secondary{background:#fff;color:#111827;border:1px solid var(--ring)}
+    .thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+    .ph{border:1px dashed var(--ring);border-radius:12px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;color:#64748b}
+    .item{position:relative;border:1px solid var(--ring);border-radius:12px;overflow:hidden}
+    .item img,.item video{width:100%;height:100%;object-fit:cover;display:block}
+    .tag{position:absolute;top:6px;left:6px;background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;font-size:10px;font-weight:900;border-radius:999px;padding:3px 6px}
+    .ok{color:var(--ok);font-weight:800}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" style="height:28px">
+        <span class="muted">Crear set (demo)</span>
+      </div>
+      <a href="./creator-dashboard.html" class="btn secondary">Volver</a>
+    </div>
+
+    <div class="card">
+      <div class="h">Información del set</div>
+      <div class="grid">
+        <div class="fld"><label>Título</label><input id="title" placeholder="Ej. Cosplay Sakura — Set de otoño"/></div>
+        <div class="fld">
+          <label>Categoría</label>
+          <select id="cat">
+            <option value="arte">Arte</option>
+            <option value="artistico">Artístico</option>
+            <option value="cosplay">Cosplay</option>
+            <option value="fitness">Fitness</option>
+            <option value="lenceria">Lencería</option>
+          </select>
+        </div>
+        <div class="fld"><label>Precio (USD)</label><input id="price" type="number" min="1" step="0.5" value="5"/></div>
+        <div class="fld"><label>Descripción</label><textarea id="desc" placeholder="Breve descripción del set..."></textarea></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="h">Medios (sube mínimo 15 — 3 serán previews)</div>
+      <div class="muted" style="margin-bottom:10px">Formatos: JPG/PNG/MP4. Las primeras 3 miniaturas se marcan como <span class="ok">Preview</span>.</div>
+      <input id="files" type="file" multiple accept="image/*,video/*" />
+      <div id="grid" class="thumbs" style="margin-top:10px">
+        <div class="ph">Sube tus archivos</div>
+      </div>
+      <div id="errors" class="muted" style="margin-top:10px;color:#b91c1c"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button class="btn secondary" id="saveDraft">Guardar borrador</button>
+      <button class="btn" id="publish">Publicar demo</button>
+    </div>
+  </div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const inp  = document.getElementById('files');
+    const errs = document.getElementById('errors');
+
+    function render(list){
+      grid.innerHTML = '';
+      if(!list.length){
+        grid.innerHTML = '<div class="ph">Sube tus archivos</div>'; return;
+      }
+      list.forEach((f,i)=>{
+        const url = URL.createObjectURL(f);
+        const box = document.createElement('div');
+        box.className = 'item';
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = (i<3) ? 'Preview' : 'Bloqueado';
+        box.appendChild(tag);
+
+        if(f.type.startsWith('video/')){
+          const v = document.createElement('video'); v.src = url; v.muted = true; v.playsInline = true;
+          box.appendChild(v);
+        }else{
+          const img = document.createElement('img'); img.src = url; box.appendChild(img);
+        }
+        grid.appendChild(box);
+      });
+    }
+
+    let files = [];
+    inp.addEventListener('change', (e)=>{
+      files = Array.from(e.target.files || []);
+      render(files);
+      errs.textContent = '';
+    });
+
+    function save(status){ // status: 'draft' | 'published'
+      const data = {
+        title: document.getElementById('title').value.trim(),
+        cat: document.getElementById('cat').value,
+        price: Number(document.getElementById('price').value||0),
+        desc: document.getElementById('desc').value.trim(),
+        count: files.length,
+        previews: Math.min(files.length,3),
+        status, ts: Date.now()
+      };
+      localStorage.setItem('pp_last_set', JSON.stringify(data));
+      if(status==='published'){
+        localStorage.setItem('pp_demo_done','true');
+        alert('¡Demo publicado localmente! (mock)');
+        location.href = './creator-dashboard.html';
+      }else{
+        alert('Borrador guardado localmente.');
+      }
+    }
+    document.getElementById('saveDraft').addEventListener('click', ()=> save('draft'));
+    document.getElementById('publish').addEventListener('click', ()=>{
+      const title = document.getElementById('title').value.trim();
+      errs.textContent='';
+      const problems=[];
+      if(!title) problems.push('• Agrega un título.');
+      if(files.length<15) problems.push(`• Sube al menos 15 archivos (llevas ${files.length}).`);
+      if(problems.length){ errs.textContent = problems.join(' '); return; }
+      save('published');
+    });
+  </script>
+</body>
+</html>

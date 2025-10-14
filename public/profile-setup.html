@@ -10,317 +10,99 @@
   <style>
     :root{
       --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-      --text:#0f172a;
-      --muted:#64748b;
-      --card:#ffffff;
-      --ring:#e2e8f0;
-      --accent:#667eea;
-      --purple:#764ba2;
-      --green:#10b981;
+      --text:#0f172a; --muted:#64748b; --card:#ffffff; --ring:#e2e8f0;
+      --accent:#667eea; --purple:#764ba2; --green:#10b981;
     }
     *{ box-sizing:border-box; margin:0; padding:0 }
-    body{ 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 20px;
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      background:var(--bg); color:var(--text); min-height:100vh; padding:20px;
     }
-    .container{
-      max-width: 700px;
-      margin: 0 auto;
-      padding-top: 40px;
-    }
-    .header{
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    .logo{
-      width: 60px;
-      height: 60px;
-      border-radius: 16px;
-      margin: 0 auto 16px;
-      box-shadow: 0 8px 20px rgba(102,126,234,0.15);
-    }
+    .container{ max-width:700px; margin:0 auto; padding-top:40px }
+    .header{ text-align:center; margin-bottom:40px }
+    .logo{ width:60px; height:60px; border-radius:16px; margin:0 auto 16px; box-shadow:0 8px 20px rgba(102,126,234,.15) }
     h1{
-      font-size: 32px;
-      font-weight: 900;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size:32px; font-weight:900; margin-bottom:12px;
+      background:linear-gradient(135deg,var(--accent),var(--purple));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
     }
-    .subtitle{
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    .progress{
-      display: flex;
-      gap: 8px;
-      margin-bottom: 30px;
-      justify-content: center;
-    }
-    .progress-dot{
-      width: 40px;
-      height: 6px;
-      background: var(--ring);
-      border-radius: 3px;
-      transition: all 0.3s;
-    }
-    .progress-dot.active{
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-    }
-    .card{
-      background: var(--card);
-      border: 1px solid var(--ring);
-      border-radius: 24px;
-      padding: 40px;
-      box-shadow: 0 20px 60px rgba(102,126,234,0.12);
-    }
-    .step{
-      display: none;
-    }
-    .step.active{
-      display: block;
-      animation: fadeIn 0.5s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .step h2{
-      font-size: 24px;
-      margin-bottom: 12px;
-      font-weight: 800;
-    }
-    .step-subtitle{
-      color: var(--muted);
-      font-size: 15px;
-      margin-bottom: 28px;
-      line-height: 1.6;
-    }
-    .form-group{
-      margin-bottom: 24px;
-    }
-    label{
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--text);
-    }
+    .subtitle{ color:var(--muted); font-size:16px; line-height:1.6 }
+    .progress{ display:flex; gap:8px; margin-bottom:30px; justify-content:center }
+    .progress-dot{ width:40px; height:6px; background:var(--ring); border-radius:3px; transition:all .3s }
+    .progress-dot.active{ background:linear-gradient(135deg,var(--accent),var(--purple)) }
+    .card{ background:var(--card); border:1px solid var(--ring); border-radius:24px; padding:40px; box-shadow:0 20px 60px rgba(102,126,234,.12) }
+    .step{ display:none } .step.active{ display:block; animation:fadeIn .5s ease-out }
+    @keyframes fadeIn{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .step h2{ font-size:24px; margin-bottom:12px; font-weight:800 }
+    .step-subtitle{ color:var(--muted); font-size:15px; margin-bottom:28px; line-height:1.6 }
+    .form-group{ margin-bottom:24px }
+    label{ display:block; font-size:14px; font-weight:600; margin-bottom:8px; color:var(--text) }
     input[type="text"]{
-      width: 100%;
-      padding: 14px 16px;
-      border: 2px solid var(--ring);
-      border-radius: 12px;
-      font-size: 16px;
-      transition: all 0.3s;
-      outline: none;
+      width:100%; padding:14px 16px; border:2px solid var(--ring); border-radius:12px; font-size:16px; transition:all .3s; outline:none;
     }
-    input[type="text"]:focus{
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-    }
-    .hint{
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
+    input[type="text"]:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(102,126,234,.1) }
+    .hint{ font-size:13px; color:var(--muted); margin-top:6px }
     .avatar-section{
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
-      border-radius: 16px;
-      margin-bottom: 24px;
+      display:flex; align-items:center; gap:20px; padding:20px;
+      background:linear-gradient(135deg,rgba(102,126,234,.05),rgba(118,75,162,.05));
+      border-radius:16px; margin-bottom:24px;
     }
-    .avatar-preview{
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 3px solid white;
-      object-fit: cover;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .avatar-upload{
-      flex: 1;
-    }
-    .file-input-wrapper{
-      position: relative;
-      display: inline-block;
-    }
-    input[type="file"]{
-      position: absolute;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-    }
-    .file-btn{
-      display: inline-block;
-      padding: 10px 20px;
-      background: white;
-      border: 2px solid var(--ring);
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .file-btn:hover{
-      border-color: var(--accent);
-      background: rgba(102,126,234,0.05);
-    }
-    .categories-grid{
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .category-card{
-      padding: 16px;
-      border: 2px solid var(--ring);
-      border-radius: 16px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-    }
-    .category-card:hover{
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102,126,234,0.15);
-    }
-    .category-card.selected{
-      border-color: var(--accent);
-      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
-    }
-    .category-icon{
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-    .category-name{
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .actions{
-      display: flex;
-      gap: 12px;
-      margin-top: 32px;
-    }
-    .btn{
-      flex: 1;
-      padding: 16px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn-secondary{
-      background: white;
-      color: var(--text);
-      border: 2px solid var(--ring);
-    }
-    .btn-secondary:hover{
-      border-color: var(--accent);
-      background: rgba(102,126,234,0.05);
-    }
-    .btn-primary{
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      color: white;
-      box-shadow: 0 8px 20px rgba(102,126,234,0.3);
-    }
-    .btn-primary:hover{
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(102,126,234,0.4);
-    }
-    .btn-primary:disabled{
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .error{
-      background: #fee2e2;
-      border: 1px solid #fca5a5;
-      color: #991b1b;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 14px;
-      margin-bottom: 20px;
-      display: none;
-    }
-    .skip-link{
-      text-align: center;
-      margin-top: 16px;
-    }
-    .skip-link a{
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .skip-link a:hover{
-      color: var(--accent);
-      text-decoration: underline;
-    }
-    @media (max-width: 640px){
-      .card{ padding: 30px 24px; }
-      h1{ font-size: 28px; }
-      .categories-grid{ grid-template-columns: repeat(2, 1fr); }
-    }
+    .avatar-preview{ width:80px; height:80px; border-radius:50%; border:3px solid #fff; object-fit:cover; box-shadow:0 4px 12px rgba(0,0,0,.1) }
+    .avatar-upload{ flex:1 }
+    .file-input-wrapper{ position:relative; display:inline-block }
+    input[type="file"]{ position:absolute; opacity:0; width:100%; height:100%; cursor:pointer }
+    .file-btn{ display:inline-block; padding:10px 20px; background:#fff; border:2px solid var(--ring); border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:all .3s }
+    .file-btn:hover{ border-color:var(--accent); background:rgba(102,126,234,.05) }
+    .categories-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:24px }
+    .category-card{ padding:16px; border:2px solid var(--ring); border-radius:16px; background:#fff; cursor:pointer; transition:all .3s; text-align:center }
+    .category-card:hover{ border-color:var(--accent); transform:translateY(-2px); box-shadow:0 4px 12px rgba(102,126,234,.15) }
+    .category-card.selected{ border-color:var(--accent); background:linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.1)) }
+    .category-icon{ font-size:32px; margin-bottom:8px } .category-name{ font-size:14px; font-weight:600 }
+    .actions{ display:flex; gap:12px; margin-top:32px }
+    .btn{ flex:1; padding:16px; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; transition:all .3s }
+    .btn-secondary{ background:#fff; color:var(--text); border:2px solid var(--ring) }
+    .btn-secondary:hover{ border-color:var(--accent); background:rgba(102,126,234,.05) }
+    .btn-primary{ background:linear-gradient(135deg,var(--accent),var(--purple)); color:#fff; box-shadow:0 8px 20px rgba(102,126,234,.3) }
+    .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(102,126,234,.4) }
+    .btn-primary:disabled{ opacity:.6; cursor:not-allowed; transform:none }
+    .error{ background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:12px 16px; border-radius:12px; font-size:14px; margin-bottom:20px; display:none }
+    .skip-link{ text-align:center; margin-top:16px } .skip-link a{ color:var(--muted); text-decoration:none; font-size:14px }
+    .skip-link a:hover{ color:var(--accent); text-decoration:underline }
+    @media (max-width:640px){ .card{padding:30px 24px} h1{font-size:28px} .categories-grid{grid-template-columns:repeat(2,1fr)} }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <img src="peak1.png" alt="PeekPay" class="logo">
-      <h1>Completa tu perfil</h1>
-      <p class="subtitle">Solo te tomará un minuto configurar tu cuenta</p>
+      <h1 id="title">Completa tu perfil</h1>
+      <p id="subtitle" class="subtitle">Solo te tomará un minuto configurar tu cuenta</p>
     </div>
 
     <div class="progress" id="progressBar">
-      <div class="progress-dot active"></div>
-      <div class="progress-dot"></div>
-      <div class="progress-dot"></div>
+      <div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div>
     </div>
 
     <div class="card">
       <div id="errorMsg" class="error"></div>
 
-      <!-- Step 1: Handle/Alias -->
+      <!-- Step 1 -->
       <div class="step active" id="step1">
         <h2>Elige tu alias</h2>
         <p class="step-subtitle">Este será tu identificador único en PeekPay. Podrás cambiarlo después.</p>
-        
         <div class="form-group">
           <label for="handle">Tu alias (sin @)</label>
-          <input 
-            type="text" 
-            id="handle" 
-            placeholder="ejemplo: maria_creator"
-            maxlength="30"
-          >
+          <input type="text" id="handle" placeholder="ejemplo: maria_creator" maxlength="30">
           <p class="hint">Solo letras, números, guiones y guiones bajos. Entre 3-30 caracteres.</p>
         </div>
-
-        <div class="actions">
-          <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
-        </div>
-        <div class="skip-link">
-          <a href="#" onclick="skipToEnd(); return false;">Saltar y completar después</a>
-        </div>
+        <div class="actions"><button class="btn btn-primary" onclick="nextStep()">Continuar</button></div>
+        <div class="skip-link"><a href="#" onclick="skipToEnd();return false;">Saltar y completar después</a></div>
       </div>
 
-      <!-- Step 2: Avatar -->
+      <!-- Step 2 -->
       <div class="step" id="step2">
         <h2>Agrega tu foto</h2>
         <p class="step-subtitle">Sube una imagen de perfil (opcional)</p>
-
         <div class="avatar-section">
           <img id="avatarPreview" src="./peak1.png" alt="Avatar" class="avatar-preview">
           <div class="avatar-upload">
@@ -328,250 +110,225 @@
               <div class="file-btn">Subir imagen</div>
               <input type="file" id="avatarInput" accept="image/*">
             </div>
-            <p class="hint" style="margin-top: 8px;">JPG, PNG o GIF. Máx 5MB</p>
+            <p class="hint" style="margin-top:8px">JPG, PNG o GIF. Máx 5MB</p>
           </div>
         </div>
-
         <div class="actions">
           <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
           <button class="btn btn-primary" onclick="nextStep()">Continuar</button>
         </div>
       </div>
 
-      <!-- Step 3: Categories -->
+      <!-- Step 3 -->
       <div class="step" id="step3">
-        <h2>¿Qué te interesa?</h2>
-        <p class="step-subtitle">Selecciona al menos 2 categorías que te gusten</p>
+        <h2 id="catsTitle">¿Qué te interesa?</h2>
+        <p id="catsSubtitle" class="step-subtitle">Selecciona al menos 2 categorías que te gusten</p>
 
         <div class="categories-grid" id="categoriesGrid">
-          <div class="category-card" data-category="cosplay">
-            <div class="category-icon">🎭</div>
-            <div class="category-name">Cosplay</div>
-          </div>
-          <div class="category-card" data-category="fitness">
-            <div class="category-icon">💪</div>
-            <div class="category-name">Fitness</div>
-          </div>
-          <div class="category-card" data-category="arte">
-            <div class="category-icon">🎨</div>
-            <div class="category-name">Arte</div>
-          </div>
-          <div class="category-card" data-category="fotografia">
-            <div class="category-icon">📸</div>
-            <div class="category-name">Fotografía</div>
-          </div>
-          <div class="category-card" data-category="moda">
-            <div class="category-icon">👗</div>
-            <div class="category-name">Moda</div>
-          </div>
-          <div class="category-card" data-category="gaming">
-            <div class="category-icon">🎮</div>
-            <div class="category-name">Gaming</div>
-          </div>
+          <div class="category-card" data-category="cosplay"><div class="category-icon">🎭</div><div class="category-name">Cosplay</div></div>
+          <div class="category-card" data-category="fitness"><div class="category-icon">💪</div><div class="category-name">Fitness</div></div>
+          <div class="category-card" data-category="arte"><div class="category-icon">🎨</div><div class="category-name">Arte</div></div>
+          <div class="category-card" data-category="fotografia"><div class="category-icon">📸</div><div class="category-name">Fotografía</div></div>
+          <div class="category-card" data-category="moda"><div class="category-icon">👗</div><div class="category-name">Moda</div></div>
+          <div class="category-card" data-category="gaming"><div class="category-icon">🎮</div><div class="category-name">Gaming</div></div>
         </div>
 
         <div class="actions">
           <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
-          <button class="btn btn-primary" id="finishBtn" onclick="finishSetup()" disabled>
-            Finalizar
-          </button>
+          <button class="btn btn-primary" id="finishBtn" onclick="finishSetup()" disabled>Finalizar</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    // ===== entorno (prefijo /public en local) =====
+    const isLocal = ['localhost','127.0.0.1'].includes(location.hostname);
+    const PATH_PREFIX = isLocal ? '/public' : '';
+
     const sb = window.supabaseClient || null;
     let currentStep = 1;
     let selectedCategories = new Set();
     let avatarFile = null;
 
-    // Progress dots
-    function updateProgress() {
-      const dots = document.querySelectorAll('.progress-dot');
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i < currentStep);
-      });
-    }
+    // ---- Params & rol ----
+    const params = new URLSearchParams(location.search);
+    const roleParam   = (params.get('role')   || '').toLowerCase();
+    const emailParam  = params.get('email') || '';
+    const handleParam = (params.get('handle')|| '').toLowerCase();
 
-    // Navigation
-    function nextStep() {
+    function getDraftRole(){
+      try{ return (JSON.parse(localStorage.getItem('creatorDraft')||'{}').role||'').toLowerCase(); }
+      catch(_){ return ''; }
+    }
+    function resolveRole(){
+      const r = (roleParam || getDraftRole() || localStorage.getItem('pp_role') || '').toLowerCase();
+      return r === 'creator' ? 'creator' : 'user';
+    }
+    const ROLE = resolveRole();
+    try{ localStorage.setItem('pp_role', ROLE); }catch(_){}
+
+    // ---- Copy por rol ----
+    (function initCopy(){
+      if (ROLE !== 'creator') return;
+      document.getElementById('title').textContent = 'Completa tu perfil de Creador';
+      document.getElementById('subtitle').textContent = 'Prepara tu cuenta para el Soft Launch (Q1 2025).';
+      document.getElementById('catsTitle').textContent = '¿Qué publicarás primero?';
+      document.getElementById('catsSubtitle').textContent = 'Selecciona al menos 2 categorías relacionadas a tu contenido';
+    })();
+
+    // ---- Prefill handle ----
+    (function prefillHandle(){
+      const input = document.getElementById('handle');
+      if (handleParam){ input.value = handleParam.replace(/\s+/g,'-').replace(/[^\w-]/g,'').slice(0,30); return; }
+      try{
+        const draft = JSON.parse(localStorage.getItem('creatorDraft')||'{}');
+        if (draft.handle) input.value = (draft.handle||'').slice(0,30);
+      }catch(_){}
+    })();
+
+    // ---- UI helpers ----
+    function updateProgress(){ document.querySelectorAll('.progress-dot').forEach((d,i)=>d.classList.toggle('active', i < currentStep)); }
+    function nextStep(){
       hideError();
-
-      // Validate current step
-      if (currentStep === 1) {
-        const handle = document.getElementById('handle').value.trim();
-        if (!validateHandle(handle)) {
-          showError('Por favor ingresa un alias válido (3-30 caracteres, solo letras, números, - y _)');
-          return;
-        }
+      if (currentStep === 1){
+        const h = document.getElementById('handle').value.trim();
+        if (!/^[a-zA-Z0-9_-]{3,30}$/.test(h)){ showError('Por favor ingresa un alias válido (3-30 caracteres, solo letras, números, - y _)'); return; }
       }
-
-      // Hide current, show next
       document.getElementById(`step${currentStep}`).classList.remove('active');
-      currentStep++;
-      document.getElementById(`step${currentStep}`).classList.add('active');
-      updateProgress();
+      currentStep++; document.getElementById(`step${currentStep}`).classList.add('active'); updateProgress();
     }
+    function prevStep(){ document.getElementById(`step${currentStep}`).classList.remove('active'); currentStep--; document.getElementById(`step${currentStep}`).classList.add('active'); updateProgress(); }
+    function showError(m){ const el = document.getElementById('errorMsg'); el.textContent = m; el.style.display='block'; }
+    function hideError(){ document.getElementById('errorMsg').style.display='none'; }
 
-    function prevStep() {
-      document.getElementById(`step${currentStep}`).classList.remove('active');
-      currentStep--;
-      document.getElementById(`step${currentStep}`).classList.add('active');
-      updateProgress();
-    }
-
-    // Validation
-    function validateHandle(handle) {
-      const regex = /^[a-zA-Z0-9_-]{3,30}$/;
-      return regex.test(handle);
-    }
-
-    // Error handling
-    function showError(msg) {
-      const errorMsg = document.getElementById('errorMsg');
-      errorMsg.textContent = msg;
-      errorMsg.style.display = 'block';
-    }
-
-    function hideError() {
-      document.getElementById('errorMsg').style.display = 'none';
-    }
-
-    // Avatar upload
-    document.getElementById('avatarInput').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      if (file.size > 5 * 1024 * 1024) {
-        showError('La imagen debe ser menor a 5MB');
-        return;
-      }
-
-      avatarFile = file;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        document.getElementById('avatarPreview').src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    // ---- Avatar ----
+    document.getElementById('avatarInput').addEventListener('change', e=>{
+      const f = e.target.files[0]; if (!f) return;
+      if (f.size > 5*1024*1024){ showError('La imagen debe ser menor a 5MB'); return; }
+      avatarFile = f; const r = new FileReader(); r.onload = ev => document.getElementById('avatarPreview').src = ev.target.result; r.readAsDataURL(f);
     });
 
-    // Categories
-    document.getElementById('categoriesGrid').addEventListener('click', (e) => {
-      const card = e.target.closest('.category-card');
-      if (!card) return;
-
-      const category = card.dataset.category;
-      
-      if (selectedCategories.has(category)) {
-        selectedCategories.delete(category);
-        card.classList.remove('selected');
-      } else {
-        selectedCategories.add(category);
-        card.classList.add('selected');
-      }
-
-      // Enable finish button if at least 2 selected
+    // ---- Categorías ----
+    document.getElementById('categoriesGrid').addEventListener('click', e=>{
+      const card = e.target.closest('.category-card'); if (!card) return;
+      const cat = card.dataset.category;
+      if (selectedCategories.has(cat)){ selectedCategories.delete(cat); card.classList.remove('selected'); }
+      else { selectedCategories.add(cat); card.classList.add('selected'); }
       document.getElementById('finishBtn').disabled = selectedCategories.size < 2;
     });
 
-    // Finish setup
-    async function finishSetup() {
-      hideError();
+    // ---- Redirección por rol (usa PATH_PREFIX) ----
+    function redirectAfterSetup(data){
+      const email  = (data.email  || emailParam || '').trim();
+      const handle = (data.handle || '').trim();
 
-      const handle = document.getElementById('handle').value.trim();
-      const finishBtn = document.getElementById('finishBtn');
-
-      finishBtn.disabled = true;
-      finishBtn.textContent = 'Guardando...';
-
-      try {
-        if (!sb) {
-          // Sin Supabase - guardar en localStorage
-          localStorage.setItem('pp_onboarding_complete', 'true');
-          localStorage.setItem('pp_handle', handle);
-          localStorage.setItem('pp_categories', JSON.stringify([...selectedCategories]));
-          window.location.href = './profile.html';
-          return;
-        }
-
-        // Con Supabase - actualizar perfil
-        const { data: { session } } = await sb.auth.getSession();
-        if (!session) {
-          showError('Sesión no encontrada. Por favor inicia sesión de nuevo.');
-          finishBtn.disabled = false;
-          finishBtn.textContent = 'Finalizar';
-          return;
-        }
-
-        // Upload avatar si existe
-        let avatarUrl = null;
-        if (avatarFile) {
-          const fileExt = avatarFile.name.split('.').pop();
-          const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
-          const { data: uploadData, error: uploadError } = await sb.storage
-            .from('avatars')
-            .upload(fileName, avatarFile);
-
-          if (!uploadError) {
-            const { data: { publicUrl } } = sb.storage
-              .from('avatars')
-              .getPublicUrl(fileName);
-            avatarUrl = publicUrl;
-          }
-        }
-
-        // Update profile
-        const updates = {
-          id: session.user.id,
-          handle: handle,
-          avatar_url: avatarUrl,
-          updated_at: new Date().toISOString()
-        };
-
-        const { error: profileError } = await sb
-          .from('profiles')
-          .upsert(updates);
-
-        if (profileError) throw profileError;
-
-        // Save favorite categories
-        if (selectedCategories.size > 0) {
-          const categoryInserts = [...selectedCategories].map(cat => ({
-            user_id: session.user.id,
-            category_slug: cat
-          }));
-
-          await sb
-            .from('user_favorite_categories')
-            .upsert(categoryInserts);
-        }
-
-        // Mark onboarding complete
-        localStorage.setItem('pp_onboarding_complete', 'true');
-
-        // Redirect to profile
-        window.location.href = './profile.html';
-
-      } catch (error) {
-        console.error('Error saving profile:', error);
-        showError(error.message || 'Error al guardar. Intenta de nuevo.');
-        finishBtn.disabled = false;
-        finishBtn.textContent = 'Finalizar';
+      if (ROLE === 'creator'){
+        const url = new URL(`${PATH_PREFIX}/creator-dashboard.html`, location.origin);
+        if (email)  url.searchParams.set('email', email);
+        if (handle) url.searchParams.set('handle', handle);
+        url.searchParams.set('welcome','1');
+        location.href = url.toString();
+      } else {
+        const url = new URL(`${PATH_PREFIX}/profile.html`, location.origin);
+        if (email) url.searchParams.set('email', email);
+        url.searchParams.set('welcome','1');
+        location.href = url.toString();
       }
     }
 
-    // Skip to end
-    function skipToEnd() {
-      localStorage.setItem('pp_onboarding_complete', 'true');
-      window.location.href = './profile.html';
+    // ---- API auxiliar para upsert creators (no bloqueante) ----
+    async function upsertCreatorServer(payload){
+      try{
+        const base = isLocal ? 'https://peak-pay.vercel.app' : '';
+        const r = await fetch(`${base}/api/creator-upsert`, {
+          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+        });
+        return await r.json().catch(()=> ({}));
+      }catch(_){ return {}; }
     }
 
-    // Check if already completed
-    if (localStorage.getItem('pp_onboarding_complete') === 'true') {
-      // Already done, redirect
-      window.location.href = './profile.html';
+    // ---- Finalizar ----
+    async function finishSetup(){
+      hideError();
+      const handle = document.getElementById('handle').value.trim();
+      const btn = document.getElementById('finishBtn');
+      if (!/^[a-zA-Z0-9_-]{3,30}$/.test(handle)){ showError('Alias inválido. Revisa el formato.'); return; }
+
+      btn.disabled = true; btn.textContent = 'Guardando...';
+
+      const baseData = {
+        role: ROLE,
+        email: emailParam || (()=>{ try{ return JSON.parse(localStorage.getItem('creatorDraft')||'{}').email || '' }catch(_){ return '' } })(),
+        handle,
+        categories: [...selectedCategories],
+        ts: Date.now()
+      };
+
+      try{
+        // Supabase (opcional)
+        const { data:{ session } = { session:null } } = sb ? await sb.auth.getSession() : { data:{ session:null } };
+
+        // Avatar opcional
+        let avatarUrl = null;
+        if (sb && avatarFile && session?.user?.id){
+          const ext = avatarFile.name.split('.').pop();
+          const name = `${session.user.id}-${Date.now()}.${ext}`;
+          const { error: upErr } = await sb.storage.from('avatars').upload(name, avatarFile);
+          if (!upErr){ const { data:{ publicUrl } } = sb.storage.from('avatars').getPublicUrl(name); avatarUrl = publicUrl; }
+        }
+
+        // Perfil/Categorías (si hay auth)
+        if (sb && session?.user?.id){
+          const updates = { id:session.user.id, handle, role:ROLE, avatar_url:avatarUrl, updated_at:new Date().toISOString() };
+          await sb.from('profiles').upsert(updates);
+          if (selectedCategories.size){
+            const rows = [...selectedCategories].map(c=>({ user_id:session.user.id, category_slug:c }));
+            await sb.from('user_favorite_categories').upsert(rows);
+          }
+        }
+
+        // Local UX
+        try{
+          localStorage.setItem('pp_onboarding_complete','true');
+          localStorage.setItem('pp_role', ROLE);
+          localStorage.setItem('pp_handle', handle);
+          localStorage.setItem('pp_categories', JSON.stringify(baseData.categories));
+        }catch(_){}
+
+        // Upsert creators (serverless) — no bloquea
+        if (ROLE === 'creator'){
+          upsertCreatorServer({
+            role:'creator',
+            email: baseData.email,
+            handle,
+            display_name: handle.replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),
+            main_category: baseData.categories[0] || null,
+            avatar_url: avatarUrl || null
+          }).catch(()=>{});
+        }
+
+        // Go!
+        redirectAfterSetup(baseData);
+
+      }catch(err){
+        console.error(err);
+        showError(err.message || 'Error al guardar. Intenta de nuevo.');
+        btn.disabled = false; btn.textContent = 'Finalizar';
+      }
     }
+
+    function skipToEnd(){
+      try{ localStorage.setItem('pp_onboarding_complete','true'); localStorage.setItem('pp_role', ROLE); }catch(_){}
+      redirectAfterSetup({ role:ROLE, email:emailParam || '', handle:(document.getElementById('handle').value||'').trim() });
+    }
+
+    // Si ya estaba completo, redirige
+    (function maybeRedirectIfCompleted(){
+      if (localStorage.getItem('pp_onboarding_complete') === 'true'){
+        redirectAfterSetup({ role:ROLE, email:emailParam || '', handle:localStorage.getItem('pp_handle') || '' });
+      }
+    })();
   </script>
 </body>
 </html>

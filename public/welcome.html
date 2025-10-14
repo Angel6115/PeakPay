@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>¡Bienvenido a PeekPay!</title>
   <link rel="icon" href="./favicon.ico">
+  <!-- Env + Supabase -->
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -29,10 +30,7 @@
       justify-content: center;
       padding: 20px;
     }
-    .container{
-      max-width: 600px;
-      width: 100%;
-    }
+    .container{ max-width: 600px; width: 100%; }
     .card{
       background: var(--card);
       border: 1px solid var(--ring);
@@ -42,190 +40,69 @@
       text-align: center;
     }
     .success-icon{
-      width: 80px;
-      height: 80px;
+      width: 80px; height: 80px;
       background: linear-gradient(135deg, var(--green), #059669);
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      animation: scaleIn 0.5s ease-out;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px; animation: scaleIn 0.5s ease-out;
     }
-    @keyframes scaleIn {
-      from { transform: scale(0); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .success-icon svg{
-      width: 40px;
-      height: 40px;
-      stroke: white;
-      stroke-width: 3;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
+    @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-icon svg{ width: 40px; height: 40px; stroke: white; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     h1{
-      font-size: 36px;
-      font-weight: 900;
-      margin-bottom: 16px;
+      font-size: 36px; font-weight: 900; margin-bottom: 16px;
       background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .subtitle{
-      color: var(--muted);
-      font-size: 18px;
-      margin-bottom: 40px;
-      line-height: 1.6;
-    }
+    .subtitle{ color: var(--muted); font-size: 18px; margin-bottom: 40px; line-height: 1.6; }
     .status-card{
       background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
       border: 1px solid rgba(102,126,234,0.2);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 30px;
+      border-radius: 16px; padding: 24px; margin-bottom: 30px;
     }
-    .status-card h2{
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: var(--text);
-      font-weight: 700;
-    }
+    .status-card h2{ font-size: 18px; margin-bottom: 20px; color: var(--text); font-weight: 700; }
     .benefits-grid{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      text-align: left;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; text-align: left;
     }
     .benefit-item{
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      background: white;
-      border-radius: 12px;
-      border: 1px solid var(--ring);
+      display: flex; align-items: center; gap: 12px; padding: 12px;
+      background: white; border-radius: 12px; border: 1px solid var(--ring);
     }
     .benefit-icon{
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 18px;
+      width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px;
     }
-    .benefit-text{
-      flex: 1;
-    }
-    .benefit-text strong{
-      display: block;
-      font-size: 20px;
-      font-weight: 900;
-      color: var(--text);
-      margin-bottom: 2px;
-    }
-    .benefit-text span{
-      font-size: 13px;
-      color: var(--muted);
-    }
+    .benefit-text{ flex: 1; }
+    .benefit-text strong{ display: block; font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 2px; }
+    .benefit-text span{ font-size: 13px; color: var(--muted); }
     .info-box{
-      background: #fef3c7;
-      border: 2px solid #fbbf24;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 30px;
-      text-align: left;
+      background: #fef3c7; border: 2px solid #fbbf24; border-radius: 12px; padding: 16px; margin-bottom: 30px; text-align: left;
     }
-    .info-box p{
-      margin: 0;
-      font-size: 14px;
-      color: #78350f;
-      line-height: 1.5;
-    }
+    .info-box p{ margin: 0; font-size: 14px; color: #78350f; line-height: 1.5; }
     .btn{
-      display: inline-block;
-      padding: 16px 40px;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      color: white;
-      text-decoration: none;
-      border-radius: 12px;
-      font-size: 17px;
-      font-weight: 700;
-      transition: all 0.3s;
+      display: inline-block; padding: 16px 40px;
+      background: linear-gradient(135deg, var(--accent), var(--purple)); color: white; text-decoration: none;
+      border-radius: 12px; font-size: 17px; font-weight: 700; transition: all 0.3s;
       box-shadow: 0 8px 20px rgba(102,126,234,0.3);
     }
-    .btn:hover{
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(102,126,234,0.4);
-    }
-    .next-steps{
-      margin-top: 40px;
-      padding-top: 30px;
-      border-top: 1px solid var(--ring);
-    }
-    .next-steps h3{
-      font-size: 20px;
-      margin-bottom: 16px;
-      font-weight: 700;
-    }
-    .steps-list{
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .step{
-      display: flex;
-      gap: 12px;
-      align-items: start;
-    }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 28px rgba(102,126,234,0.4); }
+    .next-steps{ margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--ring); }
+    .next-steps h3{ font-size: 20px; margin-bottom: 16px; font-weight: 700; }
+    .steps-list{ text-align: left; display: flex; flex-direction: column; gap: 12px; }
+    .step{ display: flex; gap: 12px; align-items: start; }
     .step-number{
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 14px;
-      flex-shrink: 0;
+      width: 28px; height: 28px; background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
     }
-    .step-text{
-      flex: 1;
-      padding-top: 4px;
-    }
-    .step-text strong{
-      display: block;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-    .step-text span{
-      font-size: 14px;
-      color: var(--muted);
-    }
-    .loading{
-      text-align: center;
-      padding: 40px;
-    }
+    .step-text{ flex: 1; padding-top: 4px; }
+    .step-text strong{ display: block; font-size: 15px; margin-bottom: 4px; }
+    .step-text span{ font-size: 14px; color: var(--muted); }
+    .loading{ text-align: center; padding: 40px; }
     .spinner{
-      width: 50px;
-      height: 50px;
-      border: 4px solid var(--ring);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 20px;
+      width: 50px; height: 50px; border: 4px solid var(--ring); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     @media (max-width: 640px){
       .card{ padding: 40px 24px; }
       h1{ font-size: 28px; }
@@ -235,6 +112,7 @@
 </head>
 <body>
   <div class="container">
+    <!-- Estado de carga inicial -->
     <div class="card" id="loadingState">
       <div class="loading">
         <div class="spinner"></div>
@@ -242,21 +120,20 @@
       </div>
     </div>
 
+    <!-- Éxito -->
     <div class="card" id="successState" style="display: none;">
       <div class="success-icon">
-        <svg viewBox="0 0 24 24">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
       </div>
 
-      <h1>¡Pago completado!</h1>
-      <p class="subtitle">
+      <h1 id="title">¡Pago completado!</h1>
+      <p class="subtitle" id="subtitle">
         Tu cuenta está siendo configurada. Revisa tu email para confirmar.
       </p>
 
       <div class="status-card">
-        <h2>Ya tienes acceso a:</h2>
-        <div class="benefits-grid">
+        <h2 id="benefitsTitle">Ya tienes acceso a:</h2>
+        <div class="benefits-grid" id="benefitsGrid">
           <div class="benefit-item">
             <div class="benefit-icon">⚡</div>
             <div class="benefit-text">
@@ -288,20 +165,18 @@
         </div>
       </div>
 
-      <div class="info-box">
+      <div class="info-box" id="infoBox">
         <p>
           <strong>📧 Te enviamos un email</strong><br>
           Revisa tu bandeja (y spam) para confirmar tu cuenta y acceder a la plataforma.
         </p>
       </div>
 
-      <a href="./profile-setup.html" class="btn" id="continueBtn">
-        Completar mi perfil
-      </a>
+      <a href="./profile-setup.html" class="btn" id="continueBtn">Completar mi perfil</a>
 
       <div class="next-steps">
         <h3>Próximos pasos:</h3>
-        <div class="steps-list">
+        <div class="steps-list" id="stepsList">
           <div class="step">
             <div class="step-number">1</div>
             <div class="step-text">
@@ -325,40 +200,116 @@
           </div>
         </div>
       </div>
-    </div>
+    </div><!-- /success -->
   </div>
 
   <script>
-    // Get session_id from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('session_id');
+    (async function init() {
+      // Params desde payment-complete
+      const p = new URLSearchParams(location.search);
+      const t   = (p.get('t') || 'user').toLowerCase();   // 'user' | 'creator' (normalmente llega como 'user' aquí)
+      const e   = (p.get('e') || '').trim();              // email
+      const sid = (p.get('session_id') || '').trim();     // checkout session id
 
-    async function verifyPayment() {
-  if (!sessionId) {
-    // No session, redirect to home
-    console.log('No session_id found');
-    // window.location.href = './index.html';  // COMENTADO TEMPORALMENTE
-    // return;  // COMENTADO TEMPORALMENTE
-  }
+      // Personalización de textos
+      const titleEl    = document.getElementById('title');
+      const subtitleEl = document.getElementById('subtitle');
+      const continueBtn= document.getElementById('continueBtn');
+      const creditsEl  = document.getElementById('creditsAmount');
+      const infoBox    = document.getElementById('infoBox');
+      const stepsList  = document.getElementById('stepsList');
 
-      try {
-        // TODO: Verify session with backend
-        // Por ahora solo mostramos success después de 2 segundos
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Show success state
-        document.getElementById('loadingState').style.display = 'none';
-        document.getElementById('successState').style.display = 'block';
-
-      } catch (error) {
-        console.error('Error verifying payment:', error);
-        // Still show success since payment went through
-        document.getElementById('loadingState').style.display = 'none';
-        document.getElementById('successState').style.display = 'block';
+      // En este "welcome" el rol esperado es usuario.
+      // Aun así, si llega como creator, ajustamos copy suavemente.
+      if (t === 'creator') {
+        titleEl.textContent = '¡Listo! Tu compra fue recibida';
+        subtitleEl.textContent = 'Te guiaremos para completar tu registro de creador.';
+        // Cambiamos CTA por si llega aquí por error
+        continueBtn.textContent = 'Ir a registro de creador';
+        continueBtn.href = `./creator-welcome.html?from=welcome&e=${encodeURIComponent(e)}&session_id=${encodeURIComponent(sid)}`;
+        // Pasos más afines a creador (por si acaso)
+        stepsList.innerHTML = `
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-text">
+              <strong>Completa tu perfil de creador</strong>
+              <span>Alias @, foto de perfil y categoría principal</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-text">
+              <strong>Prepara tu teaser</strong>
+              <span>Sube tu foto para el mosaico blur (4×4)</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-text">
+              <strong>Activa el Soft Launch</strong>
+              <span>Te avisamos para publicar cuando abramos puertas</span>
+            </div>
+          </div>
+        `;
+      } else {
+        // Usuario estándar
+        continueBtn.href = `./profile-setup.html?e=${encodeURIComponent(e)}&session_id=${encodeURIComponent(sid)}`;
       }
-    }
 
-    verifyPayment();
+      // Mostrar UI de éxito
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('successState').style.display = 'block';
+
+      // Guardar flags locales para UX
+      try {
+        if (e) localStorage.setItem('pp_email', e);
+        if (sid) localStorage.setItem('pp_last_session_id', sid);
+        localStorage.setItem('pp_welcome_seen', '1');
+      } catch (_) {}
+
+      // SUPABASE (silencioso): apuntar a la misma tabla y marcar "reserved" si no existía
+      try {
+        if (window.__ENV__?.supabaseUrl && window.__ENV__?.supabaseAnonKey) {
+          const supabase = window.supabase.createClient(window.__ENV__.supabaseUrl, window.__ENV__.supabaseAnonKey);
+
+          // upsert por (email,type) — si ya existe el webhook lo pondrá en 'paid'
+          const payload = {
+            email: e || null,
+            type: (t === 'creator') ? 'creator' : 'user',
+            stripe_session_id: sid || null,
+            status: 'reserved'
+          };
+          await supabase.from('prelaunch_signups').upsert(payload, { onConflict: 'email,type' });
+
+          // (Opcional) leer credits iniciales si ya existen y mostrarlos
+          if (e) {
+            const { data } = await supabase
+              .from('prelaunch_signups')
+              .select('granted_credits, status')
+              .eq('email', e)
+              .eq('type', (t === 'creator') ? 'creator' : 'user')
+              .maybeSingle();
+
+            if (data?.granted_credits) {
+              creditsEl.textContent = data.granted_credits.toLocaleString();
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase (welcome) silencioso:', err?.message || err);
+      }
+
+      // Verificación “mock” (si quieres, puedes llamar a tu backend /api/verify-session)
+      // Este bloque no cambia UX; si falla, no bloquea el flujo.
+      try {
+        if (sid) {
+          // TODO: fetch('/api/verify-session?session_id=' + encodeURIComponent(sid))
+          // Por ahora omitido para no depender del backend
+        }
+      } catch (err) {
+        console.warn('verify-session opcional:', err?.message || err);
+      }
+    })();
   </script>
 </body>
 </html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Redirigiendo…</title>
+  <meta http-equiv="refresh" content="0; url=./upload-teaser.html">
+  <script>
+    // Preserva query params al redirigir
+    (function(){
+      const q = location.search || '';
+      const target = './upload-teaser.html' + q;
+      // Meta refresh por si JS está bloqueado, y JS para mantener los params
+      window.location.replace(target);
+    })();
+  </script>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
+         display:flex;align-items:center;justify-content:center;min-height:100vh;color:#334155}
+  </style>
+</head>
+<body>
+  Redirigiendo a la configuración del teaser…
+</body>
+</html>

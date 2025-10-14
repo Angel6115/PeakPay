@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Creator Dashboard — PeekPay</title>
+  <link rel="icon" href="./favicon.ico">
+  <style>
+    :root{
+      --bg1:#eef2ff; --bg2:#e0e7ff;
+      --card:#fff; --ring:#e5e7eb; --text:#0f172a; --muted:#64748b;
+      --indigo:#667eea; --purple:#764ba2; --accent:#6366f1;
+      --ok:#10b981; --warn:#f59e0b;
+
+      /* mosaico */
+      --tile-gap:2px;         /* ¡más fino! evita huecos visibles */
+      --tile-radius:12px;
+      --grid-alpha:.20;       /* una sola rejilla sutil */
+      --grid-line:1px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      min-height:100vh; padding:20px;
+    }
+    .wrap{max-width:1120px;margin:0 auto}
+    .head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .logo{height:26px}
+    .pill{margin-left:8px;background:#fff;border:1px solid var(--ring);padding:6px 10px;border-radius:999px;font-weight:800;color:#111827;box-shadow:0 4px 14px rgba(79,70,229,.12)}
+    .nav{margin-left:auto;display:flex;gap:8px}
+    .btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .btn.secondary{background:#fff;border:1px solid var(--ring)}
+    .btn.primary{background:linear-gradient(135deg,var(--indigo),var(--purple));color:#fff;box-shadow:0 8px 22px rgba(102,126,234,.25)}
+    .btn.small{padding:8px 12px;font-size:13px}
+    .grid{display:grid;gap:14px}
+    @media(min-width:960px){ .grid.cols2{grid-template-columns:1.25fr 1fr} }
+
+    .card{background:var(--card);border:1px solid var(--ring);border-radius:18px;padding:16px;box-shadow:0 12px 40px rgba(102,126,234,.12)}
+    .title{font-weight:900;margin-bottom:10px}
+    .muted{color:var(--muted)}
+
+    /* Header */
+    .creator{display:flex;align-items:center;gap:12px}
+    .avatar{width:40px;height:40px;border-radius:999px;object-fit:cover;border:2px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.08)}
+    .status{margin-left:auto}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800}
+    .badge.ok{background:#d1fae5;border:1px solid #a7f3d0;color:#065f46}
+    .badge.pending{background:#fef3c7;border:1px solid #fde68a;color:#92400e}
+
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      background:linear-gradient(135deg,rgba(102,126,234,.08),rgba(118,75,162,.08));
+      border:1px solid rgba(102,126,234,.18);
+      border-radius:12px;padding:8px 10px;font-weight:800;font-size:12px;
+    }
+    .chip b{font-size:14px}
+
+    /* Mosaic preview */
+    .mosaic-card .canvas{
+      position:relative; width:100%; aspect-ratio:1/1; border-radius:16px; overflow:hidden;
+      background:#f1f5f9; border:1px solid var(--ring);
+      --bpx: 12px; /* controlado por JS */
+    }
+    .mosaic-bg{
+      position:absolute; inset:0; background-size:cover; background-position:center;
+      filter:blur(var(--bpx)) brightness(0.9);
+      transform:scale(1.02);
+    }
+    /* UNA sola rejilla: sin “doble línea” */
+    .grid-overlay{
+      position:absolute; inset:0; pointer-events:none; border-radius:16px;
+      background-image:
+        repeating-linear-gradient( to right, rgba(15,23,42,var(--grid-alpha)) 0 var(--grid-line), transparent var(--grid-line) calc(25%)),
+        repeating-linear-gradient( to bottom, rgba(15,23,42,var(--grid-alpha)) 0 var(--grid-line), transparent var(--grid-line) calc(25%));
+      background-size:100% 100%;
+      mix-blend-mode:multiply;
+    }
+    .tiles{
+      position:absolute; inset:0;
+      display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(4,1fr);
+      gap:var(--tile-gap); padding:var(--tile-gap);
+    }
+    .tile{
+      position:relative; border-radius:var(--tile-radius); overflow:hidden;
+      /* quitamos borde para evitar “doble rejilla” */
+      box-shadow: 0 1px 4px rgba(2,6,23,.04);
+      background:transparent;
+    }
+    /* subcapa NÍTIDA para FREE */
+    .tile .sharp{
+      position:absolute; inset:0; border-radius:inherit;
+      background-size:400% 400%; background-repeat:no-repeat;
+      filter:none;
+    }
+    .tile.lock::after{
+      content:"LOCK"; position:absolute; bottom:6px; right:8px;
+      font-size:10px; font-weight:900; color:#fff;
+      background:rgba(2,6,23,.45); padding:3px 6px; border-radius:999px; letter-spacing:.4px;
+    }
+    .tile.free{ box-shadow:0 8px 18px rgba(16,185,129,.18) }
+    .tile.free::after{
+      content:"FREE"; position:absolute; top:6px; left:8px;
+      font-size:10px; font-weight:900; color:#065f46;
+      background:#d1fae5; border:1px solid #a7f3d0; padding:3px 6px; border-radius:999px; letter-spacing:.4px;
+    }
+    .mosaic-footer{
+      margin-top:8px; font-size:12px; font-weight:800; color:#fff; text-align:center;
+      background:linear-gradient(135deg,var(--indigo),var(--purple));
+      padding:6px 10px; border-radius:10px; box-shadow:0 8px 18px rgba(79,70,229,.25)
+    }
+    .hint{font-size:12px;color:var(--muted);margin-top:6px}
+
+    .box{
+      background:linear-gradient(135deg,rgba(102,126,234,.06),rgba(118,75,162,.06));
+      border:1px solid rgba(102,126,234,.18);
+      border-radius:14px; padding:12px
+    }
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    input[type="number"], input[type="text"], select{
+      width:100%; padding:10px 12px; border:1px solid var(--ring); border-radius:10px; font-weight:700
+    }
+    label{font-size:12px;font-weight:800;color:#334155}
+    .kpi{display:flex;justify-content:space-between;padding:8px 0;border-top:1px dashed var(--ring)}
+    .kpi strong{font-weight:900}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <img class="logo" src="./assets/brand/peekpay-logo-h.svg" alt="Peek-Pay">
+      <span class="pill">Soft Launch Prep</span>
+      <div class="nav">
+        <button class="btn secondary" onclick="location.href='./index.html'">Inicio</button>
+        <button class="btn secondary" onclick="alert('Perfil (mock)')">Mi perfil</button>
+        <button class="btn secondary" onclick="alert('Cerrar sesión (mock)')">Salir</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="creator">
+        <img id="creatorAvatar" class="avatar" alt="avatar" src=""
+             onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22><rect width=%2240%22 height=%2240%22 rx=%2220%22 fill=%22%23e5e7eb%22/></svg>'">
+        <div>
+          <div class="title" id="hello">¡Bienvenido, creador!</div>
+          <div class="muted" id="subHello">Tu estado pre-launch y herramientas.</div>
+          <div class="chips">
+            <div class="chip">⭐ 5★ <b id="statFive">0</b></div>
+            <div class="chip">💌 Pedidos especiales <b id="statOrders">0</b></div>
+            <div class="chip">❤️ Favoritos <b id="statFavs">0</b></div>
+          </div>
+        </div>
+        <div class="status">
+          <span id="stateBadge" class="badge pending">Pendiente</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid cols2" style="margin-top:12px">
+      <!-- Preview -->
+      <div class="card mosaic-card">
+        <div class="title">Tu preview final (mosaico 4×4)
+          <button class="btn small secondary" style="margin-left:8px" onclick="location.href='./upload-teaser.html'">Editar pre-launch</button>
+        </div>
+        <div id="canvas" class="canvas">
+          <div id="bg" class="mosaic-bg"></div>
+          <div class="grid-overlay"></div>
+          <div id="tiles" class="tiles"></div>
+        </div>
+        <div id="mosaicFooter" class="mosaic-footer" style="margin-top:10px;">Preview · 3 gratis + 13 bloqueados</div>
+
+        <!-- Mini blur control -->
+        <div class="box" style="margin-top:12px">
+          <div class="row">
+            <label for="miniBlur" style="min-width:130px">Intensidad del blur</label>
+            <input id="miniBlur" type="range" min="0" max="24" step="1" style="flex:1">
+            <span id="blurVal" class="muted" style="min-width:42px;text-align:right">8</span>
+            <button class="btn small secondary" id="applyBlur">Aplicar</button>
+          </div>
+          <div class="hint">La foto base se desenfoca; los tiles FREE muestran áreas nítidas.</div>
+        </div>
+
+        <!-- Precio del demo -->
+        <div class="box" style="margin-top:12px">
+          <div class="row">
+            <label for="price" style="min-width:130px">Precio del demo (USD)</label>
+            <input id="price" type="number" min="1" step="0.5" style="max-width:160px">
+            <button id="savePrice" class="btn small primary">Guardar precio</button>
+          </div>
+          <div class="hint">Visible al lanzar. También alimenta la calculadora.</div>
+        </div>
+      </div>
+
+      <!-- Calculator & inbox/pedidos -->
+      <div class="card">
+        <div class="title">Calculadora de ingresos</div>
+        <div class="box" style="margin-bottom:10px">
+          <div class="row" style="gap:10px; align-items:flex-end">
+            <div style="flex:1">
+              <label>Precio</label>
+              <input id="calcPrice" type="number" min="1" step="0.5">
+            </div>
+            <div style="flex:1">
+              <label>Ventas estimadas</label>
+              <input id="calcQty" type="number" min="0" step="1" value="20">
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <label style="min-width:130px">Comisión</label>
+            <div style="display:flex;gap:14px;align-items:center">
+              <label><input type="radio" name="comm" id="comm0" checked> Mes 1: 0% (primeros 5 peeks)</label>
+              <label><input type="radio" name="comm" id="commStd"> Estándar</label>
+              <select id="commRate">
+                <option value="0.15">15% (sin rostro)</option>
+                <option value="0.10">10% (rostro visible)</option>
+                <option value="0.16" selected>16% (estándar)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="kpi"><span>Ingresos brutos</span><strong id="kGross">$0.00</strong></div>
+          <div class="kpi"><span>Comisión PeekPay</span><strong id="kFee">-$0.00</strong></div>
+          <div class="kpi"><span>Pago neto estimado</span><strong id="kNet">$0.00</strong></div>
+
+          <div class="row" style="margin-top:10px">
+            <button id="doCalc" class="btn small secondary">Calcular</button>
+            <span class="hint">* Estimación ilustrativa. Pagos semanales vía Stripe.</span>
+          </div>
+        </div>
+
+        <div class="box" style="margin-bottom:10px">
+          <strong style="font-size:13px">Mensajes privados</strong>
+          <div class="row" style="margin-top:8px">
+            <span class="muted">Por ahora, las solicitudes llegan a</span>
+            <b id="contactEmail">—</b>
+          </div>
+          <div class="hint">Próximamente: inbox dentro de PeekPay.</div>
+        </div>
+
+        <div class="box">
+          <strong style="font-size:13px">Pedidos especiales (mini-calculadora)</strong>
+          <div class="row" style="margin-top:8px">
+            <label style="min-width:130px">Precio base (USD)</label>
+            <input id="customPrice" type="number" min="1" step="1" style="max-width:140px">
+            <button id="saveCustom" class="btn small secondary">Guardar</button>
+          </div>
+          <div class="row" style="margin-top:8px; align-items:flex-end">
+            <div style="flex:1">
+              <label>Cantidad</label>
+              <input id="customQty" type="number" min="1" step="1" value="1">
+            </div>
+            <div style="flex:1">
+              <label>Comisión</label>
+              <select id="customRate">
+                <option value="0.15">15% (sin rostro)</option>
+                <option value="0.10" selected>10% (rostro visible)</option>
+                <option value="0.16">16% (estándar)</option>
+              </select>
+            </div>
+            <button id="doCustomCalc" class="btn small secondary">Calcular</button>
+          </div>
+          <div class="kpi"><span>Total bruto</span><strong id="ckGross">$0.00</strong></div>
+          <div class="kpi"><span>Comisión</span><strong id="ckFee">-$0.00</strong></div>
+          <div class="kpi"><span>Total neto</span><strong id="ckNet">$0.00</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:14px">
+      <div class="card">
+        <div class="title">Recursos</div>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <button class="btn secondary small" onclick="alert('Guía (mock)')">Guía de contenido aceptado</button>
+          <button class="btn secondary small" onclick="alert('Tips (mock)')">Cómo definir buen preview</button>
+          <button class="btn secondary small" onclick="alert('Política (mock)')">Política de pagos y comisiones</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="title">Publicación</div>
+        <div class="row" style="gap:10px;align-items:center">
+          <span class="muted">Cuando abras tu demo, quedará listo para el soft launch.</span>
+          <button class="btn primary small" id="publish">Publicar demo (mock)</button>
+          <span class="muted">• Debug contadores:</span>
+          <button class="btn small secondary" onclick="bump('pp_stats_fav')">+1 ❤️</button>
+          <button class="btn small secondary" onclick="bump('pp_stats_order')">+1 💌</button>
+          <button class="btn small secondary" onclick="bump('pp_stats_5')">+1 ⭐</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+  const $ = (id)=>document.getElementById(id);
+  const fromLS=(k,d=null)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}};
+  const getStr=(k)=>{try{return localStorage.getItem(k)||''}catch{return''}};
+  const setStr=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
+
+  // Perfil
+  const profile = fromLS('pp_prelaunch_profile', {})||{};
+  const alias = profile.alias || getStr('pp_handle') || '@alias';
+  const email = getStr('pp_creator_email') || getStr('pp_email') || '';
+  const ready = !!fromLS('pp_prelaunch_ready', false);
+  $('hello').textContent = `¡Bienvenido, ${alias.replace(/^@?/,'@')}!`;
+  $('stateBadge').textContent = ready ? 'Listo para pre-launch' : 'Pendiente';
+  $('stateBadge').className = 'badge ' + (ready ? 'ok' : 'pending');
+  const avatarTmp = getStr('pp_avatar_tmp'); if (avatarTmp) $('creatorAvatar').src = avatarTmp;
+  $('contactEmail').textContent = email || 'tu email';
+
+  // Stats mock
+  function renderStats(){
+    $('statFavs').textContent = getStr('pp_stats_favs') || 0;
+    $('statOrders').textContent = getStr('pp_stats_custom_orders') || 0;
+    $('statFive').textContent = getStr('pp_stats_fivestar') || 0;
+  }
+  if(getStr('pp_stats_favs')==='') setStr('pp_stats_favs','0');
+  if(getStr('pp_stats_custom_orders')==='') setStr('pp_stats_custom_orders','0');
+  if(getStr('pp_stats_fivestar')==='') setStr('pp_stats_fivestar','0');
+  renderStats();
+  window.bump=(k)=>{
+    if(k==='pp_stats_fav') setStr('pp_stats_favs', String(Number(getStr('pp_stats_favs')||0)+1));
+    if(k==='pp_stats_order') setStr('pp_stats_custom_orders', String(Number(getStr('pp_stats_custom_orders')||0)+1));
+    if(k==='pp_stats_5') setStr('pp_stats_fivestar', String(Number(getStr('pp_stats_fivestar')||0)+1));
+    renderStats();
+  };
+
+  // Mosaic
+  const teaser = getStr('pp_teaser_src_tmp') || '';
+  const freeTiles = [0,5,11];
+
+  function buildMosaic(){
+    const tiles = $('tiles'); tiles.innerHTML='';
+    const stored = getStr('pp_teaser_blur');
+    const blur = stored==='' ? 8 : Number(stored); // default 8 para ver la foto
+    $('canvas').style.setProperty('--bpx', blur + 'px');
+    $('miniBlur').value = blur; $('blurVal').textContent = String(blur);
+    $('bg').style.backgroundImage = teaser ? `url(${teaser})` : 'none';
+
+    if(!teaser){
+      tiles.innerHTML = '<div class="muted" style="margin:auto">Sube tu teaser en “Editar pre-launch”.</div>';
+      return;
+    }
+    const rows=4, cols=4;
+    for(let i=0;i<rows*cols;i++){
+      const r = Math.floor(i/cols), c = i%cols;
+      const t = document.createElement('div');
+      const isFree = freeTiles.includes(i);
+      t.className = 'tile ' + (isFree?'free':'lock');
+      if(isFree){
+        const sharp = document.createElement('div');
+        sharp.className='sharp';
+        sharp.style.backgroundImage=`url(${teaser})`;
+        /* pasos exactos 33.333% por celda */
+        const step = 33.333;
+        sharp.style.backgroundPosition = `${-c*step}% ${-r*step}%`;
+        sharp.style.backgroundSize = '400% 400%';
+        t.appendChild(sharp);
+      }
+      tiles.appendChild(t);
+    }
+    $('mosaicFooter').textContent='Preview · 3 gratis + 13 bloqueados';
+  }
+  buildMosaic();
+
+  // Blur (solo sobre la base)
+  const saveBlur=(v)=>setStr('pp_teaser_blur', String(v));
+  $('miniBlur').addEventListener('input',e=>{
+    const v=Number(e.target.value||8);
+    $('blurVal').textContent=String(v);
+    $('canvas').style.setProperty('--bpx', v + 'px');
+  });
+  $('applyBlur').onclick=()=>saveBlur(Number($('miniBlur').value||8));
+
+  // Demo price
+  const storedPrice=getStr('pp_price_demo')||'5.00';
+  $('price').value=storedPrice; $('calcPrice').value=storedPrice;
+  $('savePrice').onclick=()=>{
+    const v=Number($('price').value||0);
+    if(!v||v<1){alert('Ingresa un precio válido');return;}
+    setStr('pp_price_demo', String(v.toFixed(2)));
+    $('calcPrice').value=String(v.toFixed(2));
+    alert('Precio guardado.');
+  };
+
+  // Calculator
+  function calc(){
+    const price=Number($('calcPrice').value||0);
+    const qty=Number($('calcQty').value||0);
+    const gross=price*qty;
+    let feeRate=Number($('commRate').value||0.16);
+    if($('comm0').checked) feeRate=0;
+    const fee=gross*feeRate, net=gross-fee;
+    $('kGross').textContent=`$${gross.toFixed(2)}`;
+    $('kFee').textContent=`-$${fee.toFixed(2)}`;
+    $('kNet').textContent=`$${net.toFixed(2)}`;
+  }
+  $('doCalc').onclick=calc; calc();
+
+  // Special requests mini-calc
+  const cp=getStr('pp_custom_request_price')||'20';
+  $('customPrice').value=cp;
+  $('saveCustom').onclick=()=>{
+    const v=Number($('customPrice').value||0);
+    if(!v||v<1){alert('Ingresa un precio válido');return;}
+    setStr('pp_custom_request_price', String(v.toFixed(0)));
+    alert('Precio base guardado.');
+  };
+  function customCalc(){
+    const price=Number($('customPrice').value||0);
+    const qty=Number($('customQty').value||0);
+    const rate=Number($('customRate').value||0.10);
+    const gross=price*qty, fee=gross*rate, net=gross-fee;
+    $('ckGross').textContent=`$${gross.toFixed(2)}`;
+    $('ckFee').textContent=`-$${fee.toFixed(2)}`;
+    $('ckNet').textContent=`$${net.toFixed(2)}`;
+  }
+  $('doCustomCalc').onclick=customCalc; customCalc();
+
+  // Publish (mock)
+  $('publish').onclick=()=>{
+    setStr('pp_prelaunch_ready','true');
+    $('stateBadge').textContent='Listo para pre-launch';
+    $('stateBadge').className='badge ok';
+    alert('Demo marcado como PUBLICADO (mock).');
+  };
+  </script>
+</body>
+</html>

@@ -154,11 +154,11 @@
           <label for="category">Categoría principal</label>
           <select id="category" name="category" required>
             <option value="">Selecciona…</option>
-            <option value="lenceria">Lencería</option>
+            <option value="arte">Arte</option>
+            <option value="artistico">Artístico</option>
             <option value="cosplay">Cosplay</option>
             <option value="fitness">Fitness</option>
-            <option value="artistico">Artístico</option>
-            <option value="arte">Arte</option>
+            <option value="lenceria">Lencería</option>
           </select>
         </div>
 
@@ -197,9 +197,10 @@
   </div>
 
   <script>
-    // 1) Paths seguros (local vs. Vercel)
+    // 1) Paths seguros (local vs. prod)
     const isLocalHost = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-    const SETUP_URL = isLocalHost ? '/public/profile-setup.html' : '/profile-setup.html';
+    // ⬇️ Destino unificado al flujo canónico
+    const SETUP_URL = isLocalHost ? '/public/upload-teaser.html' : '/upload-teaser.html';
 
     // 2) Helpers
     const $ = (id) => document.getElementById(id);
@@ -245,7 +246,7 @@
       return true;
     }
 
-    // 5) Guardar borrador y redirigir a setup
+    // 5) Guardar borrador y redirigir a setup (upload-teaser)
     $('creatorForm').addEventListener('submit', function(ev){
       ev.preventDefault();
       if (!validate(this)) return;
