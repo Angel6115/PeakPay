@@ -6,7 +6,17 @@
   <title>Mi perfil — PeekPay</title>
   <link rel="icon" href="./favicon.ico">
   <script src="./env.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
+    
+    // Inicializar cliente
+    const supabase = createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon
+    );
+    
+    window.supabaseClient = supabase;
+  </script>
   <style>
     :root{
       --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
@@ -51,6 +61,9 @@
       height: 50px;
       border-radius: 14px;
       box-shadow: 0 4px 12px rgba(102,126,234,0.15);
+      object-fit: contain; /* FIX: Evita que se corte */
+      background: white;
+      padding: 4px;
     }
     .brand-text h1{
       font-size: 20px;
@@ -118,7 +131,8 @@
       border-radius: 50%;
       border: 3px solid white;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      object-fit: cover;
+      object-fit: cover; /* FIX: Evita distorsión */
+      background: linear-gradient(135deg, var(--accent), var(--purple));
     }
     .profile-info{
       flex: 1;
@@ -281,51 +295,6 @@
       background: rgba(102,126,234,0.05);
     }
     
-    /* List Items */
-    .list{
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .list-item{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px;
-      background: white;
-      border: 1px solid var(--ring);
-      border-radius: 12px;
-      transition: all 0.3s;
-    }
-    .list-item:hover{
-      border-color: var(--accent);
-      box-shadow: 0 2px 8px rgba(102,126,234,0.1);
-    }
-    .list-item-left{
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .list-item-avatar{
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid var(--ring);
-      object-fit: cover;
-    }
-    .list-item-info{
-      display: flex;
-      flex-direction: column;
-    }
-    .list-item-name{
-      font-size: 14px;
-      font-weight: 700;
-    }
-    .list-item-meta{
-      font-size: 12px;
-      color: var(--muted);
-    }
-    
     /* Empty State */
     .empty{
       padding: 32px;
@@ -367,7 +336,7 @@
     <!-- Header -->
     <div class="header">
       <div class="logo-area" onclick="location.href='./index.html'">
-        <img src="./peak1.png" alt="PeekPay" class="logo">
+        <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
         <div class="brand-text">
           <h1>PeekPay</h1>
           <p>Mi perfil</p>
@@ -386,13 +355,12 @@
       <!-- Left Column: Profile Card -->
       <div class="card">
         <div class="profile-header">
-          <img id="u-avatar" src="./peak1.png" alt="Avatar" class="avatar">
+          <img id="u-avatar" src="./assets/brand/peekpay-mark.svg" alt="Avatar" class="avatar">
           <div class="profile-info">
-            <div class="profile-name" id="u-name">Demo User</div>
-            <div class="profile-handle" id="u-handle">@demo-user</div>
-            <div class="badges">
+            <div class="profile-name" id="u-name">Cargando...</div>
+            <div class="profile-handle" id="u-handle">@...</div>
+            <div class="badges" id="badges-container">
               <span class="badge">🎉 Founder</span>
-              <span class="badge" id="u-country">Global</span>
             </div>
           </div>
         </div>
@@ -425,7 +393,7 @@
         </div>
 
         <div style="margin-top: 12px; font-size: 12px; color: var(--muted); text-align: center;" id="sbHint">
-          Sin Supabase (modo demo local)
+          Conectando...
         </div>
       </div>
 
@@ -437,7 +405,6 @@
             <h2 class="section-title">Favoritos recientes</h2>
             <button class="section-action" onclick="location.href='./creators.html'">Explorar</button>
           </div>
-          <div id="favList" class="list" style="display: none;"></div>
           <div id="favEmpty" class="empty">
             Explora creadores y agrega tus favoritos
           </div>
@@ -449,10 +416,8 @@
             <h2 class="section-title">Actividad reciente</h2>
             <button class="section-action" onclick="location.href='./wallet.html'">Ver wallet</button>
           </div>
-          <div id="activityList" class="list">
-            <div class="list-item">
-              <span style="font-size: 14px; color: var(--muted);">No hay actividad aún</span>
-            </div>
+          <div class="empty">
+            No hay actividad aún
           </div>
         </div>
 
@@ -488,207 +453,140 @@
             <button class="btn btn-secondary" id="btnSignout">Cerrar sesión</button>
           </div>
           <div style="font-size: 12px; color: var(--muted); margin-top: 12px; text-align: center;" id="sbNote">
-            Sin Supabase configurado
+            Gestiona tu cuenta
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
+  <script type="module">
     const $ = s => document.querySelector(s);
-    const sb = window.supabaseClient || null;
-    const CREDIT_TO_USD = 0.25;
-    const fmtUSD = v => Number(v||0).toLocaleString('en-US',{style:'currency',currency:'USD'});
+    
+    // Esperar a que supabaseClient esté disponible
+    async function waitForSupabase() {
+      let attempts = 0;
+      while (!window.supabaseClient && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      return window.supabaseClient;
+    }
 
     // Profile info
     async function loadProfile(){
       const sbHint = $('#sbHint');
+      const sb = await waitForSupabase();
+      
       if (!sb){ 
-        sbHint.textContent = 'Sin Supabase (modo demo local)';
+        sbHint.textContent = '⚠️ Error de conexión';
+        sbHint.style.color = '#dc2626';
+        return;
+      }
+
+      try {
+        // Obtener usuario autenticado
+        const { data: { user }, error: userError } = await sb.auth.getUser();
         
-        // Load from localStorage
-        const handle = localStorage.getItem('pp_handle') || 'demo-user';
-        $('#u-handle').textContent = '@' + handle;
-        $('#u-name').textContent = handle.charAt(0).toUpperCase() + handle.slice(1);
-        return;
-      }
-
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session){ 
-        sbHint.textContent = 'Sin sesión activa';
-        return;
-      }
-
-      sbHint.textContent = 'Conectado con Supabase';
-      const u = session.user;
-      const name = u.user_metadata?.name || u.email || 'Mi cuenta';
-      const handle = u.user_metadata?.handle || (u.email||'user').split('@')[0];
-      const country = u.user_metadata?.country;
-      const pic = u.user_metadata?.avatar_url || u.user_metadata?.picture;
-
-      $('#u-name').textContent = name;
-      $('#u-handle').textContent = '@' + handle;
-      if (country) $('#u-country').textContent = country;
-      if (pic){
-        const img = new Image();
-        img.onload = () => { $('#u-avatar').src = pic };
-        img.src = pic;
-      }
-    }
-
-    // Wallet stats
-    async function loadWalletStats(){
-      if (!sb){
-        $('#stat-credits').textContent = '0';
-        $('#stat-points').textContent = '0';
-        return;
-      }
-
-      try{
-        const { data } = await sb.from('v_user_wallet').select('credits,points').limit(1);
-        if (data && data[0]){
-          $('#stat-credits').textContent = data[0].credits || 0;
-          $('#stat-points').textContent = data[0].points || 0;
-        }
-      }catch{
-        $('#stat-credits').textContent = '0';
-        $('#stat-points').textContent = '0';
-      }
-    }
-
-    // Favorites
-    async function loadFavorites(){
-      const list = $('#favList');
-      const empty = $('#favEmpty');
-      
-      if (!sb) return;
-
-      try{
-        const { data: { session } } = await sb.auth.getSession();
-        if (!session) return;
-
-        const { data } = await sb.from('v_user_favorites')
-          .select('creator_id, creator_handle, creator_name, creator_avatar_url')
-          .order('last_seen',{ascending:false}).limit(5);
-
-        if (data && data.length){
-          empty.style.display = 'none';
-          list.style.display = 'flex';
-          list.innerHTML = '';
+        if (userError || !user) {
+          sbHint.textContent = '⚠️ No has iniciado sesión';
+          sbHint.style.color = '#dc2626';
+          console.error('Auth error:', userError);
           
-          data.forEach(creator => {
-            const item = document.createElement('div');
-            item.className = 'list-item';
-            item.style.cursor = 'pointer';
-            item.onclick = () => location.href = `./peek.html?creator=${encodeURIComponent(creator.creator_handle)}`;
-            item.innerHTML = `
-              <div class="list-item-left">
-                <img class="list-item-avatar" src="${creator.creator_avatar_url || './peak1.png'}" alt="">
-                <div class="list-item-info">
-                  <div class="list-item-name">${creator.creator_name || creator.creator_handle}</div>
-                  <div class="list-item-meta">@${creator.creator_handle}</div>
-                </div>
-              </div>
-              <button class="section-action" onclick="event.stopPropagation();">Ver</button>
-            `;
-            list.appendChild(item);
-          });
+          // Redirigir a login después de 2 segundos
+          setTimeout(() => {
+            window.location.href = './signup.html';
+          }, 2000);
+          return;
         }
-      }catch{}
-    }
 
-    // Activity
-    async function loadActivity(){
-      const list = $('#activityList');
-      
-      if (!sb){
-        list.innerHTML = '<div class="list-item"><span style="font-size: 14px; color: var(--muted);">No hay actividad aún</span></div>';
-        return;
+        // Leer perfil completo de la base de datos
+        const { data: profile, error: profileError } = await sb
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Profile error:', profileError);
+          sbHint.textContent = '⚠️ Error al cargar perfil';
+          sbHint.style.color = '#dc2626';
+          return;
+        }
+
+        console.log('✅ Profile loaded:', profile);
+        sbHint.textContent = '✅ Conectado';
+        sbHint.style.color = '#10b981';
+
+        // Actualizar UI con datos reales
+        $('#u-name').textContent = profile.display_name || profile.email?.split('@')[0] || 'Usuario';
+        $('#u-handle').textContent = '@' + (profile.handle || 'usuario');
+        $('#stat-credits').textContent = (profile.credits || 0).toLocaleString();
+        $('#stat-points').textContent = '0'; // Por ahora
+
+        // Avatar
+        if (profile.avatar_url) {
+          $('#u-avatar').src = profile.avatar_url;
+        }
+
+        // Badges
+        const badgesContainer = $('#badges-container');
+        badgesContainer.innerHTML = '';
+        
+        if (profile.early_access) {
+          badgesContainer.innerHTML += '<span class="badge">🎉 Founder</span>';
+        }
+        if (profile.is_creator) {
+          badgesContainer.innerHTML += '<span class="badge">⭐ Creador</span>';
+        }
+        
+        const country = profile.country || profile.location;
+        if (country) {
+          badgesContainer.innerHTML += `<span class="badge">${country}</span>`;
+        }
+
+      } catch (err) {
+        console.error('Load profile error:', err);
+        sbHint.textContent = '⚠️ Error: ' + err.message;
+        sbHint.style.color = '#dc2626';
       }
-
-      try{
-        const { data } = await sb.from('v_wallet_activity_recent')
-          .select('ts,type,credits,usd,points')
-          .order('ts',{ascending:false}).limit(10);
-
-        if (data && data.length){
-          list.innerHTML = '';
-          data.forEach(activity => {
-            const item = document.createElement('div');
-            item.className = 'list-item';
-            
-            let label = activity.type;
-            if (activity.type === 'topup') label = `Recarga ${fmtUSD(activity.usd)}`;
-            else if (activity.type === 'unlock') label = `Desbloqueo (${activity.credits} cr)`;
-            else if (activity.type === 'weekly_streak_bonus') label = `Bono semanal (+${activity.points} pts)`;
-            
-            const date = new Date(activity.ts).toLocaleDateString();
-            
-            item.innerHTML = `
-              <span style="font-size: 14px;">${label}</span>
-              <span style="font-size: 12px; color: var(--muted);">${date}</span>
-            `;
-            list.appendChild(item);
-          });
-        }
-      }catch{}
     }
 
     // Security actions
     function setupSecurityActions(){
-      const sbNote = $('#sbNote');
-      
-      if (!sb){
-        sbNote.textContent = 'Sin Supabase configurado';
-        $('#btnResetPwd').onclick = () => alert('Supabase no configurado');
-        $('#btnSignout').onclick = () => {
-          localStorage.clear();
-          location.href = './index.html';
-        };
-        return;
-      }
-
-      sbNote.textContent = 'Gestiona tu cuenta';
-      
       $('#btnResetPwd').onclick = async () => {
-        const { data: { session } } = await sb.auth.getSession();
-        if (!session){ alert('Inicia sesión primero'); return; }
+        const sb = await waitForSupabase();
+        if (!sb) return alert('Error de conexión');
+        
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user){ 
+          alert('Inicia sesión primero'); 
+          return; 
+        }
         
         try{
-          await sb.auth.resetPasswordForEmail(session.user.email);
-          alert('Te enviamos un enlace para cambiar tu contraseña');
+          await sb.auth.resetPasswordForEmail(user.email);
+          alert('✅ Te enviamos un enlace para cambiar tu contraseña');
         }catch(e){
-          alert(e.message || 'Error al enviar email');
+          alert('❌ ' + (e.message || 'Error al enviar email'));
         }
       };
 
       $('#btnSignout').onclick = async () => {
-        try{
-          await sb.auth.signOut();
-        }catch{}
-        location.href = './index.html';
+        const sb = await waitForSupabase();
+        if (sb) {
+          try{
+            await sb.auth.signOut();
+          }catch{}
+        }
+        window.location.href = './index.html';
       };
     }
 
     // Bootstrap
     (async function init(){
-      await Promise.all([
-        loadProfile(),
-        loadWalletStats(),
-        loadFavorites(),
-        loadActivity()
-      ]);
+      await loadProfile();
       setupSecurityActions();
-
-      // Refresh on focus
-      window.addEventListener('focus', () => {
-        setTimeout(() => {
-          loadProfile();
-          loadWalletStats();
-          loadActivity();
-        }, 300);
-      });
     })();
   </script>
 </body>
