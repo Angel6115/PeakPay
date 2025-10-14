@@ -72,7 +72,7 @@ export default async function handler(req, res) {
       if (!finalUserId) {
         console.warn('⚠️ No se encontró userId en metadata, buscando por email en auth.users');
         
-        // ✅ CORRECCIÓN: Buscar en auth.users, NO en profiles
+        // Buscar en auth.users
         const { data: authUser, error: findError } = await supabase.auth.admin.listUsers();
         
         if (findError) {
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
 async function activateAccess(userId, session, userType) {
   const isCreator = userType === 'creator';
 
-  console.log(`🔓 Activando acceso para usuario ${userId} (tipo: ${userType})`);
+  console.log(`🔓 Activando acceso para ${isCreator ? 'CREADOR' : 'USUARIO'} ${userId}`);
 
   // PASO 1: Actualizar perfil principal
   const { error: profileError } = await supabase
@@ -143,52 +143,79 @@ async function activateAccess(userId, session, userType) {
       .eq('id', userId)
       .single();
 
-    const { error: creatorError } = await supabase
+    // Primero verificar si ya existe
+    const { data: existingCreator } = await supabase
       .from('creators')
-      .upsert({
-        user_id: userId,
-        handle: profile?.handle || `creator-${userId.slice(0, 8)}`,
-        name: profile?.display_name || userEmail.split('@')[0] || 'Creator',
-        is_active: true,
-        verified: false,
-        created_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id',
-      });
+      .select('id')
+      .eq('user_id', userId)
+      .single();
 
-    if (creatorError) {
-      console.warn('⚠️ Error creando entrada de creador:', creatorError);
-      // No lanzamos error aquí, el perfil ya está actualizado
+    if (existingCreator) {
+      // Ya existe, solo actualizar
+      const { error: updateError } = await supabase
+        .from('creators')
+        .update({
+          is_active: true,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId);
+      
+      if (updateError) {
+        console.warn('⚠️ Error actualizando creador:', updateError);
+      } else {
+        console.log('✅ Creador actualizado (ya existía)');
+      }
     } else {
-      console.log('✅ Entrada de creador creada');
+      // No existe, crear nuevo
+      const { error: creatorError } = await supabase
+        .from('creators')
+        .insert({
+          user_id: userId,
+          handle: profile?.handle || `creator-${userId.slice(0, 8)}`,
+          name: profile?.display_name || userEmail.split('@')[0] || 'Creator',
+          is_active: true,
+          verified: false,
+          created_at: new Date().toISOString(),
+        });
+
+      if (creatorError) {
+        console.warn('⚠️ Error creando entrada de creador:', creatorError);
+        // No lanzamos error aquí, el perfil ya está actualizado
+      } else {
+        console.log('✅ Entrada de creador creada');
+      }
     }
   }
 
-  // PASO 3: Crear transacción de créditos iniciales (1000 créditos gratis)
-  try {
-    const { error: txnError } = await supabase
-      .from('wallet_txns')
-      .insert({
-        user_key: userId,
-        credits_delta: 1000,
-        usd_delta: 10.00,
-        type: 'credit',
-        meta: { 
-          description: 'Early Access Bonus - 1,000 Peak Credits',
-          source: 'stripe_webhook',
-          session_id: session.id
-        },
-        created_at: new Date().toISOString(),
-      });
+  // PASO 3: Solo USUARIOS reciben 1000 créditos iniciales
+  if (!isCreator) {
+    try {
+      const { error: txnError } = await supabase
+        .from('wallet_txns')
+        .insert({
+          user_key: userId,
+          credits_delta: 1000,
+          usd_delta: 10.00,
+          type: 'topup',
+          meta: { 
+            description: 'Early Access Bonus - 1,000 Peak Credits',
+            source: 'stripe_webhook',
+            session_id: session.id
+          },
+          created_at: new Date().toISOString(),
+        });
 
-    if (txnError) {
-      console.warn('⚠️ Error creando transacción de créditos:', txnError);
-    } else {
-      console.log('✅ 1,000 créditos agregados');
+      if (txnError) {
+        console.warn('⚠️ Error creando transacción de créditos:', txnError);
+      } else {
+        console.log('✅ 1,000 créditos agregados al USUARIO');
+      }
+    } catch (txnErr) {
+      console.warn('⚠️ Error en transacción de créditos:', txnErr);
     }
-  } catch (txnErr) {
-    console.warn('⚠️ Error en transacción de créditos:', txnErr);
+  } else {
+    console.log('ℹ️ Creador no recibe créditos (solo vende contenido)');
   }
 
-  console.log('🎉 Acceso completamente activado para', userId);
+  console.log(`🎉 Acceso completamente activado para ${isCreator ? 'CREADOR' : 'USUARIO'} ${userId}`);
 }
