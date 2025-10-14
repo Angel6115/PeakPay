@@ -112,16 +112,25 @@ async function activateAccess(userId, session, userType) {
   console.log(`🔓 Activando acceso para ${isCreator ? 'CREADOR' : 'USUARIO'} ${userId}`);
 
   // PASO 1: Actualizar perfil principal
+  const profileUpdate = {
+    early_access: true,
+    paid_at: new Date().toISOString(),
+    stripe_customer_id: session.customer,
+    stripe_session_id: session.id,
+    is_creator: isCreator,
+    role: isCreator ? 'creador' : 'usuario',
+  };
+
+  // Solo usuarios reciben 1000 créditos
+  if (!isCreator) {
+    profileUpdate.credits = 1000;
+  } else {
+    profileUpdate.credits = 0; // Creadores siempre 0 créditos
+  }
+
   const { error: profileError } = await supabase
     .from('profiles')
-    .update({
-      early_access: true,
-      paid_at: new Date().toISOString(),
-      stripe_customer_id: session.customer,
-      stripe_session_id: session.id,
-      is_creator: isCreator,
-      role: isCreator ? 'creador' : 'usuario',
-    })
+    .update(profileUpdate)
     .eq('id', userId);
 
   if (profileError) {
@@ -129,7 +138,7 @@ async function activateAccess(userId, session, userType) {
     throw new Error(`Error actualizando perfil: ${profileError.message}`);
   }
 
-  console.log('✅ Perfil actualizado');
+  console.log(`✅ Perfil actualizado - ${isCreator ? 'Creador con 0 créditos' : 'Usuario con 1000 créditos'}`);
 
   // PASO 2: Si es creador, crear entrada en tabla creators
   if (isCreator) {
@@ -180,14 +189,13 @@ async function activateAccess(userId, session, userType) {
 
       if (creatorError) {
         console.warn('⚠️ Error creando entrada de creador:', creatorError);
-        // No lanzamos error aquí, el perfil ya está actualizado
       } else {
         console.log('✅ Entrada de creador creada');
       }
     }
   }
 
-  // PASO 3: Solo USUARIOS reciben 1000 créditos iniciales
+  // PASO 3: Solo USUARIOS reciben transacción de 1000 créditos en wallet_txns
   if (!isCreator) {
     try {
       const { error: txnError } = await supabase
@@ -208,13 +216,13 @@ async function activateAccess(userId, session, userType) {
       if (txnError) {
         console.warn('⚠️ Error creando transacción de créditos:', txnError);
       } else {
-        console.log('✅ 1,000 créditos agregados al USUARIO');
+        console.log('✅ 1,000 créditos agregados al USUARIO (profiles + wallet_txns)');
       }
     } catch (txnErr) {
       console.warn('⚠️ Error en transacción de créditos:', txnErr);
     }
   } else {
-    console.log('ℹ️ Creador no recibe créditos (solo vende contenido)');
+    console.log('ℹ️ Creador configurado con 0 créditos (solo vende contenido)');
   }
 
   console.log(`🎉 Acceso completamente activado para ${isCreator ? 'CREADOR' : 'USUARIO'} ${userId}`);
