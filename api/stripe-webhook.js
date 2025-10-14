@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-
 // Inicializar cliente de Supabase con SERVICE ROLE KEY (para el backend)
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // ⚠️ NO usar anon key aquí, debe ser service_role
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 // Buffer para leer el raw body (necesario para verificar firma de Stripe)
@@ -65,28 +65,33 @@ export default async function handler(req, res) {
     });
 
     try {
-      const { email, userId, type } = session.metadata;
+      const { email, userId, type, role } = session.metadata;
+      let finalUserId = userId;
 
-      if (!userId) {
-        console.warn('⚠️ No se encontró userId en metadata, buscando por email');
+      // Si no tenemos userId, buscar en auth.users por email
+      if (!finalUserId) {
+        console.warn('⚠️ No se encontró userId en metadata, buscando por email en auth.users');
         
-        // Fallback: buscar usuario por email
-        const { data: profile, error: findError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', email)
-          .single();
+        // ✅ CORRECCIÓN: Buscar en auth.users, NO en profiles
+        const { data: authUser, error: findError } = await supabase.auth.admin.listUsers();
+        
+        if (findError) {
+          throw new Error(`Error buscando usuario: ${findError.message}`);
+        }
 
-        if (findError || !profile) {
+        const user = authUser.users.find(u => u.email === email);
+        
+        if (!user) {
           throw new Error(`No se pudo encontrar usuario con email ${email}`);
         }
 
-        // Actualizar con el ID encontrado
-        await activateAccess(profile.id, session, type);
-      } else {
-        // Tenemos userId directamente
-        await activateAccess(userId, session, type);
+        finalUserId = user.id;
+        console.log(`✅ Usuario encontrado por email: ${finalUserId}`);
       }
+
+      // Activar acceso con el userId correcto
+      const userType = role === 'creator' ? 'creator' : (type === 'creator' ? 'creator' : 'user');
+      await activateAccess(finalUserId, session, userType);
 
       return res.status(200).json({ received: true, message: 'Acceso activado' });
     } catch (err) {
@@ -104,7 +109,7 @@ export default async function handler(req, res) {
 async function activateAccess(userId, session, userType) {
   const isCreator = userType === 'creator';
 
-  console.log(`🔓 Activando acceso para usuario ${userId}`);
+  console.log(`🔓 Activando acceso para usuario ${userId} (tipo: ${userType})`);
 
   // PASO 1: Actualizar perfil principal
   const { error: profileError } = await supabase
@@ -128,9 +133,13 @@ async function activateAccess(userId, session, userType) {
 
   // PASO 2: Si es creador, crear entrada en tabla creators
   if (isCreator) {
+    // Obtener email del usuario desde auth.users
+    const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+    const userEmail = authUser?.user?.email || 'unknown';
+
     const { data: profile } = await supabase
       .from('profiles')
-      .select('handle, display_name, email')
+      .select('handle, display_name')
       .eq('id', userId)
       .single();
 
@@ -138,8 +147,8 @@ async function activateAccess(userId, session, userType) {
       .from('creators')
       .upsert({
         user_id: userId,
-        handle: profile?.handle || 'creator',
-        name: profile?.display_name || profile?.email?.split('@')[0] || 'Creator',
+        handle: profile?.handle || `creator-${userId.slice(0, 8)}`,
+        name: profile?.display_name || userEmail.split('@')[0] || 'Creator',
         is_active: true,
         verified: false,
         created_at: new Date().toISOString(),
@@ -160,8 +169,8 @@ async function activateAccess(userId, session, userType) {
     const { error: txnError } = await supabase
       .from('wallet_txns')
       .insert({
-        user_key: userId, // ✅ CORREGIDO: usar user_key en lugar de user_id
-        credits_delta: 1000, // ✅ CORREGIDO: usar credits_delta en lugar de amount
+        user_key: userId,
+        credits_delta: 1000,
         usd_delta: 10.00,
         type: 'credit',
         meta: { 
@@ -179,7 +188,6 @@ async function activateAccess(userId, session, userType) {
     }
   } catch (txnErr) {
     console.warn('⚠️ Error en transacción de créditos:', txnErr);
-    // No lanzamos error, lo importante es que el acceso está activado
   }
 
   console.log('🎉 Acceso completamente activado para', userId);
