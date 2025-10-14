@@ -1,0 +1,382 @@
+
+
+
+octype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Iniciar sesión — PeekPay</title>
+  <link rel="icon" href="./favicon.ico">
+  
+  <!-- Cargar env.js y Supabase -->
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --accent:#667eea;
+      --indigo:#4f46e5;
+      --purple:#764ba2;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .container{ max-width: 450px; width: 100%; }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 20px 60px rgba(102,126,234,0.12);
+    }
+    .logo-area{ text-align:center; margin-bottom: 16px; }
+    .logo{
+      width: 120px;
+      height: auto;
+      display:block;
+      margin: 0 auto 8px;
+      filter: drop-shadow(0 6px 16px rgba(102,126,234,0.20));
+    }
+    h1{ font-size: 26px; font-weight: 900; text-align:center; margin: 4px 0 6px; }
+    .subtitle{ text-align:center; color:var(--muted); font-size: 15px; margin-bottom: 24px; }
+
+    .form-group{ margin-top: 14px; position: relative; }
+    label{ display:block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    input{
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--ring);
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background:#fff;
+    }
+    input:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
+    }
+
+    .eye-toggle{
+      position: absolute;
+      right: 14px;
+      top: 38px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--muted);
+      user-select: none;
+    }
+
+    .btn{
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px 18px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--indigo), var(--purple));
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(79,70,229,.25);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(79,70,229,.3); }
+    .btn:disabled{ opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    .error{
+      display:none;
+      background:#fee2e2;
+      border:1px solid #fca5a5;
+      color:#991b1b;
+      padding:12px 14px;
+      border-radius:12px;
+      font-size:14px;
+      margin: 10px 0 6px;
+    }
+    .success{
+      display:none;
+      background:#d1fae5;
+      border:1px solid #6ee7b7;
+      color:#065f46;
+      padding:12px 14px;
+      border-radius:12px;
+      font-size:14px;
+      margin: 10px 0 6px;
+    }
+
+    .links{
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .links a{
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .links a:hover{
+      text-decoration: underline;
+    }
+    .divider{
+      margin: 20px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width:640px){
+      .card{ padding: 28px 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="logo-area">
+        <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
+        <h1>Bienvenido de vuelta</h1>
+        <p class="subtitle">Inicia sesión en tu cuenta</p>
+      </div>
+
+      <div id="errorMsg" class="error"></div>
+      <div id="successMsg" class="success"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="tu@email.com" autocomplete="email" required autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input id="password" name="password" type="password" placeholder="Tu contraseña" autocomplete="current-password" required>
+          <span id="togglePwd" class="eye-toggle">Mostrar</span>
+        </div>
+
+        <button id="submitBtn" type="submit" class="btn">Iniciar sesión</button>
+      </form>
+
+      <div class="links">
+        <a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <div class="divider">───────  o  ───────</div>
+
+      <div class="links">
+        ¿No tienes cuenta? <a href="./signup.html">Crear cuenta</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Inicializar Supabase
+    let supabase = null;
+    
+    try {
+      if (window.PP_ENV && window.PP_ENV.sb_url && window.PP_ENV.sb_anon) {
+        supabase = window.supabase.createClient(
+          window.PP_ENV.sb_url,
+          window.PP_ENV.sb_anon
+        );
+        console.log('✅ Supabase inicializado');
+      } else {
+        console.error('❌ PP_ENV no está configurado');
+      }
+    } catch (err) {
+      console.error('❌ Error inicializando Supabase:', err);
+    }
+
+    const form = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const forgotLink = document.getElementById('forgotLink');
+    const togglePwd = document.getElementById('togglePwd');
+
+    function showError(msg){
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+      successMsg.style.display = 'none';
+    }
+    
+    function showSuccess(msg){
+      successMsg.textContent = msg;
+      successMsg.style.display = 'block';
+      errorMsg.style.display = 'none';
+    }
+    
+    function hideMessages(){ 
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+    }
+
+    // Toggle password visibility
+    togglePwd.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      togglePwd.textContent = type === 'password' ? 'Mostrar' : 'Ocultar';
+    });
+
+    // Login
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMessages();
+
+      if (!supabase) {
+        showError('Error de configuración. Contacta soporte.');
+        return;
+      }
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email || !password) {
+        showError('Por favor completa todos los campos.');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError('Email inválido.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Iniciando sesión...';
+
+      try {
+        // Sign in
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.toLowerCase(),
+          password: password
+        });
+
+        if (error) {
+          console.error('Login error:', error);
+          
+          if (error.message.includes('Invalid login credentials')) {
+            throw new Error('Email o contraseña incorrectos.');
+          }
+          if (error.message.includes('Email not confirmed')) {
+            throw new Error('Confirma tu email antes de iniciar sesión.');
+          }
+          
+          throw new Error(error.message || 'Error al iniciar sesión.');
+        }
+
+        if (!data.user) {
+          throw new Error('Error al iniciar sesión.');
+        }
+
+        console.log('✅ Login exitoso:', data.user.email);
+        
+        // Guardar email
+        try {
+          localStorage.setItem('pp_email', data.user.email);
+        } catch {}
+
+        showSuccess('¡Sesión iniciada! Redirigiendo...');
+
+        // Verificar tipo de usuario y redirigir
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_creator, early_access')
+          .eq('id', data.user.id)
+          .single();
+
+        setTimeout(() => {
+          if (profile?.is_creator) {
+            window.location.href = './creator-dashboard.html';
+          } else {
+            window.location.href = './profile.html';
+          }
+        }, 800);
+
+      } catch (err) {
+        console.error('❌ Login error:', err);
+        showError(err.message || 'Error al iniciar sesión. Intenta nuevamente.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Iniciar sesión';
+      }
+    });
+
+    // Forgot password
+    forgotLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      if (!supabase) {
+        showError('Error de configuración.');
+        return;
+      }
+      
+      const email = emailInput.value.trim();
+      if (!email) {
+        showError('Por favor ingresa tu email primero.');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError('Email inválido.');
+        return;
+      }
+
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.toLowerCase(), {
+          redirectTo: window.location.origin + '/reset-password.html'
+        });
+        
+        if (error) throw error;
+        
+        showSuccess('✅ Te enviamos un email con instrucciones para recuperar tu contraseña.');
+      } catch (err) {
+        console.error('Reset password error:', err);
+        showError('Error al enviar email. Intenta nuevamente.');
+      }
+    });
+
+    // Check si ya tiene sesión activa
+    (async function checkSession() {
+      if (!supabase) return;
+      
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log('✅ Ya tiene sesión activa, redirigiendo...');
+          window.location.href = './profile.html';
+        }
+      } catch (err) {
+        console.error('Check session error:', err);
+      }
+    })();
+
+    // Prefill email si está guardado
+    (function prefillEmail() {
+      try {
+        const savedEmail = localStorage.getItem('pp_email');
+        if (savedEmail) {
+          emailInput.value = savedEmail;
+          passwordInput.focus();
+        }
+      } catch {}
+    })();
+  </script>
+</body>
+</html>
