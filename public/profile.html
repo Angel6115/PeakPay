@@ -3,25 +3,28 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Mi perfil — PeekPay</title>
+  <title>Mi Perfil — PeekPay</title>
   <link rel="icon" href="./favicon.ico">
+  
   <script src="./env.js"></script>
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
     
     // Inicializar cliente con el MISMO storageKey que login.html
-const supabase = createClient(
-  window.PP_ENV.sb_url,
-  window.PP_ENV.sb_anon,
-  { 
-    auth: { 
-      persistSession: true, 
-      storageKey: 'pp-auth' 
-    } 
-  }
-);
+    const supabase = createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { 
+        auth: { 
+          persistSession: true, 
+          storageKey: 'pp-auth' 
+        } 
+      }
+    );
+    
     window.supabaseClient = supabase;
   </script>
+  
   <style>
     :root{
       --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
@@ -32,6 +35,8 @@ const supabase = createClient(
       --accent:#667eea;
       --purple:#764ba2;
       --green:#10b981;
+      --blue:#3b82f6;
+      --orange:#f59e0b;
     }
     *{ box-sizing:border-box; margin:0; padding:0 }
     body{ 
@@ -66,7 +71,7 @@ const supabase = createClient(
       height: 50px;
       border-radius: 14px;
       box-shadow: 0 4px 12px rgba(102,126,234,0.15);
-      object-fit: contain; /* FIX: Evita que se corte */
+      object-fit: contain;
       background: white;
       padding: 4px;
     }
@@ -136,7 +141,7 @@ const supabase = createClient(
       border-radius: 50%;
       border: 3px solid white;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      object-fit: cover; /* FIX: Evita distorsión */
+      object-fit: cover;
       background: linear-gradient(135deg, var(--accent), var(--purple));
     }
     .profile-info{
@@ -165,6 +170,66 @@ const supabase = createClient(
       border-radius: 12px;
       font-weight: 600;
       color: var(--accent);
+    }
+    
+    /* ✨ NEW: Wallet Preview */
+    .wallet-preview{
+      background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08));
+      border: 2px solid var(--accent);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .wallet-circle{
+      position: relative;
+      width: 100px;
+      height: 100px;
+      flex-shrink: 0;
+    }
+    .wallet-circle svg{
+      transform: rotate(-90deg);
+    }
+    .wallet-circle circle{
+      transition: stroke-dashoffset 1s ease;
+    }
+    .wallet-amount{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .wallet-info{
+      flex: 1;
+    }
+    .wallet-info p{
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .wallet-btn{
+      padding: 10px 18px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(102,126,234,0.25);
+    }
+    .wallet-btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102,126,234,0.35);
     }
     
     /* Stats */
@@ -196,119 +261,147 @@ const supabase = createClient(
       font-weight: 600;
     }
     
-    /* Actions */
-    .actions{
+    /* ✨ NEW: Quick Actions Grid */
+    .quick-actions-grid{
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
-    .btn{
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-      text-decoration: none;
-      display: block;
-    }
-    .btn-primary{
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      color: white;
-      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
-    }
-    .btn-primary:hover{
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(102,126,234,0.4);
-    }
-    .btn-secondary{
+    .action-card{
+      padding: 20px;
       background: white;
-      color: var(--text);
       border: 2px solid var(--ring);
-    }
-    .btn-secondary:hover{
-      border-color: var(--accent);
-      background: rgba(102,126,234,0.05);
-    }
-    
-    /* Quick Links */
-    .quick-links{
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
       gap: 8px;
     }
-    .quick-link{
-      padding: 12px;
-      background: white;
-      border: 1px solid var(--ring);
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
-    }
-    .quick-link:hover{
+    .action-card:hover{
       border-color: var(--accent);
-      background: rgba(102,126,234,0.05);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+    }
+    .action-icon{
+      font-size: 32px;
+      margin-bottom: 4px;
+    }
+    .action-card strong{
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .action-card small{
+      font-size: 12px;
+      color: var(--muted);
     }
     
-    /* Hint */
-    .hint{
-      margin-top: 16px;
-      padding: 12px;
-      background: #fef3c7;
-      border: 1px solid #fbbf24;
-      border-radius: 12px;
-      font-size: 13px;
-      color: #78350f;
-      line-height: 1.5;
-    }
-    
-    /* Sections */
-    .section{
-      margin-bottom: 28px;
-    }
-    .section:last-child{
-      margin-bottom: 0;
-    }
-    .section-header{
+    /* Section Title */
+    .section-title{
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-    .section-title{
+    .section-title h2{
       font-size: 18px;
       font-weight: 800;
     }
     .section-action{
-      font-size: 13px;
-      padding: 6px 14px;
+      padding: 8px 16px;
       background: white;
       border: 1px solid var(--ring);
       border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
+      font-size: 13px;
       font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      transition: all 0.3s;
     }
     .section-action:hover{
-      border-color: var(--accent);
       background: rgba(102,126,234,0.05);
+      border-color: var(--accent);
+    }
+    
+    /* ✨ NEW: Activity Feed */
+    .activity-feed{
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .activity-item{
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .activity-item:hover{
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.1);
+    }
+    .activity-icon{
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .activity-icon.topup{
+      background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1));
+    }
+    .activity-icon.unlock{
+      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+    }
+    .activity-content{
+      flex: 1;
+    }
+    .activity-content p{
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .activity-content small{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .activity-amount{
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--green);
+    }
+    .activity-amount.negative{
+      color: var(--muted);
     }
     
     /* Empty State */
     .empty{
-      padding: 32px;
+      padding: 48px 32px;
       text-align: center;
       color: var(--muted);
       font-size: 14px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.03), rgba(118,75,162,0.03));
+      border-radius: 16px;
+      border: 2px dashed var(--ring);
+    }
+    .empty-icon{
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
     }
     
-    /* Settings */
+    /* Settings List */
     .settings-list{
       display: flex;
       flex-direction: column;
@@ -318,21 +411,62 @@ const supabase = createClient(
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px;
+      padding: 16px;
       background: white;
       border: 1px solid var(--ring);
-      border-radius: 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .setting-item:hover{
+      border-color: var(--accent);
     }
     .setting-label{
       font-size: 14px;
       font-weight: 600;
     }
     
+    /* Status Indicator */
+    .status-indicator{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+    }
+    .status-dot{
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%, 100%{ opacity: 1; }
+      50%{ opacity: 0.5; }
+    }
+    
+    /* Hint */
+    .hint{
+      padding: 12px;
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.3);
+      border-radius: 10px;
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+    
     @media (max-width: 640px){
       .card{ padding: 24px 20px; }
-      .stats{ grid-template-columns: 1fr; }
-      .actions{ grid-template-columns: 1fr; }
-      .quick-links{ grid-template-columns: 1fr; }
+      .wallet-preview{ flex-direction: column; text-align: center; }
+      .wallet-circle{ margin: 0 auto; }
+      .quick-actions-grid{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -370,6 +504,28 @@ const supabase = createClient(
           </div>
         </div>
 
+        <!-- ✨ NEW: Wallet Preview -->
+        <div class="wallet-preview">
+          <div class="wallet-circle">
+            <svg viewBox="0 0 100 100" width="100" height="100">
+              <defs>
+                <linearGradient id="walletGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#667eea"/>
+                  <stop offset="100%" style="stop-color:#764ba2"/>
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+              <circle id="walletCircle" cx="50" cy="50" r="42" fill="none" stroke="url(#walletGradient)" 
+                      stroke-width="8" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/>
+            </svg>
+            <div class="wallet-amount" id="wallet-preview-amount">0</div>
+          </div>
+          <div class="wallet-info">
+            <p id="wallet-usd-value">≈ $0 USD en contenido</p>
+            <button class="wallet-btn" onclick="location.href='./wallet.html'">Ver historial →</button>
+          </div>
+        </div>
+
         <div class="stats">
           <div class="stat">
             <div class="stat-value" id="stat-credits">0</div>
@@ -381,84 +537,89 @@ const supabase = createClient(
           </div>
         </div>
 
-        <div class="actions">
-          <a href="./wallet.html" class="btn btn-primary">Wallet</a>
-          <button class="btn btn-secondary" onclick="alert('Mensajería próximamente ✨')">Mensajes</button>
-        </div>
-
-        <div class="quick-links">
-          <button class="quick-link" onclick="location.href='./index.html'">Home</button>
-          <button class="quick-link" onclick="location.href='./creators.html'">Creadores</button>
-          <button class="quick-link" onclick="location.href='./categories.html'">Categorías</button>
-          <button class="quick-link" onclick="location.href='./notifications.html'">Notificaciones</button>
+        <!-- ✨ NEW: Quick Actions Grid -->
+        <div class="quick-actions-grid">
+          <a href="./creators.html?sort=trending" class="action-card">
+            <span class="action-icon">🔥</span>
+            <strong>Trending</strong>
+            <small>Más populares</small>
+          </a>
+          
+          <a href="./creators.html?sort=new" class="action-card">
+            <span class="action-icon">✨</span>
+            <strong>Nuevos</strong>
+            <small>Recién llegados</small>
+          </a>
+          
+          <a href="./categories.html" class="action-card">
+            <span class="action-icon">🎭</span>
+            <strong>Categorías</strong>
+            <small>Explora temas</small>
+          </a>
+          
+          <a href="./wallet.html" class="action-card">
+            <span class="action-icon">💎</span>
+            <strong>Recargar</strong>
+            <small>Más créditos</small>
+          </a>
         </div>
 
         <div class="hint">
           💡 <strong>Consejo:</strong> Explora creadores y usa tus Peak Credits para desbloquear contenido exclusivo.
         </div>
 
-        <div style="margin-top: 12px; font-size: 12px; color: var(--muted); text-align: center;" id="sbHint">
-          Conectando...
+        <div style="margin-top:20px;text-align:center">
+          <span class="status-indicator">
+            <span class="status-dot"></span>
+            <span id="sbHint">Conectando...</span>
+          </span>
         </div>
       </div>
 
-      <!-- Right Column: Content -->
-      <div>
-        <!-- Favorites -->
-        <div class="card section">
-          <div class="section-header">
-            <h2 class="section-title">Favoritos recientes</h2>
-            <button class="section-action" onclick="location.href='./creators.html'">Explorar</button>
+      <!-- Right Column: Activity & Settings -->
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <!-- Activity Feed -->
+        <div class="card">
+          <div class="section-title">
+            <h2>📊 Actividad reciente</h2>
+            <a href="./wallet.html" class="section-action">Ver todo</a>
           </div>
-          <div id="favEmpty" class="empty">
-            Explora creadores y agrega tus favoritos
-          </div>
-        </div>
-
-        <!-- Activity -->
-        <div class="card section">
-          <div class="section-header">
-            <h2 class="section-title">Actividad reciente</h2>
-            <button class="section-action" onclick="location.href='./wallet.html'">Ver wallet</button>
-          </div>
-          <div class="empty">
-            No hay actividad aún
+          
+          <div id="activityFeed" class="activity-feed">
+            <div class="empty">
+              <div class="empty-icon">📭</div>
+              <p>Cargando actividad...</p>
+            </div>
           </div>
         </div>
 
-        <!-- Privacy Settings -->
-        <div class="card section">
-          <div class="section-header">
-            <h2 class="section-title">Privacidad</h2>
-            <button class="section-action" onclick="location.href='./settings.html'">Ajustes</button>
+        <!-- Settings Preview -->
+        <div class="card">
+          <div class="section-title">
+            <h2>⚙️ Configuración</h2>
+            <a href="./settings.html" class="section-action">Ver todo</a>
           </div>
+          
           <div class="settings-list">
-            <label class="setting-item" style="cursor: pointer;">
+            <label class="setting-item">
               <span class="setting-label">Perfil público</span>
               <input type="checkbox" id="p_public">
             </label>
-            <label class="setting-item" style="cursor: pointer;">
+            
+            <label class="setting-item">
               <span class="setting-label">Mostrar @handle</span>
               <input type="checkbox" id="p_handle" checked>
             </label>
-            <label class="setting-item" style="cursor: pointer;">
+            
+            <label class="setting-item">
               <span class="setting-label">Permitir mensajes</span>
-              <input type="checkbox" id="p_msgs" checked>
+              <input type="checkbox" id="p_messages" checked>
             </label>
           </div>
-        </div>
 
-        <!-- Account Actions -->
-        <div class="card section">
-          <div class="section-header">
-            <h2 class="section-title">Cuenta</h2>
-          </div>
-          <div class="actions">
-            <button class="btn btn-secondary" id="btnResetPwd">Cambiar contraseña</button>
-            <button class="btn btn-secondary" id="btnSignout">Cerrar sesión</button>
-          </div>
-          <div style="font-size: 12px; color: var(--muted); margin-top: 12px; text-align: center;" id="sbNote">
-            Gestiona tu cuenta
+          <div style="margin-top:20px;display:flex;gap:12px">
+            <button id="btnResetPwd" class="wallet-btn" style="flex:1">Cambiar contraseña</button>
+            <button id="btnSignout" class="wallet-btn" style="flex:1;background:#dc2626">Cerrar sesión</button>
           </div>
         </div>
       </div>
@@ -476,6 +637,97 @@ const supabase = createClient(
         attempts++;
       }
       return window.supabaseClient;
+    }
+
+    // Format time ago
+    function timeAgo(date) {
+      const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+      if (seconds < 60) return 'Hace un momento';
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `Hace ${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `Hace ${hours}h`;
+      const days = Math.floor(hours / 24);
+      if (days < 7) return `Hace ${days}d`;
+      return new Date(date).toLocaleDateString();
+    }
+
+    // Load activity feed
+    async function loadActivityFeed(sb, userId) {
+      const feed = $('#activityFeed');
+      
+      try {
+        const { data: txns, error } = await sb
+          .from('wallet_txns')
+          .select('*')
+          .eq('user_key', userId)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        if (!txns || txns.length === 0) {
+          feed.innerHTML = `
+            <div class="empty">
+              <div class="empty-icon">🎯</div>
+              <p><strong>¡Empieza tu aventura!</strong></p>
+              <p style="margin-top:8px">Explora creadores y desbloquea tu primer peek</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        txns.forEach(txn => {
+          const isTopup = txn.type === 'topup';
+          const icon = isTopup ? '💰' : '🔓';
+          const iconClass = isTopup ? 'topup' : 'unlock';
+          const text = isTopup 
+            ? txn.meta?.description || 'Recarga de créditos'
+            : `Desbloqueaste contenido`;
+          const amount = isTopup ? `+${txn.credits_delta}` : `-${Math.abs(txn.credits_delta)}`;
+          const amountClass = isTopup ? '' : 'negative';
+
+          html += `
+            <div class="activity-item">
+              <div class="activity-icon ${iconClass}">${icon}</div>
+              <div class="activity-content">
+                <p>${text}</p>
+                <small>${timeAgo(txn.created_at)}</small>
+              </div>
+              <div class="activity-amount ${amountClass}">${amount}</div>
+            </div>
+          `;
+        });
+
+        feed.innerHTML = html;
+      } catch (err) {
+        console.error('Error loading activity:', err);
+        feed.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">⚠️</div>
+            <p>Error al cargar actividad</p>
+          </div>
+        `;
+      }
+    }
+
+    // Update wallet preview
+    function updateWalletPreview(credits) {
+      const amount = $('#wallet-preview-amount');
+      const usdValue = $('#wallet-usd-value');
+      const circle = $('#walletCircle');
+      
+      amount.textContent = credits.toLocaleString();
+      usdValue.textContent = `≈ $${(credits / 100).toFixed(2)} USD en contenido`;
+      
+      // Animate circle (75% = 1000 credits)
+      const maxCredits = 1000;
+      const percentage = Math.min((credits / maxCredits) * 100, 100);
+      const circumference = 264;
+      const offset = circumference - (circumference * percentage / 100);
+      
+      circle.style.strokeDashoffset = offset;
     }
 
     // Profile info
@@ -524,10 +776,13 @@ const supabase = createClient(
         sbHint.style.color = '#10b981';
 
         // Actualizar UI con datos reales
-        $('#u-name').textContent = profile.display_name || profile.email?.split('@')[0] || 'Usuario';
+        $('#u-name').textContent = profile.display_name || profile.handle || user.email?.split('@')[0] || 'Usuario';
         $('#u-handle').textContent = '@' + (profile.handle || 'usuario');
         $('#stat-credits').textContent = (profile.credits || 0).toLocaleString();
         $('#stat-points').textContent = '0'; // Por ahora
+
+        // Update wallet preview
+        updateWalletPreview(profile.credits || 0);
 
         // Avatar
         if (profile.avatar_url) {
@@ -549,6 +804,9 @@ const supabase = createClient(
         if (country) {
           badgesContainer.innerHTML += `<span class="badge">${country}</span>`;
         }
+
+        // Load activity feed
+        await loadActivityFeed(sb, user.id);
 
       } catch (err) {
         console.error('Load profile error:', err);
