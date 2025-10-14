@@ -9,12 +9,17 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
     
-    // Inicializar cliente
-    const supabase = createClient(
-      window.PP_ENV.sb_url,
-      window.PP_ENV.sb_anon
-    );
-    
+    // Inicializar cliente con el MISMO storageKey que login.html
+const supabase = createClient(
+  window.PP_ENV.sb_url,
+  window.PP_ENV.sb_anon,
+  { 
+    auth: { 
+      persistSession: true, 
+      storageKey: 'pp-auth' 
+    } 
+  }
+);
     window.supabaseClient = supabase;
   </script>
   <style>
