@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Creator Dashboard — PeekPay</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dashboard Creador — PeekPay</title>
   <link rel="icon" href="./favicon.ico">
   
   <script src="./env.js"></script>
@@ -11,551 +11,519 @@
   
   <style>
     :root{
-      --bg1:#eef2ff; --bg2:#e0e7ff;
-      --card:#fff; --ring:#e5e7eb; --text:#0f172a; --muted:#64748b;
-      --indigo:#667eea; --purple:#764ba2; --accent:#6366f1;
-      --ok:#10b981; --warn:#f59e0b;
-
-      /* mosaico */
-      --tile-gap:2px;
-      --tile-radius:12px;
-      --grid-alpha:.20;
-      --grid-line:1px;
+      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --accent:#667eea;
+      --purple:#764ba2;
+      --green:#10b981;
     }
-    *{box-sizing:border-box;margin:0;padding:0}
+    *{ box-sizing:border-box; margin:0; padding:0 }
     body{
-      font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
-      color:var(--text);
-      background:linear-gradient(135deg,var(--bg1),var(--bg2));
-      min-height:100vh; padding:20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
     }
-    .wrap{max-width:1120px;margin:0 auto}
+    .container{ max-width: 1400px; margin: 0 auto; }
     
-    /* Header con logo horizontal */
-    .head{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      margin-bottom:20px;
-      padding-bottom:16px;
-      border-bottom:2px solid var(--ring);
+    /* Header */
+    .header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     .logo{
-      height:auto;
-      width:clamp(160px, 30%, 240px);
+      height: auto;
+      width: clamp(160px, 25%, 220px);
       filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+      cursor: pointer;
     }
-    .pill{
-      margin-left:8px;
-      background:#fff;
-      border:1px solid var(--ring);
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:800;
-      color:#111827;
-      box-shadow:0 4px 14px rgba(79,70,229,.12);
-      font-size:13px;
+    .nav{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .nav{margin-left:auto;display:flex;gap:8px}
-    .btn{
-      appearance:none;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;
+    .nav-btn{
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
       transition: all 0.3s;
     }
-    .btn.secondary{background:#fff;border:1px solid var(--ring)}
-    .btn.secondary:hover{background:rgba(102,126,234,0.05);border-color:var(--indigo)}
-    .btn.primary{
-      background:linear-gradient(135deg,var(--indigo),var(--purple));
-      color:#fff;
-      box-shadow:0 8px 22px rgba(102,126,234,.25);
+    .nav-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
     }
-    .btn.primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(102,126,234,.35)}
-    .btn.small{padding:8px 12px;font-size:13px}
-    .grid{display:grid;gap:14px}
-    @media(min-width:960px){ .grid.cols2{grid-template-columns:1.25fr 1fr} }
-
-    .card{background:var(--card);border:1px solid var(--ring);border-radius:18px;padding:16px;box-shadow:0 12px 40px rgba(102,126,234,.12)}
-    .title{font-weight:900;margin-bottom:10px;font-size:18px}
-    .muted{color:var(--muted);font-size:13px}
-
-    /* Header card */
-    .creator{display:flex;align-items:center;gap:12px}
-    .avatar{width:40px;height:40px;border-radius:999px;object-fit:cover;border:2px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.08)}
-    .status{margin-left:auto}
-    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800}
-    .badge.ok{background:#d1fae5;border:1px solid #a7f3d0;color:#065f46}
-    .badge.pending{background:#fef3c7;border:1px solid #fde68a;color:#92400e}
-
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .chip{
-      display:inline-flex;align-items:center;gap:8px;
-      background:linear-gradient(135deg,rgba(102,126,234,.08),rgba(118,75,162,.08));
-      border:1px solid rgba(102,126,234,.18);
-      border-radius:12px;padding:8px 10px;font-weight:800;font-size:12px;
+    .nav-btn.active{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border-color: transparent;
     }
-    .chip b{font-size:14px}
-
-    /* Mosaic preview */
-    .mosaic-card .canvas{
-      position:relative; width:100%; aspect-ratio:1/1; border-radius:16px; overflow:hidden;
-      background:#f1f5f9; border:1px solid var(--ring);
-      --bpx: 12px;
+    
+    /* Cards */
+    .card{
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(102,126,234,0.08);
+      margin-bottom: 24px;
     }
-    .mosaic-bg{
-      position:absolute; inset:0; background-size:cover; background-position:center;
-      filter:blur(var(--bpx)) brightness(0.9);
-      transform:scale(1.02);
+    
+    .section-title{
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 16px;
     }
-    .grid-overlay{
-      position:absolute; inset:0; pointer-events:none; border-radius:16px;
-      background-image:
-        repeating-linear-gradient(to right, rgba(15,23,42,var(--grid-alpha)) 0 var(--grid-line), transparent var(--grid-line) calc(25%)),
-        repeating-linear-gradient(to bottom, rgba(15,23,42,var(--grid-alpha)) 0 var(--grid-line), transparent var(--grid-line) calc(25%));
-      background-size:100% 100%;
-      mix-blend-mode:multiply;
+    
+    /* Upload Section */
+    .upload-area{
+      border: 2px dashed var(--ring);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      background: rgba(102,126,234,0.02);
+      transition: all 0.3s;
+      cursor: pointer;
     }
-    .tiles{
-      position:absolute; inset:0;
-      display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(4,1fr);
-      gap:var(--tile-gap); padding:var(--tile-gap);
+    .upload-area:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
     }
+    .upload-icon{
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    .btn{
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 14px rgba(102,126,234,0.25);
+    }
+    .btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102,126,234,0.35);
+    }
+    .btn:disabled{
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Grid Preview */
+    .grid-preview{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 600px;
+      margin: 20px auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    
     .tile{
-      position:relative; border-radius:var(--tile-radius); overflow:hidden;
-      box-shadow: 0 1px 4px rgba(2,6,23,.04);
-      background:transparent;
+      aspect-ratio: 1;
+      position: relative;
+      background: #f8fafc;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
     }
-    .tile .sharp{
-      position:absolute; inset:0; border-radius:inherit;
-      background-size:400% 400%; background-repeat:no-repeat;
-      filter:none;
+    .tile:hover{
+      transform: scale(1.02);
+      z-index: 10;
     }
-    .tile.lock::after{
-      content:"LOCK"; position:absolute; bottom:6px; right:8px;
-      font-size:10px; font-weight:900; color:#fff;
-      background:rgba(15,23,42,.85); padding:2px 5px; border-radius:4px;
+    .tile img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
-    .tile.free{
-      box-shadow:0 2px 8px rgba(16,185,129,.2);
+    .tile.blurred img{
+      filter: blur(12px) brightness(0.95);
+      transform: scale(1.1);
     }
-    .bar{
-      position:absolute; left:0; right:0; bottom:0;
-      background:rgba(102,126,234,.95); color:#fff;
-      font-size:12px; font-weight:800; text-align:center; padding:6px;
+    
+    /* Badge FREE */
+    .tile-badge{
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: white;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 5;
     }
-
-    /* Blur control */
-    .sliderRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
-    input[type="range"]{flex:1;min-width:200px}
-    .blurLbl{display:flex;align-items:center;gap:8px}
-
-    /* Calculators */
-    .box{background:#f8fafc;border:1px solid var(--ring);border-radius:12px;padding:12px;margin-bottom:10px}
-    .box strong{display:block;margin-bottom:8px;font-size:13px}
-    .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .row label{font-size:12px;color:var(--muted);font-weight:700}
-    .row input,.row select{padding:8px;border:1px solid var(--ring);border-radius:8px;font-size:13px}
-    .kpi{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--ring)}
-    .kpi:last-child{border:0;font-weight:900}
-    .kpi strong{font-size:16px}
-    .hint{font-size:11px;color:var(--muted);margin-top:6px}
-
-    .loading{text-align:center;padding:40px;color:var(--muted)}
-    .error{background:#fee;border:1px solid #fcc;color:#c00;padding:12px;border-radius:8px;margin-bottom:16px}
+    .tile-badge.free{
+      background: linear-gradient(135deg, var(--green), #34d399);
+    }
+    .tile-badge.lock{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+    }
+    
+    .msg{
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+    .msg.show{ display: block; }
+    .msg.ok{
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      color: var(--green);
+    }
+    .msg.err{
+      background: rgba(220,38,38,0.1);
+      border: 1px solid rgba(220,38,38,0.3);
+      color: #dc2626;
+    }
+    
+    /* Resources */
+    .resources{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 768px){
+      .resources{ grid-template-columns: 1fr; }
+    }
+    
+    .resource-card{
+      padding: 20px;
+      background: white;
+      border: 2px solid var(--ring);
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .resource-card:hover{
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+    }
+    .resource-icon{
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .resource-title{
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .resource-desc{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .info-box{
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.3);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+    
+    @media (max-width: 640px){
+      .grid-preview{ grid-template-columns: repeat(3, 1fr); }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="head">
-      <img src="./assets/brand/peekpay-logo-h.svg" class="logo" alt="PeekPay">
-      <span class="pill">Soft Launch Prep</span>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./creator-dashboard.html'">
       <div class="nav">
-        <button class="btn secondary" onclick="location.href='./profile.html'">Inicio</button>
-        <button class="btn secondary" onclick="location.href='./profile.html'">Mi perfil</button>
-        <button class="btn primary" onclick="location.href='./upload-teaser.html'">+ Subir contenido</button>
+        <a href="./creator-dashboard.html" class="nav-btn active">Dashboard</a>
+        <a href="./creator-profile.html" class="nav-btn">Perfil</a>
+        <a href="./creator-wallet.html" class="nav-btn">Ganancias</a>
+        <a href="./settings.html" class="nav-btn">Ajustes</a>
       </div>
     </div>
 
-    <div id="loadingMsg" class="loading">Cargando tu contenido...</div>
-    <div id="errorMsg" class="error" style="display:none"></div>
-    <div id="content" style="display:none">
+    <!-- Upload Section -->
+    <div class="card">
+      <h2 class="section-title">📸 Upload teaser (imagen completa 4×4)</h2>
+      
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">🖼️</div>
+        <p style="font-weight:700;margin-bottom:8px">Arrastra tu imagen aquí o haz click para seleccionar</p>
+        <p style="font-size:13px;color:var(--muted)">JPG, PNG o WebP • Máx 10MB • Recomendado: 2000×2000px</p>
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+      </div>
 
-      <!-- Creator info -->
-      <div class="card">
-        <div class="creator">
-          <img id="creatorAvatar" class="avatar" src="./peak1.png" alt="Avatar">
-          <div>
-            <div style="font-weight:900" id="hello">¡Bienvenido, @alias!</div>
-            <div class="muted">Tu estado pre-launch y herramientas.</div>
-          </div>
-          <div class="status"><span id="stateBadge" class="badge pending">Pendiente</span></div>
-        </div>
-
-        <div class="chips">
-          <div class="chip"><span>❤️ Favoritos</span><b id="statFavs">0</b></div>
-          <div class="chip"><span>💌 Pedidos especiales</span><b id="statOrders">0</b></div>
-          <div class="chip"><span>⭐ Reviews 5 estrellas</span><b id="statFive">0</b></div>
+      <div id="previewSection" style="display:none">
+        <h3 style="margin:20px 0 10px;text-align:center;font-size:16px">Vista previa del mosaico</h3>
+        <div class="grid-preview" id="gridPreview"></div>
+        
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn" id="saveBtn">Guardar set</button>
         </div>
       </div>
 
-      <div class="grid cols2" style="margin-top:14px">
-        <!-- Preview mosaic -->
-        <div class="card mosaic-card">
-          <div class="title">Tu preview final (mosaico 4×4) <button class="btn small secondary" onclick="location.href='./upload-teaser.html'" style="float:right">Editar pre-launch</button></div>
-          <div class="canvas" id="canvas">
-            <div id="bg" class="mosaic-bg"></div>
-            <div class="grid-overlay"></div>
-            <div id="tiles" class="tiles"></div>
-            <div class="bar" id="mosaicFooter">Preview · 3 gratis + 13 bloqueados</div>
-          </div>
+      <div id="msg" class="msg"></div>
+      
+      <div class="info-box">
+        💡 <strong>Consejo:</strong> Los tiles marcados como FREE se mostrarán desbloqueados para atraer a usuarios. Los demás requerirán Peak Credits para verse. Sube una imagen de alta calidad para mejor experiencia.
+      </div>
+    </div>
 
-          <div class="sliderRow">
-            <div class="blurLbl">
-              <span class="muted">Intensidad del blur</span>
-              <input id="miniBlur" type="range" min="4" max="28" step="1" value="12">
-              <span id="blurVal" class="muted">12</span>
-            </div>
-            <button id="applyBlur" class="btn small secondary">Aplicar</button>
-          </div>
-          <div class="hint">La foto base se desenfoca; los tiles FREE muestran áreas nítidas.</div>
-
-          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ring)">
-            <div class="row">
-              <label style="flex:1">Precio del demo (USD)</label>
-              <input id="price" type="number" min="1" max="50" step="0.5" value="5.00" style="max-width:100px">
-              <button id="savePrice" class="btn small secondary">Guardar precio</button>
-            </div>
-            <div class="hint">Visible al lanzar; también alimenta la calculadora.</div>
-          </div>
+    <!-- Resources -->
+    <div class="card">
+      <h2 class="section-title">📚 Recursos para creadores</h2>
+      
+      <div class="resources">
+        <div class="resource-card">
+          <div class="resource-icon">📋</div>
+          <div class="resource-title">Guía de contenido</div>
+          <div class="resource-desc">Qué tipo de contenido está permitido</div>
         </div>
-
-        <!-- Earnings calculator -->
-        <div class="card">
-          <div class="title">Calculadora de ingresos</div>
-          
-          <div class="box">
-            <strong>Precio</strong>
-            <div class="row">
-              <label style="min-width:120px">Ventas estimadas</label>
-              <input id="calcQty" type="number" min="1" step="1" value="20" style="max-width:100px">
-            </div>
-            <div class="row" style="margin-top:8px">
-              <label style="min-width:120px">Comisión</label>
-              <div>
-                <input type="radio" name="comm" id="comm0" value="0"><label for="comm0" style="margin-right:10px">Mes 1: 0% (primeros 5 pieces)</label><br>
-                <input type="radio" name="comm" id="comm10" value="0.10"><label for="comm10" style="margin-right:10px">10% (rostro visible)</label><br>
-                <input type="radio" name="comm" id="comm15" value="0.15"><label for="comm15" style="margin-right:10px">15% (sin rostro)</label><br>
-                <input type="radio" name="comm" id="comm16" value="0.16" checked><label for="comm16">16% (estándar)</label>
-              </div>
-            </div>
-            <button id="doCalc" class="btn small secondary" style="margin-top:10px">Calcular</button>
-          </div>
-
-          <div class="box">
-            <div class="kpi"><span>Ingresos brutos</span><strong id="kGross">$100.00</strong></div>
-            <div class="kpi"><span>Comisión PeekPay</span><strong id="kFee">-$0.00</strong></div>
-            <div class="kpi"><span>Pago neto estimado</span><strong id="kNet">$100.00</strong></div>
-            <div class="hint">* Estimación ilustrativa. Pagos semanales vía Stripe.</div>
-          </div>
-
-          <div class="box" style="margin-bottom:10px">
-            <strong style="font-size:13px">Mensajes privados</strong>
-            <div class="row" style="margin-top:8px">
-              <span class="muted">Por ahora, las solicitudes llegan a</span>
-              <b id="contactEmail">—</b>
-            </div>
-            <div class="hint">Próximamente: inbox dentro de PeekPay.</div>
-          </div>
-
-          <div class="box">
-            <strong style="font-size:13px">Pedidos especiales (mini-calculadora)</strong>
-            <div class="row" style="margin-top:8px">
-              <label style="min-width:130px">Precio base (USD)</label>
-              <input id="customPrice" type="number" min="1" step="1" value="20" style="max-width:140px">
-              <button id="saveCustom" class="btn small secondary">Guardar</button>
-            </div>
-            <div class="row" style="margin-top:8px; align-items:flex-end">
-              <div style="flex:1">
-                <label>Cantidad</label>
-                <input id="customQty" type="number" min="1" step="1" value="1">
-              </div>
-              <div style="flex:1">
-                <label>Comisión</label>
-                <select id="customRate">
-                  <option value="0.15">15% (sin rostro)</option>
-                  <option value="0.10" selected>10% (rostro visible)</option>
-                  <option value="0.16">16% (estándar)</option>
-                </select>
-              </div>
-              <button id="doCustomCalc" class="btn small secondary">Calcular</button>
-            </div>
-            <div class="kpi"><span>Total bruto</span><strong id="ckGross">$20.00</strong></div>
-            <div class="kpi"><span>Comisión</span><strong id="ckFee">-$2.00</strong></div>
-            <div class="kpi"><span>Total neto</span><strong id="ckNet">$18.00</strong></div>
-          </div>
+        
+        <div class="resource-card">
+          <div class="resource-icon">🎨</div>
+          <div class="resource-title">Mejores prácticas</div>
+          <div class="resource-desc">Cómo crear previews efectivos</div>
+        </div>
+        
+        <div class="resource-card">
+          <div class="resource-icon">💰</div>
+          <div class="resource-title">Pagos y comisiones</div>
+          <div class="resource-desc">70% para ti, pagos cada 15</div>
         </div>
       </div>
-
-      <div class="grid" style="margin-top:14px">
-        <div class="card">
-          <div class="title">Recursos</div>
-          <div class="row" style="gap:8px;flex-wrap:wrap">
-            <button class="btn secondary small" onclick="alert('Guía (mock)')">Guía de contenido aceptado</button>
-            <button class="btn secondary small" onclick="alert('Tips (mock)')">Cómo definir buen preview</button>
-            <button class="btn secondary small" onclick="alert('Política (mock)')">Política de pagos y comisiones</button>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
   <script type="module">
-    // Inicializar Supabase
-  const supabase = window.supabase.createClient(
-    window.PP_ENV.sb_url,
-    window.PP_ENV.sb_anon,
-    { auth: { persistSession: true, storageKey: 'pp-auth' } }
-  );
+    const supabase = window.supabase.createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
+    );
 
-  const $ = (id) => document.getElementById(id);
-  const loadingMsg = $('loadingMsg');
-  const errorMsg = $('errorMsg');
-  const contentDiv = $('content');
+    const $ = id => document.getElementById(id);
+    const uploadArea = $('uploadArea');
+    const fileInput = $('fileInput');
+    const previewSection = $('previewSection');
+    const gridPreview = $('gridPreview');
+    const saveBtn = $('saveBtn');
+    const msg = $('msg');
 
-  let currentUser = null;
-  let creatorContent = null;
+    let uploadedFile = null;
+    let uploadedUrl = null;
+    let currentUser = null;
 
-  // Check authentication
-  async function checkAuth() {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error || !user) {
-      showError('No has iniciado sesión. Redirigiendo...');
-      setTimeout(() => location.href = './login.html?next=creator-dashboard.html', 2000);
-      return null;
+    // Free tiles positions (20% of 16 = 3 tiles)
+    const FREE_TILES = [0, 5, 10];
+
+    function setMsg(text, isOk){
+      msg.textContent = text;
+      msg.className = 'msg show ' + (isOk ? 'ok' : 'err');
     }
-    return user;
-  }
 
-  // Show error
-  function showError(msg) {
-    loadingMsg.style.display = 'none';
-    errorMsg.textContent = msg;
-    errorMsg.style.display = 'block';
-    contentDiv.style.display = 'none';
-  }
-
-  // Load creator content
-  async function loadCreatorContent(userId) {
-    const { data, error } = await supabase
-      .from('creator_content')
-      .select('*')
-      .eq('creator_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return null;
+    // Auth check
+    (async function checkAuth(){
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        location.href = './login.html';
+        return;
       }
-      throw error;
-    }
+      currentUser = user;
+    })();
 
-    return data;
-  }
-
-  // Load profile
-  async function loadProfile(userId) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) throw error;
-    return data;
-  }
-
-  // Render mosaic
-  function buildMosaic(teaserUrl, blurIntensity = 12) {
-    const tiles = $('tiles');
-    tiles.innerHTML = '';
-    const freeTiles = [0, 5, 11];
+    // Upload handlers
+    uploadArea.onclick = () => fileInput.click();
     
-    $('canvas').style.setProperty('--bpx', blurIntensity + 'px');
-    $('miniBlur').value = blurIntensity;
-    $('blurVal').textContent = String(blurIntensity);
-
-    if (!teaserUrl) {
-      $('bg').style.backgroundImage = 'none';
-      tiles.innerHTML = '<div class="muted" style="margin:auto;text-align:center">No has subido contenido aún.<br><a href="./upload-teaser.html">Subir ahora</a></div>';
-      return;
-    }
-
-    $('bg').style.backgroundImage = `url(${teaserUrl})`;
-
-    const rows = 4, cols = 4;
-    for (let i = 0; i < rows * cols; i++) {
-      const r = Math.floor(i / cols), c = i % cols;
-      const t = document.createElement('div');
-      const isFree = freeTiles.includes(i);
-      t.className = 'tile ' + (isFree ? 'free' : 'lock');
+    uploadArea.ondragover = (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--accent)';
+      uploadArea.style.background = 'rgba(102,126,234,0.08)';
+    };
+    
+    uploadArea.ondragleave = () => {
+      uploadArea.style.borderColor = '';
+      uploadArea.style.background = '';
+    };
+    
+    uploadArea.ondrop = (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = '';
+      uploadArea.style.background = '';
       
-      if (isFree) {
-        const sharp = document.createElement('div');
-        sharp.className = 'sharp';
-        sharp.style.backgroundImage = `url(${teaserUrl})`;
-        const step = 33.333;
-        sharp.style.backgroundPosition = `${-c * step}% ${-r * step}%`;
-        sharp.style.backgroundSize = '400% 400%';
-        t.appendChild(sharp);
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
       }
-      tiles.appendChild(t);
-    }
-    
-    $('mosaicFooter').textContent = 'Preview · 3 gratis + 13 bloqueados';
-  }
+    };
 
-  // Update blur
-  $('miniBlur').addEventListener('input', (e) => {
-    const v = Number(e.target.value || 12);
-    $('blurVal').textContent = String(v);
-    $('canvas').style.setProperty('--bpx', v + 'px');
-  });
+    fileInput.onchange = (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    };
 
-  $('applyBlur').onclick = async () => {
-    if (!creatorContent) return;
-    const newBlur = Number($('miniBlur').value || 12);
-    
-    const { error } = await supabase
-      .from('creator_content')
-      .update({ blur_intensity: newBlur })
-      .eq('id', creatorContent.id);
-
-    if (error) {
-      alert('Error al guardar: ' + error.message);
-    } else {
-      alert('Blur actualizado correctamente');
-      creatorContent.blur_intensity = newBlur;
-    }
-  };
-
-  // Save price
-  $('savePrice').onclick = async () => {
-    if (!creatorContent) {
-      alert('Primero sube contenido');
-      return;
-    }
-    
-    const newPrice = Number($('price').value || 5);
-    if (!newPrice || newPrice < 1) {
-      alert('Ingresa un precio válido');
-      return;
-    }
-
-    const { error } = await supabase
-      .from('creator_content')
-      .update({ price: newPrice })
-      .eq('id', creatorContent.id);
-
-    if (error) {
-      alert('Error al guardar: ' + error.message);
-    } else {
-      alert('Precio guardado correctamente');
-      creatorContent.price = newPrice;
-    }
-  };
-
-  // Calculator
-  function calc() {
-    const price = Number($('price').value || 0);
-    const qty = Number($('calcQty').value || 0);
-    const gross = price * qty;
-    
-    let feeRate = 0.16;
-    if ($('comm0').checked) feeRate = 0;
-    else if ($('comm10').checked) feeRate = 0.10;
-    else if ($('comm15').checked) feeRate = 0.15;
-    
-    const fee = gross * feeRate;
-    const net = gross - fee;
-    
-    $('kGross').textContent = `$${gross.toFixed(2)}`;
-    $('kFee').textContent = `-$${fee.toFixed(2)}`;
-    $('kNet').textContent = `$${net.toFixed(2)}`;
-  }
-  $('doCalc').onclick = calc;
-
-  // Custom calculator
-  function customCalc() {
-    const price = Number($('customPrice').value || 0);
-    const qty = Number($('customQty').value || 0);
-    const rate = Number($('customRate').value || 0.10);
-    const gross = price * qty;
-    const fee = gross * rate;
-    const net = gross - fee;
-    
-    $('ckGross').textContent = `$${gross.toFixed(2)}`;
-    $('ckFee').textContent = `-$${fee.toFixed(2)}`;
-    $('ckNet').textContent = `$${net.toFixed(2)}`;
-  }
-  $('doCustomCalc').onclick = customCalc;
-  $('saveCustom').onclick = () => alert('Precio base guardado (solo local por ahora)');
-
-  // Initialize
-  (async function init() {
-    try {
-      currentUser = await checkAuth();
-      if (!currentUser) return;
-
-      // Load profile and content
-      const [profile, contentData] = await Promise.all([
-        loadProfile(currentUser.id),
-        loadCreatorContent(currentUser.id)
-      ]);
-
-      creatorContent = contentData;
-
-      // Update UI
-      const alias = profile.handle || '@alias';
-      $('hello').textContent = `¡Bienvenido, ${alias}!`;
-      $('contactEmail').textContent = currentUser.email || 'tu email';
-
-      if (profile.avatar_url) {
-        $('creatorAvatar').src = profile.avatar_url;
+    function handleFile(file){
+      if (!file.type.startsWith('image/')) {
+        setMsg('Por favor sube una imagen válida');
+        return;
       }
 
-      if (contentData) {
-        // Has content
-        $('stateBadge').textContent = contentData.status === 'published' ? 'Publicado' : 'Borrador';
-        $('stateBadge').className = 'badge ' + (contentData.status === 'published' ? 'ok' : 'pending');
-
-        buildMosaic(contentData.teaser_url, contentData.blur_intensity || 12);
-        $('price').value = contentData.price || 5.00;
-
-        // Mock stats (will be real later)
-        $('statFavs').textContent = contentData.views || 0;
-        $('statOrders').textContent = '0';
-        $('statFive').textContent = contentData.unlocks || 0;
-      } else {
-        // No content yet
-        $('stateBadge').textContent = 'Sin contenido';
-        $('stateBadge').className = 'badge pending';
-        buildMosaic(null);
+      if (file.size > 10 * 1024 * 1024) {
+        setMsg('La imagen debe ser menor a 10MB');
+        return;
       }
 
-      // Show content
-      loadingMsg.style.display = 'none';
-      contentDiv.style.display = 'block';
+      uploadedFile = file;
+      const reader = new FileReader();
       
-      // Initial calculations
-      calc();
-      customCalc();
-
-    } catch (error) {
-      console.error('Error loading dashboard:', error);
-      showError('Error al cargar el dashboard: ' + error.message);
+      reader.onload = (e) => {
+        generatePreview(e.target.result);
+        previewSection.style.display = 'block';
+        setMsg('Vista previa generada. Revisa y guarda cuando estés listo.', true);
+      };
+      
+      reader.readAsDataURL(file);
     }
-  })();
-</script>
+
+    function generatePreview(dataUrl){
+      gridPreview.innerHTML = '';
+      
+      for (let i = 0; i < 16; i++) {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        
+        const img = document.createElement('img');
+        img.src = dataUrl;
+        
+        // Position for grid
+        const row = Math.floor(i / 4);
+        const col = i % 4;
+        img.style.objectPosition = `${(col / 3) * 100}% ${(row / 3) * 100}%`;
+        
+        // Badge
+        const badge = document.createElement('div');
+        badge.className = 'tile-badge';
+        
+        if (FREE_TILES.includes(i)) {
+          // FREE tile - sin blur
+          badge.classList.add('free');
+          badge.textContent = 'FREE';
+        } else {
+          // LOCKED tile - con blur
+          tile.classList.add('blurred');
+          badge.classList.add('lock');
+          badge.textContent = 'LOCK';
+        }
+        
+        tile.appendChild(img);
+        tile.appendChild(badge);
+        gridPreview.appendChild(tile);
+      }
+    }
+
+    saveBtn.onclick = async () => {
+      if (!uploadedFile || !currentUser) {
+        setMsg('Error: No hay archivo o usuario');
+        return;
+      }
+
+      try {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Guardando...';
+        setMsg('Subiendo imagen a Supabase...', true);
+
+        // Upload to Supabase Storage
+        const ext = uploadedFile.name.split('.').pop() || 'jpg';
+        const filename = `sets/${currentUser.id}/${Date.now()}.${ext}`;
+        
+        const { data, error } = await supabase.storage
+          .from('creator-content')
+          .upload(filename, uploadedFile, { upsert: false });
+
+        if (error) throw error;
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('creator-content')
+          .getPublicUrl(filename);
+
+        if (!urlData?.publicUrl) throw new Error('No se obtuvo URL pública');
+
+        uploadedUrl = urlData.publicUrl;
+        
+        // Save to database
+        const { error: dbError } = await supabase
+          .from('sets')
+          .insert({
+            creator_id: currentUser.id,
+            title: 'Set ' + new Date().toLocaleDateString(),
+            category: 'general',
+            grid: 4,
+            image_url: uploadedUrl,
+            free_tiles: FREE_TILES
+          });
+
+        if (dbError) throw dbError;
+
+        setMsg('✓ Set guardado con éxito!', true);
+        saveBtn.textContent = 'Guardar otro set';
+        saveBtn.disabled = false;
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          previewSection.style.display = 'none';
+          gridPreview.innerHTML = '';
+          uploadedFile = null;
+          uploadedUrl = null;
+          fileInput.value = '';
+          msg.className = 'msg';
+        }, 2000);
+
+      } catch (err) {
+        console.error('Error saving set:', err);
+        setMsg('Error: ' + err.message);
+        saveBtn.textContent = 'Guardar set';
+        saveBtn.disabled = false;
+      }
+    };
+
+    // Resource cards click
+    document.querySelectorAll('.resource-card').forEach(card => {
+      card.onclick = () => {
+        alert('Recurso próximamente disponible en Fase 2');
+      };
+    });
+  </script>
 </body>
 </html>

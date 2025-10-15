@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ganancias — PeekPay</title>
+  <link rel="icon" href="./favicon.ico">
+  
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0b1020;
+      --muted:#64748b;
+      --card:#f8fafc;
+      --ring:#e2e8f0;
+      --indigo:#4f46e5;
+      --blue:#2563eb;
+      --green:#10b981;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
+      background:linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      color:var(--text);
+      min-height:100vh;
+      padding:20px;
+    }
+    .container{max-width:1100px;margin:0 auto}
+    
+    /* Header */
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:30px;
+      flex-wrap:wrap;
+      gap:16px;
+    }
+    .logo{
+      height:auto;
+      width:clamp(160px, 25%, 220px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+      cursor:pointer;
+    }
+    .nav{display:flex;gap:8px;flex-wrap:wrap}
+    .nav-btn{
+      padding:10px 16px;
+      background:white;
+      border:1px solid var(--ring);
+      border-radius:10px;
+      text-decoration:none;
+      color:var(--text);
+      font-size:14px;
+      font-weight:600;
+      transition:all 0.3s;
+    }
+    .nav-btn:hover{
+      border-color:var(--indigo);
+      background:rgba(79,70,229,0.05);
+    }
+    .nav-btn.active{
+      background:linear-gradient(135deg, var(--indigo), var(--blue));
+      color:white;
+      border-color:transparent;
+    }
+    
+    /* Cards */
+    .card{
+      background:white;
+      border:1px solid var(--ring);
+      border-radius:20px;
+      padding:24px;
+      margin-bottom:24px;
+      box-shadow:0 10px 30px rgba(102,126,234,0.08);
+    }
+    
+    .section-title{
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:16px;
+    }
+    
+    /* Earnings Summary */
+    .earnings-grid{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:16px;
+      margin-bottom:24px;
+    }
+    @media (max-width:768px){
+      .earnings-grid{grid-template-columns:1fr}
+    }
+    
+    .earning-card{
+      background:linear-gradient(135deg, rgba(79,70,229,0.05), rgba(37,99,235,0.05));
+      border:1px solid var(--ring);
+      border-radius:16px;
+      padding:20px;
+      text-align:center;
+    }
+    .earning-label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:600;
+      margin-bottom:8px;
+    }
+    .earning-value{
+      font-size:32px;
+      font-weight:900;
+      background:linear-gradient(135deg, var(--indigo), var(--blue));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .earning-note{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+    
+    /* Bank Info Form */
+    .form-group{
+      margin-bottom:16px;
+    }
+    label{
+      display:block;
+      font-size:13px;
+      font-weight:600;
+      color:#374151;
+      margin-bottom:6px;
+    }
+    input, select{
+      width:100%;
+      padding:12px;
+      border:1px solid var(--ring);
+      border-radius:10px;
+      font-size:14px;
+      transition:all 0.3s;
+    }
+    input:focus, select:focus{
+      outline:none;
+      border-color:var(--indigo);
+      box-shadow:0 0 0 3px rgba(79,70,229,0.1);
+    }
+    input:disabled{
+      background:#f8fafc;
+      cursor:not-allowed;
+    }
+    
+    .btn{
+      padding:12px 20px;
+      background:linear-gradient(135deg, var(--indigo), var(--blue));
+      color:white;
+      border:none;
+      border-radius:10px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:all 0.3s;
+      box-shadow:0 4px 14px rgba(79,70,229,0.25);
+    }
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(79,70,229,0.35);
+    }
+    .btn:disabled{
+      opacity:0.6;
+      cursor:not-allowed;
+      transform:none;
+    }
+    
+    .msg{
+      margin-top:12px;
+      padding:10px;
+      border-radius:8px;
+      font-size:13px;
+      display:none;
+    }
+    .msg.show{display:block}
+    .msg.ok{
+      background:rgba(16,185,129,0.1);
+      border:1px solid rgba(16,185,129,0.3);
+      color:var(--green);
+    }
+    .msg.err{
+      background:rgba(220,38,38,0.1);
+      border:1px solid rgba(220,38,38,0.3);
+      color:#dc2626;
+    }
+    
+    /* History */
+    .history-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .history-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:16px;
+      background:white;
+      border:1px solid var(--ring);
+      border-radius:12px;
+    }
+    .history-left{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .history-title{
+      font-weight:600;
+      font-size:14px;
+    }
+    .history-date{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .history-amount{
+      font-size:18px;
+      font-weight:800;
+      color:var(--green);
+    }
+    
+    .info-box{
+      background:rgba(251,191,36,0.1);
+      border:1px solid rgba(251,191,36,0.3);
+      border-radius:12px;
+      padding:16px;
+      font-size:13px;
+      color:#92400e;
+      line-height:1.6;
+    }
+    .info-box strong{font-weight:700}
+    
+    .empty{
+      padding:48px;
+      text-align:center;
+      color:var(--muted);
+      background:rgba(102,126,234,0.03);
+      border-radius:16px;
+      border:2px dashed var(--ring);
+    }
+    .empty-icon{
+      font-size:48px;
+      margin-bottom:12px;
+      opacity:0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./creator-dashboard.html'">
+      <div class="nav">
+        <a href="./creator-dashboard.html" class="nav-btn">Dashboard</a>
+        <a href="./creator-profile.html" class="nav-btn">Perfil</a>
+        <a href="./creator-wallet.html" class="nav-btn active">Ganancias</a>
+        <a href="./settings.html" class="nav-btn">Ajustes</a>
+      </div>
+    </div>
+
+    <!-- Earnings Summary -->
+    <div class="earnings-grid">
+      <div class="earning-card">
+        <div class="earning-label">💰 Ganancias del mes</div>
+        <div class="earning-value" id="monthly">$0.00</div>
+        <div class="earning-note">Octubre 2024</div>
+      </div>
+      
+      <div class="earning-card">
+        <div class="earning-label">📊 Total acumulado</div>
+        <div class="earning-value" id="total">$0.00</div>
+        <div class="earning-note">Desde el inicio</div>
+      </div>
+      
+      <div class="earning-card">
+        <div class="earning-label">⏳ Próximo pago</div>
+        <div class="earning-value" id="next">$0.00</div>
+        <div class="earning-note">15 de cada mes</div>
+      </div>
+    </div>
+
+    <!-- Commission Info -->
+    <div class="card">
+      <div class="info-box">
+        💡 <strong>Comisión:</strong> Recibes el <strong>70%</strong> de cada venta. PeekPay retiene 30% por procesamiento de pagos, hosting y operación de la plataforma. Los pagos se procesan el día 15 de cada mes vía transferencia bancaria.
+      </div>
+    </div>
+
+    <!-- Bank Info -->
+    <div class="card">
+      <h2 class="section-title">🏦 Información bancaria</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px">
+        Completa tu información bancaria para recibir tus pagos mensualmente.
+      </p>
+
+      <form id="bankForm">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label>Nombre completo (como aparece en cuenta)</label>
+            <input type="text" id="accountName" placeholder="Juan Pérez" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Banco</label>
+            <select id="bank" required>
+              <option value="">Selecciona tu banco</option>
+              <option value="popular">Banco Popular</option>
+              <option value="bpd">BPD</option>
+              <option value="reservas">Banco de Reservas</option>
+              <option value="progreso">Banco del Progreso</option>
+              <option value="bhd">BHD León</option>
+              <option value="santa-cruz">Banco Santa Cruz</option>
+              <option value="otros">Otro</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label>Número de cuenta</label>
+            <input type="text" id="accountNumber" placeholder="0000000000" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Tipo de cuenta</label>
+            <select id="accountType" required>
+              <option value="">Selecciona tipo</option>
+              <option value="corriente">Corriente</option>
+              <option value="ahorro">Ahorro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email para notificaciones de pago</label>
+          <input type="email" id="paymentEmail" placeholder="tu@email.com" required>
+        </div>
+
+        <button type="submit" class="btn" id="saveBtn">Guardar información bancaria</button>
+        <div id="msg" class="msg"></div>
+      </form>
+    </div>
+
+    <!-- Payment History -->
+    <div class="card">
+      <h2 class="section-title">📋 Historial de pagos</h2>
+      
+      <div id="historyList" class="history-list">
+        <div class="empty">
+          <div class="empty-icon">💸</div>
+          <p><strong>Aún no hay pagos procesados</strong></p>
+          <p style="margin-top:8px;font-size:13px">Los pagos se procesan el día 15 de cada mes</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    const supabase = window.supabase.createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
+    );
+
+    const $ = id => document.getElementById(id);
+    const form = $('bankForm');
+    const msg = $('msg');
+    let currentUser = null;
+
+    function setMsg(text, isOk){
+      msg.textContent = text;
+      msg.className = 'msg show ' + (isOk ? 'ok' : 'err');
+    }
+
+    async function loadData(){
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
+          location.href = './login.html';
+          return;
+        }
+        currentUser = user;
+
+        // Load profile with bank info
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('bank_info')
+          .eq('id', user.id)
+          .single();
+
+        if (profile && profile.bank_info) {
+          const info = profile.bank_info;
+          $('accountName').value = info.account_name || '';
+          $('bank').value = info.bank || '';
+          $('accountNumber').value = info.account_number || '';
+          $('accountType').value = info.account_type || '';
+          $('paymentEmail').value = info.payment_email || user.email;
+        } else {
+          $('paymentEmail').value = user.email;
+        }
+
+        // Mock earnings (por ahora)
+        $('monthly').textContent = '$0.00';
+        $('total').textContent = '$0.00';
+        $('next').textContent = '$0.00';
+
+      } catch (err) {
+        console.error('Error loading data:', err);
+      }
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      
+      const bankInfo = {
+        account_name: $('accountName').value.trim(),
+        bank: $('bank').value,
+        account_number: $('accountNumber').value.trim(),
+        account_type: $('accountType').value,
+        payment_email: $('paymentEmail').value.trim()
+      };
+
+      try {
+        $('saveBtn').disabled = true;
+        $('saveBtn').textContent = 'Guardando...';
+
+        const { error } = await supabase
+          .from('profiles')
+          .update({ bank_info: bankInfo })
+          .eq('id', currentUser.id);
+
+        if (error) throw error;
+
+        setMsg('✓ Información bancaria guardada correctamente', true);
+        $('saveBtn').textContent = 'Guardar información bancaria';
+        $('saveBtn').disabled = false;
+
+      } catch (err) {
+        console.error('Error saving bank info:', err);
+        setMsg('Error al guardar: ' + err.message, false);
+        $('saveBtn').textContent = 'Guardar información bancaria';
+        $('saveBtn').disabled = false;
+      }
+    };
+
+    loadData();
+  </script>
+</body>
+</html>

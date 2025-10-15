@@ -3,313 +3,429 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Perfil de Creador — PeekPay</title>
+  <title>Mi Perfil Creador — PeekPay</title>
   <link rel="icon" href="./favicon.ico">
+  
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root{
-      --bg:linear-gradient(135deg,#eef2ff 0%,#e0e7ff 100%);
-      --text:#0b1020; --muted:#475569; --card:#fff; --ring:#e2e8f0;
-      --indigo:#667eea; --purple:#764ba2; --ok:#10b981; --warn:#f59e0b;
-      --chip:#f1f5f9;
+      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --accent:#667eea;
+      --purple:#764ba2;
+      --green:#10b981;
     }
-    *{ box-sizing:border-box; }
-    body{
-      margin:0; background:var(--bg); color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
-      min-height:100vh; padding:20px;
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
     }
-    .wrap{ max-width:1100px; margin:0 auto; }
-
-    /* Top bar (logo limpio + nav) */
-    .top{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;
+    .container{
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    .brand{
-      display:flex; align-items:center; gap:10px;
+    
+    /* Header */
+    .header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
-    /* ✅ Logo limpio, sin cápsula ni sombra (igual que index) */
-    .logo-eye{
-      width:48px; height:48px; object-fit:contain; border-radius:0; background:transparent; box-shadow:none; 
+    .logo{
+      height: auto;
+      width: clamp(160px, 25%, 220px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+      cursor: pointer;
     }
-    .brand h1{
-      margin:0; font-size:18px; font-weight:900;
-      background:linear-gradient(135deg,var(--indigo),var(--purple));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    .nav{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .nav-mini{ display:flex; gap:8px; }
-    .nav-mini a{
-      border:1px solid var(--ring); background:#fff; color:#111827;
-      border-radius:10px; padding:8px 10px; text-decoration:none; font-weight:700; font-size:12px;
+    .nav-btn{
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
     }
-
-    /* Creator header */
-    .creator-head{
-      background:var(--card); border:1px solid var(--ring); border-radius:16px;
-      padding:12px 16px; display:flex; align-items:center; gap:12px; margin-bottom:16px;
-      box-shadow:0 8px 24px rgba(102,126,234,.10);
+    .nav-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    .nav-btn.active{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border-color: transparent;
+    }
+    
+    /* Grid */
+    .grid{
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 960px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    
+    /* Card */
+    .card{
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(102,126,234,0.08);
+    }
+    
+    /* Profile */
+    .profile-header{
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
     }
     .avatar{
-      width:42px; height:42px; border-radius:999px; object-fit:cover; border:3px solid #fff;
-      box-shadow:0 6px 16px rgba(0,0,0,.15);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      object-fit: cover;
     }
-    .head-info{ flex:1; }
-    .alias{ font-weight:900; }
-    .chip{
-      background:var(--chip); border:1px solid var(--ring); color:#334155; border-radius:999px;
-      padding:4px 8px; font-weight:800; font-size:11px; display:inline-flex; align-items:center; gap:6px;
+    .profile-name{
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 4px;
     }
+    .profile-handle{
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .badge{
+      font-size: 11px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+      border: 1px solid rgba(102,126,234,0.3);
+      border-radius: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      display: inline-block;
+    }
+    
+    /* Stats */
     .stats{
-      display:flex; gap:10px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
     }
     .stat{
-      background:#fff; border:1px solid var(--ring); border-radius:14px; padding:10px 12px; min-width:92px;
-      text-align:center; box-shadow:0 6px 18px rgba(102,126,234,.08);
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
+      border: 1px solid var(--ring);
+      border-radius: 16px;
+      text-align: center;
     }
-    .stat b{ font-size:16px; }
-
-    /* Layout */
-    .grid{
-      display:grid; grid-template-columns: 1.3fr .9fr; gap:14px;
+    .stat-value{
+      font-size: 24px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
     }
-    @media (max-width:980px){ .grid{ grid-template-columns:1fr; } }
-
-    .card{
-      background:#fff; border:1px solid var(--ring); border-radius:16px; padding:14px;
-      box-shadow:0 10px 28px rgba(102,126,234,.10);
+    .stat-label{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
     }
-    .card h3{ margin:0 0 10px; font-size:14px; font-weight:900 }
-    .section-title{ margin:0 0 8px; font-size:14px; font-weight:900; }
-
-    /* Mosaic 4x4 (unido) */
-    .mosaic{
-      display:grid; grid-template-columns:repeat(4,1fr); gap:0; border-radius:16px; overflow:hidden;
-      box-shadow: inset 0 0 0 1px var(--ring);
+    
+    /* Quick Actions */
+    .quick-actions{
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
     }
-    .tile{
-      aspect-ratio:1; position:relative; cursor:pointer;
-      --img:url('./photos/lenceria/rio-out/riolen.jpg'); --pos:0% 0%;
-      background:none;
+    .action-btn{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: white;
+      border: 2px solid var(--ring);
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      transition: all 0.3s;
     }
-    .tile::before{
-      content:''; position:absolute; inset:0; background-image:var(--img);
-      background-size:400% 400%; background-position:var(--pos);
-      transform:scale(1.02);
+    .action-btn:hover{
+      border-color: var(--accent);
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.15);
     }
-    /* posiciones */
-    .tile:nth-child(1){--pos:0% 0%} .tile:nth-child(2){--pos:33.33% 0%} .tile:nth-child(3){--pos:66.66% 0%} .tile:nth-child(4){--pos:100% 0%}
-    .tile:nth-child(5){--pos:0% 33.33%} .tile:nth-child(6){--pos:33.33% 33.33%} .tile:nth-child(7){--pos:66.66% 33.33%} .tile:nth-child(8){--pos:100% 33.33%}
-    .tile:nth-child(9){--pos:0% 66.66%} .tile:nth-child(10){--pos:33.33% 66.66%} .tile:nth-child(11){--pos:66.66% 66.66%} .tile:nth-child(12){--pos:100% 66.66%}
-    .tile:nth-child(13){--pos:0% 100%} .tile:nth-child(14){--pos:33.33% 100%} .tile:nth-child(15){--pos:66.66% 100%} .tile:nth-child(16){--pos:100% 100%}
-
-    /* Blur levels (se ajustan por inline style con --blur) */
-    .tile.free::before{
-      filter: blur(var(--blur,8px)) brightness(.95) contrast(.95) saturate(.75) grayscale(.2);
+    .action-icon{
+      font-size: 24px;
     }
-    .tile.locked{
-      box-shadow: inset 0 0 0 9999px rgba(10,14,24,.35), inset 0 0 120px 40px rgba(10,14,24,.30);
+    
+    /* Section */
+    .section-title{
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 16px;
     }
-    .tile.locked::before{ filter: blur(calc(var(--blur,8px) * 1.6)) brightness(.9) contrast(.9) saturate(.6); }
-    .tile .badge{
-      position:absolute; top:8px; left:8px; font-size:10px; font-weight:900; padding:3px 8px; border-radius:8px; color:#fff;
-      box-shadow:0 6px 16px rgba(0,0,0,.22);
+    
+    /* Sets Grid */
+    .sets-grid{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
     }
-    .tile.free .badge{ background:var(--ok); }
-    .tile.locked .badge{ background:linear-gradient(135deg,var(--indigo),var(--purple)); }
-
-    .bar{
-      margin-top:8px; background:linear-gradient(135deg,rgba(102,126,234,.12),rgba(118,75,162,.12));
-      border:1px solid rgba(102,126,234,.35); border-radius:10px; padding:6px 10px; font-size:12px; color:#334155; text-align:center;
-      font-weight:800;
+    @media (min-width: 1100px){
+      .sets-grid{ grid-template-columns: repeat(3, 1fr); }
     }
-
-    .btn{
-      appearance:none; border:0; border-radius:10px; padding:10px 12px; font-weight:900; cursor:pointer; font-size:13px;
+    
+    .set-card{
+      border: 1px solid var(--ring);
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+      transition: all 0.3s;
+      cursor: pointer;
     }
-    .btn-primary{
-      background:linear-gradient(135deg,var(--indigo),var(--purple)); color:#fff; box-shadow:0 8px 20px rgba(102,126,234,.28);
+    .set-card:hover{
+      box-shadow: 0 8px 24px rgba(102,126,234,0.15);
+      transform: translateY(-2px);
     }
-    .btn-ghost{
-      background:#fff; color:#111827; border:1px solid var(--ring);
+    .set-thumb{
+      width: 100%;
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
     }
-    .row{ display:flex; gap:8px; flex-wrap:wrap }
-    .field{
-      display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px; border:1px solid var(--ring);
-      border-radius:12px; background:#fff;
+    .set-info{
+      padding: 12px;
     }
-    .field strong{ font-size:18px }
-    .info{
-      font-size:12px; color:#64748b; line-height:1.6; background:#f8fafc; border:1px solid var(--ring); border-radius:12px; padding:10px;
+    .set-name{
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
     }
-    .mini{ font-size:11px; color:#64748b }
+    .set-stats{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .empty{
+      padding: 48px 32px;
+      text-align: center;
+      color: var(--muted);
+      background: linear-gradient(135deg, rgba(102,126,234,0.03), rgba(118,75,162,0.03));
+      border-radius: 16px;
+      border: 2px dashed var(--ring);
+    }
+    .empty-icon{
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+    
+    .hint{
+      padding: 12px;
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.3);
+      border-radius: 10px;
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+    
+    @media (max-width: 640px){
+      .card{ padding: 24px 20px; }
+      .sets-grid{ grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- Top bar -->
-    <div class="top">
-      <div class="brand">
-        <img src="./peak1.png" alt="PeekPay" class="logo-eye">
-        <h1>PeekPay</h1>
-      </div>
-      <div class="nav-mini">
-        <a href="./creator-dashboard.html">Dashboard</a>
-        <a href="./index.html">Inicio</a>
-        <a href="./signup.html" class="btn btn-primary" style="padding:8px 12px">Unirme (usuario)</a>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./creator-dashboard.html'">
+      <div class="nav">
+        <a href="./creator-dashboard.html" class="nav-btn">Dashboard</a>
+        <a href="./creator-profile.html" class="nav-btn active">Perfil</a>
+        <a href="./creator-wallet.html" class="nav-btn">Ganancias</a>
+        <a href="./settings.html" class="nav-btn">Ajustes</a>
       </div>
     </div>
 
-    <!-- Creator header -->
-    <div class="creator-head">
-      <img id="avatar" src="./peak1.png" alt="avatar" class="avatar">
-      <div class="head-info">
-        <div class="alias" id="alias">—</div>
-        <div class="mini" id="handle">@—</div>
-      </div>
-      <div class="stats">
-        <div class="stat"><div class="mini">Favoritos</div><b id="favCount">0</b></div>
-        <div class="stat"><div class="mini">Pedidos especiales</div><b id="spCount">0</b></div>
-        <div class="stat"><div class="mini">Pedidos 5★</div><b id="starCount">0</b></div>
-      </div>
-    </div>
-
+    <!-- Grid -->
     <div class="grid">
-      <!-- Izquierda: Mosaic -->
+      <!-- Left: Profile Card -->
       <div class="card">
-        <h3>Tu preview final (mosaico 4x4)</h3>
-        <div class="mosaic" id="grid" style="--blur: 12px;">
-          <!-- 16 tiles; FREE en 1,6,11 por defecto -->
-          <div class="tile free"><span class="badge">FREE</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile free"><span class="badge">FREE</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile free"><span class="badge">FREE</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-          <div class="tile locked"><span class="badge">LOCK</span></div>
-        </div>
-        <div class="bar" id="barInfo">Preview: 3 gratis + 13 bloqueados</div>
-
-        <div class="card" style="margin-top:10px">
-          <div class="section-title">Acerca de este set</div>
-          <div class="mini" id="aboutSet">Blur actual: 12 px</div>
-          <div class="info" style="margin-top:8px">
-            El creador decide qué tan borroso aparece el teaser. Lo nítido solo se ve al desbloquear.
+        <div class="profile-header">
+          <img id="avatar" src="./assets/brand/peekpay-mark.svg" alt="Avatar" class="avatar">
+          <div style="flex:1">
+            <div class="profile-name" id="name">Cargando...</div>
+            <div class="profile-handle" id="handle">@...</div>
+            <span class="badge">⭐ Creador</span>
           </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-value" id="stat-views">0</div>
+            <div class="stat-label">Vistas</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-likes">0</div>
+            <div class="stat-label">Likes</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-subs">0</div>
+            <div class="stat-label">Seguidores</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-sets">0</div>
+            <div class="stat-label">Sets</div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <a href="./creator-dashboard.html" class="action-btn">
+            <span class="action-icon">📊</span>
+            <span>Ver dashboard</span>
+          </a>
+          <a href="./creator-wallet.html" class="action-btn">
+            <span class="action-icon">💰</span>
+            <span>Ver ganancias</span>
+          </a>
+          <a href="./settings.html" class="action-btn">
+            <span class="action-icon">⚙️</span>
+            <span>Configuración</span>
+          </a>
+        </div>
+
+        <div class="hint">
+          💡 <strong>Consejo:</strong> Sube contenido de calidad regularmente para mantener a tus seguidores comprometidos.
         </div>
       </div>
 
-      <!-- Derecha: acciones -->
+      <!-- Right: Sets -->
       <div class="card">
-        <h3>Precio sugerido del set</h3>
-        <div class="field">
-          <div class="mini">Precio</div>
-          <strong id="price">$5.00</strong>
-          <button class="btn btn-primary" id="unlockBtn">Desbloquear</button>
-        </div>
-        <div class="mini" style="margin-top:6px">Paga solo lo que quieras ver. 3 tiles son gratis.</div>
-
-        <div class="card" style="margin-top:12px">
-          <div class="row">
-            <button class="btn btn-ghost">❤ Agregar a favoritos</button>
+        <h2 class="section-title">📸 Mis Sets</h2>
+        
+        <div id="setsGrid" class="sets-grid">
+          <div class="empty">
+            <div class="empty-icon">📦</div>
+            <p><strong>Cargando sets...</strong></p>
           </div>
-          <div class="row" style="margin-top:8px">
-            <button class="btn btn-ghost">🍰 Pedido especial</button>
-          </div>
-          <div class="row" style="margin-top:8px">
-            <button class="btn btn-ghost">🔗 Compartir</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <h3>Información</h3>
-          <div class="mini">Mensajes privados: <b>En tu Inbox</b></div>
-          <div class="mini" id="permalink" style="margin-top:6px; word-break:break-all"></div>
-          <div class="info" style="margin-top:8px">
-            Tras el Soft Launch conectaremos tu cuenta real (Supabase/Stripe). Esto es un preview funcional.
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <h3>Pedidos especiales</h3>
-          <div class="mini">Precio base: <b id="spBase">$15.00</b> • Comisión plataforma: <b>10%</b></div>
-          <div class="mini" id="spNet">Estimado creador (neto): $12.60</div>
-          <button class="btn btn-primary" style="margin-top:8px">Crear pedido</button>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    (function(){
-      // Utilidades
-      const $ = s => document.querySelector(s);
-      const fmt = n => `$${Number(n).toFixed(2)}`;
+  <script type="module">
+    const supabase = window.supabase.createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
+    );
 
-      // Alias desde query (?u=)
-      const params = new URLSearchParams(location.search);
-      const u = params.get('u') || 'yoyo';
+    const $ = id => document.getElementById(id);
 
-      // Carga mínima desde localStorage si existe
-      const profile = (()=> {
-        try { return JSON.parse(localStorage.getItem('pp_prelaunch_profile')||'{}'); } catch { return {}; }
-      })();
+    async function loadProfile(){
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
+          location.href = './login.html';
+          return;
+        }
 
-      const alias = profile.alias || u || '—';
-      const handle = '@'+alias;
-      const blur = Number(localStorage.getItem('pp_teaser_blur') || 12);
-      const teaserSrc = localStorage.getItem('pp_teaser_src') || ''; // si no, usamos demo por defecto
-      const avatarTmp = localStorage.getItem('pp_avatar_tmp') || '';
+        // Load profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
 
-      // Mock counters (si no existen)
-      const favs = Number(localStorage.getItem('pp_favorites_count') || 124);
-      const specials = Number(localStorage.getItem('pp_special_orders') || 37);
-      const stars = Number(localStorage.getItem('pp_five_star_orders') || 18);
-      const price = Number(localStorage.getItem('pp_price_demo') || 6);
+        if (profile) {
+          $('name').textContent = profile.display_name || profile.handle || 'Creador';
+          $('handle').textContent = '@' + (profile.handle || 'creador');
+          
+          if (profile.avatar_url) {
+            $('avatar').src = profile.avatar_url;
+          }
 
-      // Pinta cabecera
-      $('#alias').textContent = (profile.displayName || alias).toUpperCase();
-      $('#handle').textContent = handle;
-      $('#favCount').textContent = favs;
-      $('#spCount').textContent = specials;
-      $('#starCount').textContent = stars;
+          // Stats (mock for now)
+          $('stat-views').textContent = '0';
+          $('stat-likes').textContent = '0';
+          $('stat-subs').textContent = '0';
+        }
 
-      const avatar = $('#avatar');
-      if (avatarTmp) avatar.src = avatarTmp;
+        // Load sets
+        const { data: sets, error: setsError } = await supabase
+          .from('sets')
+          .select('*')
+          .eq('creator_id', user.id)
+          .order('created_at', { ascending: false });
 
-      // Permalink
-      const link = `${location.origin}${location.pathname}?u=${encodeURIComponent(alias)}`;
-      $('#permalink').textContent = `Perfil (link): ${link}`;
+        const setsGrid = $('setsGrid');
+        
+        if (!sets || sets.length === 0) {
+          setsGrid.innerHTML = `
+            <div class="empty">
+              <div class="empty-icon">📦</div>
+              <p><strong>Aún no tienes sets</strong></p>
+              <p style="margin-top:8px;font-size:12px">Ve al dashboard para crear tu primer set</p>
+            </div>
+          `;
+        } else {
+          $('stat-sets').textContent = sets.length;
+          
+          let html = '';
+          sets.forEach(set => {
+            html += `
+              <div class="set-card" onclick="location.href='./creator-dashboard.html'">
+                <div class="set-thumb">🎨</div>
+                <div class="set-info">
+                  <div class="set-name">${set.title || 'Set sin título'}</div>
+                  <div class="set-stats">${set.category || 'Sin categoría'} • ${set.grid || 4}×${set.grid || 4}</div>
+                </div>
+              </div>
+            `;
+          });
+          setsGrid.innerHTML = html;
+        }
 
-      // Precio + pedidos especiales
-      $('#price').textContent = fmt(price);
-      const spBase = Number(localStorage.getItem('pp_sp_base') || 15);
-      $('#spBase').textContent = fmt(spBase);
-      $('#spNet').textContent = `Estimado creador (neto): ${fmt(spBase*0.9)}`;
-
-      // Mosaico
-      const grid = $('#grid');
-      grid.style.setProperty('--blur', `${blur}px`);
-      if (teaserSrc) {
-        grid.querySelectorAll('.tile').forEach(t => t.style.setProperty('--img', `url(${teaserSrc})`));
+      } catch (err) {
+        console.error('Error loading profile:', err);
       }
-      $('#aboutSet').textContent = `Blur actual: ${blur} px`;
+    }
 
-      // Desbloquear → demo
-      $('#unlockBtn').addEventListener('click', ()=>{
-        alert('Demo: En el lanzamiento podrás desbloquear con Peak Credits.');
-      });
-    })();
+    loadProfile();
   </script>
 </body>
 </html>
