@@ -67,7 +67,8 @@
       border:1px solid var(--ring);
       background: var(--card);
       border-radius:16px;
-      padding:14px;margin-top:12px;
+      padding:16px;
+      margin-top:12px;
       box-shadow: 0 6px 14px rgba(79,70,229,.06);
     }
 
@@ -90,17 +91,83 @@
     .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
     .btn[disabled]{opacity:.6;cursor:not-allowed}
 
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-    @media (max-width:640px){ .grid{grid-template-columns:1fr;} }
+    /* Grid mejorado con mejor espaciado */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+    @media (max-width:640px){ 
+      .grid{
+        grid-template-columns:1fr;
+        gap:12px;
+      } 
+    }
+    @media (min-width:641px) and (max-width:840px){
+      .grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
     
+    /* Pack card mejorado */
     .pack{
       border:1px solid var(--ring);
-      background:#fff; color:var(--text); border-radius:14px; padding:14px; cursor:pointer; text-align:center;
+      background:#fff;
+      color:var(--text);
+      border-radius:14px;
+      padding:20px 16px;
+      cursor:pointer;
+      text-align:center;
       box-shadow: 0 6px 14px rgba(79,70,229,.06);
       transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:140px;
+      justify-content:center;
     }
-    .pack:hover{ transform: translateY(-1px); box-shadow: 0 12px 32px rgba(79,70,229,.10); border-color: var(--indigo); }
-    .pack small{ display:block; opacity:.75 }
+    .pack:hover{ 
+      transform: translateY(-2px); 
+      box-shadow: 0 12px 32px rgba(79,70,229,.12); 
+      border-color: var(--indigo); 
+    }
+    
+    .pack-amount{
+      font-size:32px;
+      font-weight:900;
+      line-height:1;
+      background:linear-gradient(135deg, var(--indigo), var(--blue));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    
+    .pack-label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:600;
+      margin-bottom:4px;
+    }
+    
+    .pack-price{
+      font-size:20px;
+      font-weight:700;
+      color:var(--indigo);
+      margin-top:8px;
+      margin-bottom:4px;
+    }
+    
+    .pack-badge{
+      display:inline-block;
+      font-size:11px;
+      background:var(--badge-bg);
+      color:var(--badge-text);
+      border:1px solid var(--badge-ring);
+      border-radius:8px;
+      padding:4px 8px;
+      font-weight:700;
+      margin-top:4px;
+    }
 
     .msg{margin-top:8px;font-size:13px;min-height:18px}
     .ok{color:var(--ok)} .err{color:var(--err)}
@@ -142,23 +209,25 @@
     <section class="panel">
       <p class="h2">🎁 Comprar más créditos</p>
       <p class="muted">Elige un paquete para desbloquear más contenido</p>
-      <div class="grid" style="margin-top:10px">
+      <div class="grid" style="margin-top:16px">
         <div class="pack" data-amt="100" data-usd="0.99">
-          <div style="font-size:28px;font-weight:900">100</div>
-          <small>Peak Credits</small>
-          <div style="margin-top:8px;font-weight:700;color:var(--indigo)">$0.99</div>
+          <div class="pack-amount">100</div>
+          <div class="pack-label">Peak Credits</div>
+          <div class="pack-price">$0.99</div>
         </div>
+        
         <div class="pack" data-amt="500" data-usd="4.49">
-          <div style="font-size:28px;font-weight:900">500</div>
-          <small>Peak Credits</small>
-          <div style="margin-top:8px;font-weight:700;color:var(--indigo)">$4.49</div>
-          <span class="badge" style="margin-top:6px">Ahorra 10%</span>
+          <div class="pack-amount">500</div>
+          <div class="pack-label">Peak Credits</div>
+          <div class="pack-price">$4.49</div>
+          <span class="pack-badge">Ahorra 10%</span>
         </div>
+        
         <div class="pack" data-amt="1000" data-usd="7.99">
-          <div style="font-size:28px;font-weight:900">1000</div>
-          <small>Peak Credits</small>
-          <div style="margin-top:8px;font-weight:700;color:var(--indigo)">$7.99</div>
-          <span class="badge" style="margin-top:6px">Ahorra 20%</span>
+          <div class="pack-amount">1000</div>
+          <div class="pack-label">Peak Credits</div>
+          <div class="pack-price">$7.99</div>
+          <span class="pack-badge">Ahorra 20%</span>
         </div>
       </div>
       <p id="msg" class="msg" role="status"></p>
@@ -212,7 +281,7 @@
         if (!currentUser) return;
 
         const profile = await loadProfile(currentUser.id);
-        balanceEl.textContent = profile.credits || 0;
+        balanceEl.textContent = (profile.credits || 0).toLocaleString();
 
         // Mock history
         histEl.innerHTML = `

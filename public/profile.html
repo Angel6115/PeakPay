@@ -10,7 +10,6 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
     
-    // Inicializar cliente con el MISMO storageKey que login.html
     const supabase = createClient(
       window.PP_ENV.sb_url,
       window.PP_ENV.sb_anon,
@@ -51,7 +50,7 @@
       margin: 0 auto;
     }
     
-    /* Header */
+    /* Header con logo horizontal */
     .header{
       display: flex;
       align-items: center;
@@ -67,26 +66,14 @@
       cursor: pointer;
     }
     .logo{
-      width: 50px;
-      height: 50px;
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(102,126,234,0.15);
-      object-fit: contain;
-      background: white;
-      padding: 4px;
-    }
-    .brand-text h1{
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 2px;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      height: auto;
+      width: clamp(160px, 25%, 220px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
     }
     .brand-text p{
       font-size: 13px;
       color: var(--muted);
+      margin-top: 4px;
     }
     .nav{
       display: flex;
@@ -109,7 +96,6 @@
       background: rgba(102,126,234,0.05);
     }
     
-    /* Grid Layout */
     .grid{
       display: grid;
       grid-template-columns: 350px 1fr;
@@ -119,7 +105,6 @@
       .grid{ grid-template-columns: 1fr; }
     }
     
-    /* Card */
     .card{
       background: var(--card);
       border: 1px solid var(--ring);
@@ -128,7 +113,6 @@
       box-shadow: 0 10px 30px rgba(102,126,234,0.08);
     }
     
-    /* Profile Card */
     .profile-header{
       display: flex;
       align-items: center;
@@ -172,7 +156,6 @@
       color: var(--accent);
     }
     
-    /* ✨ NEW: Wallet Preview */
     .wallet-preview{
       background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08));
       border: 2px solid var(--accent);
@@ -232,7 +215,6 @@
       box-shadow: 0 6px 16px rgba(102,126,234,0.35);
     }
     
-    /* Stats */
     .stats{
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -261,7 +243,6 @@
       font-weight: 600;
     }
     
-    /* ✨ NEW: Quick Actions Grid */
     .quick-actions-grid{
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -300,7 +281,6 @@
       color: var(--muted);
     }
     
-    /* Section Title */
     .section-title{
       display: flex;
       align-items: center;
@@ -327,7 +307,6 @@
       border-color: var(--accent);
     }
     
-    /* ✨ NEW: Activity Feed */
     .activity-feed{
       display: flex;
       flex-direction: column;
@@ -385,7 +364,6 @@
       color: var(--muted);
     }
     
-    /* Empty State */
     .empty{
       padding: 48px 32px;
       text-align: center;
@@ -401,7 +379,6 @@
       opacity: 0.5;
     }
     
-    /* Settings List */
     .settings-list{
       display: flex;
       flex-direction: column;
@@ -426,7 +403,6 @@
       font-weight: 600;
     }
     
-    /* Status Indicator */
     .status-indicator{
       display: inline-flex;
       align-items: center;
@@ -451,7 +427,6 @@
       50%{ opacity: 0.5; }
     }
     
-    /* Hint */
     .hint{
       padding: 12px;
       background: rgba(251,191,36,0.1);
@@ -467,6 +442,7 @@
       .wallet-preview{ flex-direction: column; text-align: center; }
       .wallet-circle{ margin: 0 auto; }
       .quick-actions-grid{ grid-template-columns: 1fr; }
+      .logo{ width: clamp(140px, 50%, 180px); }
     }
   </style>
 </head>
@@ -476,10 +452,6 @@
     <div class="header">
       <div class="logo-area" onclick="location.href='./index.html'">
         <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
-        <div class="brand-text">
-          <h1>PeekPay</h1>
-          <p>Mi perfil</p>
-        </div>
       </div>
       <div class="nav">
         <a href="./index.html" class="nav-btn">Inicio</a>
@@ -504,7 +476,7 @@
           </div>
         </div>
 
-        <!-- ✨ NEW: Wallet Preview -->
+        <!-- Wallet Preview -->
         <div class="wallet-preview">
           <div class="wallet-circle">
             <svg viewBox="0 0 100 100" width="100" height="100">
@@ -537,7 +509,7 @@
           </div>
         </div>
 
-        <!-- ✨ NEW: Quick Actions Grid -->
+        <!-- Quick Actions Grid -->
         <div class="quick-actions-grid">
           <a href="./creators.html?sort=trending" class="action-card">
             <span class="action-icon">🔥</span>
@@ -629,7 +601,6 @@
   <script type="module">
     const $ = s => document.querySelector(s);
     
-    // Esperar a que supabaseClient esté disponible
     async function waitForSupabase() {
       let attempts = 0;
       while (!window.supabaseClient && attempts < 50) {
@@ -639,7 +610,6 @@
       return window.supabaseClient;
     }
 
-    // Format time ago
     function timeAgo(date) {
       const seconds = Math.floor((new Date() - new Date(date)) / 1000);
       if (seconds < 60) return 'Hace un momento';
@@ -652,7 +622,6 @@
       return new Date(date).toLocaleDateString();
     }
 
-    // Load activity feed
     async function loadActivityFeed(sb, userId) {
       const feed = $('#activityFeed');
       
@@ -712,7 +681,6 @@
       }
     }
 
-    // Update wallet preview
     function updateWalletPreview(credits) {
       const amount = $('#wallet-preview-amount');
       const usdValue = $('#wallet-usd-value');
@@ -721,7 +689,6 @@
       amount.textContent = credits.toLocaleString();
       usdValue.textContent = `≈ $${(credits / 100).toFixed(2)} USD en contenido`;
       
-      // Animate circle (75% = 1000 credits)
       const maxCredits = 1000;
       const percentage = Math.min((credits / maxCredits) * 100, 100);
       const circumference = 264;
@@ -730,7 +697,6 @@
       circle.style.strokeDashoffset = offset;
     }
 
-    // Profile info
     async function loadProfile(){
       const sbHint = $('#sbHint');
       const sb = await waitForSupabase();
@@ -742,7 +708,14 @@
       }
 
       try {
-        // Obtener usuario autenticado
+        // IMPORTANTE: Refrescar sesión para obtener datos más recientes
+        const { data: { session }, error: refreshError } = await sb.auth.refreshSession();
+        
+        if (refreshError) {
+          console.warn('Refresh error:', refreshError);
+        }
+
+        // Obtener usuario con datos frescos
         const { data: { user }, error: userError } = await sb.auth.getUser();
         
         if (userError || !user) {
@@ -750,14 +723,13 @@
           sbHint.style.color = '#dc2626';
           console.error('Auth error:', userError);
           
-          // Redirigir a login después de 2 segundos
           setTimeout(() => {
             window.location.href = './login.html';
           }, 2000);
           return;
         }
 
-        // Leer perfil completo de la base de datos
+        // Leer perfil de la BD
         const { data: profile, error: profileError } = await sb
           .from('profiles')
           .select('*')
@@ -772,21 +744,27 @@
         }
 
         console.log('✅ Profile loaded:', profile);
+        console.log('✅ User metadata:', user.user_metadata);
+        
         sbHint.textContent = '✅ Conectado';
         sbHint.style.color = '#10b981';
 
-        // Actualizar UI con datos reales
-        $('#u-name').textContent = profile.display_name || profile.handle || user.email?.split('@')[0] || 'Usuario';
-        $('#u-handle').textContent = '@' + (profile.handle || 'usuario');
-        $('#stat-credits').textContent = (profile.credits || 0).toLocaleString();
-        $('#stat-points').textContent = '0'; // Por ahora
+        // PRIORIDAD: user_metadata (más reciente) > profile BD
+        const metadata = user.user_metadata || {};
+        const displayName = metadata.name || profile.display_name || profile.handle || user.email?.split('@')[0] || 'Usuario';
+        const handle = metadata.handle || profile.handle || 'usuario';
+        const avatarUrl = metadata.avatar_url || profile.avatar_url;
 
-        // Update wallet preview
+        // Actualizar UI
+        $('#u-name').textContent = displayName;
+        $('#u-handle').textContent = '@' + handle;
+        $('#stat-credits').textContent = (profile.credits || 0).toLocaleString();
+        $('#stat-points').textContent = '0';
+
         updateWalletPreview(profile.credits || 0);
 
-        // Avatar
-        if (profile.avatar_url) {
-          $('#u-avatar').src = profile.avatar_url;
+        if (avatarUrl) {
+          $('#u-avatar').src = avatarUrl;
         }
 
         // Badges
@@ -805,7 +783,6 @@
           badgesContainer.innerHTML += `<span class="badge">${country}</span>`;
         }
 
-        // Load activity feed
         await loadActivityFeed(sb, user.id);
 
       } catch (err) {
@@ -815,7 +792,6 @@
       }
     }
 
-    // Security actions
     function setupSecurityActions(){
       $('#btnResetPwd').onclick = async () => {
         const sb = await waitForSupabase();
@@ -846,8 +822,24 @@
       };
     }
 
-    // Bootstrap
+    // Bootstrap - Forzar recarga al volver de settings
     (async function init(){
+      // Listener para cambios de storage (cuando vuelves de settings)
+      window.addEventListener('storage', (e) => {
+        if (e.key && e.key.includes('pp-auth')) {
+          console.log('🔄 Storage changed, reloading profile...');
+          loadProfile();
+        }
+      });
+
+      // Listener para cuando la pestaña vuelve a ser visible
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          console.log('👀 Tab visible, reloading profile...');
+          loadProfile();
+        }
+      });
+
       await loadProfile();
       setupSecurityActions();
     })();
