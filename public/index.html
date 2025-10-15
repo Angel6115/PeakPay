@@ -80,6 +80,14 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 18px rgba(0,0,0,0.25);
     }
+    .early-banner-btn.secondary{
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .early-banner-btn.secondary:hover{
+      background: rgba(255,255,255,0.3);
+    }
     .early-banner-close{
       position: absolute;
       right: 20px;
@@ -103,6 +111,115 @@
     .early-banner-close:hover{ opacity: 1; }
     .early-banner.hidden{ display: none; }
     
+    /* ✨ NEW: Founders Slider */
+    .founders-section{
+      background: white;
+      border-bottom: 2px solid var(--ring);
+      padding: 24px 0;
+      overflow: hidden;
+    }
+    .founders-header{
+      max-width: 1120px;
+      margin: 0 auto 20px;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .founders-header h2{
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .founders-header p{
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .slider-container{
+      position: relative;
+      overflow: hidden;
+      padding: 0 20px;
+    }
+    .slider-track{
+      display: flex;
+      gap: 20px;
+      animation: scroll 40s linear infinite;
+      will-change: transform;
+    }
+    .slider-track:hover{
+      animation-play-state: paused;
+    }
+    @keyframes scroll{
+      0%{ transform: translateX(0); }
+      100%{ transform: translateX(-50%); }
+    }
+    .founder-card{
+      flex: 0 0 280px;
+      background: white;
+      border: 2px solid var(--ring);
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      position: relative;
+    }
+    .founder-card:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(102,126,234,0.15);
+      border-color: var(--accent);
+    }
+    .founder-badge{
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      padding: 4px 16px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+    }
+    .founder-avatar{
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 12px auto 16px;
+      object-fit: cover;
+      border: 4px solid white;
+      box-shadow: 0 8px 24px rgba(102,126,234,0.2);
+    }
+    .founder-alias{
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .founder-category{
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .founder-peeks{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+      border: 1px solid rgba(102,126,234,0.3);
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
     .wrap{ max-width:1120px; margin:0 auto; padding:30px 20px 70px }
     
     /* Header (logo centrado) */
@@ -112,7 +229,7 @@
       justify-content:center; 
       padding:32px 0 18px;
       margin-bottom: 16px;
-      /* halo muy sutil detrás del logo (opcional, queda elegante) */
+      position: relative;
       background: radial-gradient(1200px 160px at 50% 50%, rgba(102,126,234,.06), transparent 70%);
       border-radius: 0 0 24px 24px;
     }
@@ -122,6 +239,28 @@
       filter: drop-shadow(0 10px 24px rgba(102,126,234,.18));
       width: clamp(220px, 42vw, 440px);
       max-width: 440px;
+    }
+    /* ✨ NEW: Login button */
+    .login-btn{
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 10px 24px;
+      background: white;
+      border: 2px solid var(--ring);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(102,126,234,0.1);
+    }
+    .login-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+      transform: translateY(-50%) translateY(-2px);
     }
 
     .trust { 
@@ -280,7 +419,7 @@
       font-weight: 600;
       margin-bottom: 40px;
     }
-    .slider-container{
+    .slider-container-how{
       max-width: 500px;
       margin: 0 auto;
       position: relative;
@@ -288,7 +427,7 @@
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(102,126,234,.12);
     }
-    .slider{ display: flex; transition: transform 0.8s ease-in-out; }
+    .slider-how{ display: flex; transition: transform 0.8s ease-in-out; }
     .slide{ min-width: 100%; padding: 40px 30px; background: linear-gradient(135deg, #f8fafc, #eef2ff); }
     .slide-title{ text-align: center; font-size: 17px; font-weight: 700; color: var(--accent); margin-bottom: 24px; }
     .grid-demo{
@@ -337,11 +476,11 @@
     }
     .cat:hover{ transform: translateY(-3px); box-shadow: 0 8px 20px rgba(102,126,234,.12); border-color: var(--accent); }
     .cat-color{ width: 50px; height: 50px; border-radius: 12px; flex-shrink: 0; }
-    .cat:nth-child(1) .cat-color{ background: linear-gradient(135deg, #3b82f6, #1e40af); }   /* Arte */
-    .cat:nth-child(2) .cat-color{ background: linear-gradient(135deg, #8b5cf6, #6d28d9); }   /* Artístico */
-    .cat:nth-child(3) .cat-color{ background: linear-gradient(135deg, #ec4899, #be185d); }   /* Cosplay */
-    .cat:nth-child(4) .cat-color{ background: linear-gradient(135deg, #10b981, #059669); }   /* Fitness */
-    .cat:nth-child(5) .cat-color{ background: linear-gradient(135deg, #f59e0b, #d97706); }   /* Lencería */
+    .cat:nth-child(1) .cat-color{ background: linear-gradient(135deg, #3b82f6, #1e40af); }
+    .cat:nth-child(2) .cat-color{ background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+    .cat:nth-child(3) .cat-color{ background: linear-gradient(135deg, #ec4899, #be185d); }
+    .cat:nth-child(4) .cat-color{ background: linear-gradient(135deg, #10b981, #059669); }
+    .cat:nth-child(5) .cat-color{ background: linear-gradient(135deg, #f59e0b, #d97706); }
     
     footer{ margin-top:50px; color:var(--muted); font-size:14px; text-align: center; padding: 20px; }
     
@@ -351,6 +490,7 @@
       .early-banner-text strong{ font-size: 15px; }
       .early-banner-btn{ padding: 8px 20px; font-size: 13px; }
       .early-banner-close{ right: 10px; font-size: 24px; }
+      .login-btn{ position: static; transform: none; margin-top: 12px; display: block; text-align: center; }
       .wrap{padding:20px 16px 50px;}
       .panel{padding:28px 20px;}
       .btn{padding:12px 24px; font-size:15px;}
@@ -358,6 +498,7 @@
       .slide{padding:30px 20px;}
       .grid-demo{max-width:280px;gap:6px;}
       .logo-center{ width: clamp(200px, 56vw, 280px); max-width: 280px; }
+      .founder-card{ flex: 0 0 240px; }
     }
   </style>
 </head>
@@ -370,14 +511,29 @@
       <strong>🔥 Early Access</strong> — Solo quedan <strong><span id="bannerSpots">1900</span></strong> de 2,000 lugares a $9.99
     </span>
     <a href="./signup.html" class="early-banner-btn">Ver oferta</a>
+    <a href="./login.html" class="early-banner-btn secondary">Iniciar sesión</a>
   </div>
   <button class="early-banner-close" id="closeBanner" aria-label="Cerrar banner">×</button>
 </div>
+
+<!-- ✨ NEW: Founders Slider -->
+<section class="founders-section">
+  <div class="founders-header">
+    <h2>🎉 Conoce a los Founders</h2>
+    <p><span id="founderCount">8</span> creadoras preparándose para el lanzamiento</p>
+  </div>
+  <div class="slider-container">
+    <div class="slider-track" id="sliderTrack">
+      <!-- JavaScript will populate this -->
+    </div>
+  </div>
+</section>
 
 <div class="wrap">
   <!-- Header (logo centrado) -->
   <div class="head">
     <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo-center" />
+    <a href="./login.html" class="login-btn">Iniciar sesión</a>
   </div>
 
   <!-- Trust badges -->
@@ -394,7 +550,7 @@
       <p>Experiencia visual y lúdica donde TÚ decides qué revelar. Paga solo por lo que quieres ver con Peak Credits.</p>
       <div class="cta-row">
         <a class="btn" href="./signup.html">Acceso anticipado $9.99</a>
-        <a class="btn secondary" href="./creators.html">Explorar creadores</a>
+        <a class="btn secondary" href="./coming-soon.html">Explorar creadores</a>
       </div>
     </div>
     <div class="preview-block" aria-hidden="true">
@@ -422,8 +578,8 @@
     <h3>¿Cómo funciona?</h3>
     <p class="subtitle">Paga solo por lo que quieres ver</p>
     
-    <div class="slider-container">
-      <div class="slider" id="slider">
+    <div class="slider-container-how">
+      <div class="slider-how" id="sliderHow">
         <!-- Slide 1 -->
         <div class="slide">
           <div class="slide-title">1. Foto en mosaico blur (4×4 = 16 cuadros)</div>
@@ -565,6 +721,41 @@
 </div>
 
 <script>
+  // ✨ Founders Data
+  const FOUNDERS = [
+    { id: 'ink-aria', alias: '@ink.aria', name: 'Ink Aria', category: 'Lencería', peeks: 156, avatar: './photos/lenceria/ink-aria/inklen.jpg' },
+    { id: 'lina-fit', alias: '@lina', name: 'Lina', category: 'Fitness', peeks: 127, avatar: './photos/fitness/lina-fit/linafit.jpg' },
+    { id: 'noa-lace', alias: '@noa', name: 'Noa', category: 'Lencería', peeks: 143, avatar: './photos/lenceria/noa-lace/sets/set-01/full.jpg' },
+    { id: 'rio-out', alias: '@rio', name: 'Rio', category: 'Arte', peeks: 98, avatar: './photos/lenceria/rio-out/riolen.jpg' },
+    { id: 'sasha-dance', alias: '@sasha', name: 'Sasha', category: 'Cosplay', peeks: 112, avatar: './photos/cosplay/sasha-dance/sash1.jpg' },
+    { id: 'sol-light', alias: '@sol', name: 'Sol', category: 'Artístico', peeks: 89, avatar: './photos/artistico/sol-light/sol1.jpg' },
+    { id: 'val-cos', alias: '@val', name: 'Val', category: 'Cosplay', peeks: 134, avatar: './photos/cosplay/val-cos/val1.jpg' },
+    { id: 'zen-well', alias: '@zen', name: 'Zen', category: 'Fitness', peeks: 104, avatar: './photos/fitness/zen-well/zenfit.jpg' }
+  ];
+
+  // ✨ Render Founders Slider (duplicate for infinite scroll)
+  function renderFoundersSlider() {
+    const track = document.getElementById('sliderTrack');
+    const html = FOUNDERS.map(f => `
+      <a href="./demo.html?creator=${f.id}" class="founder-card">
+        <div class="founder-badge">FOUNDER</div>
+        <img src="${f.avatar}" alt="${f.name}" class="founder-avatar" onerror="this.src='./peak1.png'">
+        <div class="founder-alias">${f.alias}</div>
+        <div class="founder-category">${f.category}</div>
+        <div class="founder-peeks">${f.peeks} Peek Likes</div>
+      </a>
+    `).join('');
+    
+    // Duplicate for seamless infinite scroll
+    track.innerHTML = html + html;
+  }
+
+  // Update founder count
+  document.getElementById('founderCount').textContent = FOUNDERS.length;
+  
+  // Initialize slider
+  renderFoundersSlider();
+
   // Banner functionality
   const banner = document.getElementById('earlyBanner');
   const closeBtn = document.getElementById('closeBanner');
@@ -592,14 +783,14 @@
   updateSpotsCounter();
   setInterval(updateSpotsCounter, 30000);
 
-  // Slider autoplay + dots
+  // How it works slider
   let currentSlide = 0;
-  const slider = document.getElementById('slider');
+  const sliderHow = document.getElementById('sliderHow');
   const dots = document.querySelectorAll('.dot');
   const totalSlides = 3;
   function goToSlide(n) {
     currentSlide = n;
-    slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+    sliderHow.style.transform = `translateX(-${currentSlide * 100}%)`;
     dots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
   }
   function nextSlide() { currentSlide = (currentSlide + 1) % totalSlides; goToSlide(currentSlide); }
