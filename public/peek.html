@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PeekPay — Peek</title>
 
-  <!-- Orden correcto: env -> supabase-js -> _header -->
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./_header.js" defer></script>
@@ -30,11 +29,42 @@
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
     a{color:inherit}
     .wrap{max-width:1024px;margin:0 auto;padding:28px 16px 56px}
-    header{display:flex;gap:10px;align-items:center}
-    header img{width:36px;border-radius:8px;box-shadow:0 6px 14px rgba(79,70,229,.12)}
-    .brand{font-size:12px;color:var(--muted)}
+    
+    /* Header con logo horizontal */
+    header{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      padding-bottom:16px;
+      border-bottom:2px solid var(--ring);
+      margin-bottom:16px;
+      flex-wrap:wrap;
+    }
+    .logo{
+      height:auto;
+      width:clamp(160px, 30%, 240px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+    }
+    .brand{font-size:12px;color:var(--muted);flex:1;min-width:200px}
     .brand .crumbs a{opacity:.95}
     .brand .crumbs a:hover{text-decoration:underline}
+    .btn-back{
+      border:1px solid var(--ring);
+      background:#fff;
+      color:#111827;
+      border-radius:10px;
+      padding:10px 16px;
+      text-decoration:none;
+      font-weight:700;
+      box-shadow:0 4px 14px rgba(102,126,234,.15);
+      transition: all 0.3s;
+      white-space:nowrap;
+    }
+    .btn-back:hover{
+      background:rgba(102,126,234,0.05);
+      border-color:var(--indigo);
+    }
+    
     .panel{border:1px solid var(--ring);background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 6px 14px rgba(79,70,229,.06)}
     .h-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
     .avatar{width:64px;height:64px;border-radius:14px;object-fit:cover;border:1px solid var(--ring);background:#fff}
@@ -51,8 +81,10 @@
     .hint.show{display:inline-block; animation: fade 2.2s ease}
     @keyframes fade{0%{opacity:0;transform:translateY(-2px)}10%{opacity:1;transform:none}90%{opacity:1}100%{opacity:0}}
     .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .btn{border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:10px 14px; border-radius:10px; cursor:pointer; box-shadow:0 6px 16px rgba(79,70,229,.25)}
+    .btn{border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:10px 14px; border-radius:10px; cursor:pointer; box-shadow:0 6px 16px rgba(79,70,229,.25);transition:all 0.3s}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(79,70,229,.35)}
     .btn.secondary{background:#fff;color:var(--indigo);border:1px solid var(--ring);box-shadow:none}
+    .btn.secondary:hover{background:rgba(102,126,234,0.05);border-color:var(--indigo)}
     .progress{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
     .bar{flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
     .bar span{display:block;height:100%;background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);width:0%}
@@ -89,11 +121,12 @@
 <body>
   <div class="wrap">
     <header>
-      <img src="./peak1.png" alt="PeekPay">
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
       <div class="brand">
-        <div class="crumbs"><a href="./index.html">Inicio</a> / <a id="creatorsLink" href="./creators.html">Creadores</a></div>
+        <div class="crumbs"><a href="./profile.html">Inicio</a> / <a id="creatorsLink" href="./creators.html">Creadores</a></div>
         <div>Desbloqueo por mosaicos</div>
       </div>
+      <a href="./profile.html" class="btn-back">← Volver</a>
     </header>
 
     <section class="panel">
@@ -161,11 +194,9 @@
     const $ = (s)=>document.querySelector(s);
     const params = new URLSearchParams(location.search);
 
-    // Prefijo público en local (Vite sirve /public/... como raíz)
     const PUBLIC_PREFIX =
       (location.hostname === 'localhost' && location.pathname.startsWith('/public')) ? '/public' : '';
 
-    // Admite ?creator= y ?cat=, y también ?u=cat/creator
     let cat  = params.get('cat') || 'arte';
     let slug = params.get('creator') || 'ink-aria';
     const uParam = params.get('u');
@@ -179,22 +210,18 @@
     const SET_ID   = params.get('sid') || '697dc6d3-4008-4221-8259-4a7779c2a0ea';
     let GRID = parseInt(params.get('g')||'4',10); if (![3,4,5].includes(GRID)) GRID = 4;
 
-    // API base (PP_ENV → localStorage → '')
     const API_BASE = (
       (window.PP_ENV && window.PP_ENV.api_base) ||
       localStorage.getItem('pp_api_base') ||
       ''
     ).replace(/\/+$/,'');
 
-    // UID demo
     let PP_UID = localStorage.getItem('pp_uid') || 'test-user-123';
     localStorage.setItem('pp_uid', PP_UID);
 
-    // crumbs -> pasa cat en el enlace
     const $crea = document.getElementById('creatorsLink');
     if ($crea) $crea.href = './creators.html?cat=' + encodeURIComponent(cat);
 
-    /* ===== Helpers de wallet ===== */
     function pickCredits(obj){ if (!obj) return 0; if (typeof obj.credits==='number') return obj.credits; if (typeof obj.balance==='number') return obj.balance; if (obj.balance && typeof obj.balance.credits==='number') return obj.balance.credits; return 0; }
     function pickPoints(obj){ if (!obj) return 0; if (typeof obj.points==='number') return obj.points; if (obj.balance && typeof obj.balance.points==='number') return obj.balance.points; return 0; }
     const CREDIT_KEY='pp_demo_balance', POINTS_KEY='pp_points';
@@ -250,7 +277,6 @@
     const loadProgress = (creator,setSlug)=>{ try{ return new Set(JSON.parse(localStorage.getItem(progressKey(creator,setSlug))||'[]')); }catch{ return new Set(); } };
     const saveProgress = (creator,setSlug,setOfIdx)=>{ try{ localStorage.setItem(progressKey(creator,setSlug), JSON.stringify([...setOfIdx])); }catch{} };
 
-    // Paths “legacy” locales (usa ?cat= y ?creator=) — usa PUBLIC_PREFIX
     function legacyPaths(){
       const base = setParam
         ? `${PUBLIC_PREFIX}/photos/${cat}/${slug}/sets/${setParam}`
@@ -299,7 +325,7 @@
       if (verified) $('#c-verified').style.display = 'inline-block';
 
       const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
-  const avatar = (isLocal ? (setInfo?.coverLocal || setInfo?.cover) : (setInfo?.cover || setInfo?.coverLocal)) || `${PUBLIC_PREFIX}/photos/${cat}/${slug}/cover.webp`;
+      const avatar = (isLocal ? (setInfo?.coverLocal || setInfo?.cover) : (setInfo?.cover || setInfo?.coverLocal)) || `${PUBLIC_PREFIX}/photos/${cat}/${slug}/cover.webp`;
       const i=new Image();
       i.onload=()=>$('#avatar').src=avatar;
       i.onerror=()=>$('#avatar').src='./peak1.png';
@@ -317,7 +343,6 @@
     });
     function hintPreload(url){ const l=document.createElement('link'); l.rel='preload'; l.as='image'; l.href=url; l.setAttribute('fetchpriority','high'); document.head.appendChild(l); }
 
-    // ===== URL firmada con fallback de formato =====
     async function getSignedFull(){
       if (!API_BASE) return null;
       async function ask(ext){
@@ -542,12 +567,10 @@
       updateCreditsUI(); updatePointsUI();
       await fetchBalance().then(()=>{ updateCreditsUI(); updatePointsUI(); });
 
-      // 1) Si hay sid, intenta Storage firmado
       let signedFull = null;
       if (params.get('sid')) signedFull = await getSignedFull();
 
       if (!signedFull){
-        // 2) Busca en peeks.json (si existe)
         const data = await loadData();
         if (data){
           const detail = findCreatorDetail(data, slug);
@@ -557,14 +580,13 @@
             $('#grid').style.setProperty('--cols', GRID);
             setHeader(detail, setInfo);
             const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
-  const fullForEnv = isLocal ? (setInfo.fullLocal || setInfo.full) : (setInfo.full || setInfo.fullLocal);
-  buildGrid(fullForEnv);
+            const fullForEnv = isLocal ? (setInfo.fullLocal || setInfo.full) : (setInfo.full || setInfo.fullLocal);
+            buildGrid(fullForEnv);
             try{ window.plausible && plausible('preview_shown',{props:{u:slug,set:setInfo.slug,grid:String(GRID)}});}catch{}
             return;
           }
         }
 
-        // 3) Fallback legacy a /photos/<cat>/<creator>/... (con sets/<guess>)
         const guessSet = setParam || 'set-01';
         const baseRoot = `${PUBLIC_PREFIX}/photos/${cat}/${slug}`;
         const baseSet  = `${PUBLIC_PREFIX}/photos/${cat}/${slug}/sets/${guessSet}`;

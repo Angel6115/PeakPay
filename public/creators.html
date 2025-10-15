@@ -33,21 +33,33 @@
     }
     .wrap{ max-width:1120px; margin:0 auto; padding:20px 16px 64px }
 
-    /* Header mínimo (solo marca + volver) */
-    .head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; flex-wrap:wrap }
-    .brand{ display:flex; align-items:center; gap:10px }
-    .brand img{ width:52px; height:52px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(102,126,234,.15) }
-    .brand h1{
-      margin:0; font-size:20px; font-weight:800; letter-spacing:.2px;
-      background:linear-gradient(135deg,var(--indigo),var(--blue));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    /* Header con logo horizontal */
+    .head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px;
+      padding-bottom:16px;
+      border-bottom:2px solid var(--ring);
+      flex-wrap:wrap;
     }
-    .muted{ color:var(--muted); font-size:12px }
+    .logo{
+      height:auto;
+      width:clamp(160px, 30%, 240px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+    }
+    .muted{ color:var(--muted); font-size:13px; font-weight:600 }
 
     .btn-back{
       border:1px solid var(--ring); background:#fff; color:#111827;
-      border-radius:10px; padding:9px 12px; text-decoration:none; font-weight:700;
-      box-shadow:0 3px 10px rgba(102,126,234,.15);
+      border-radius:10px; padding:10px 16px; text-decoration:none; font-weight:700;
+      box-shadow:0 4px 14px rgba(102,126,234,.15);
+      transition: all 0.3s;
+    }
+    .btn-back:hover{
+      background:rgba(102,126,234,0.05);
+      border-color:var(--indigo);
     }
 
     .panel{
@@ -60,8 +72,10 @@
     .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px }
     .chip{
       font-size:12px; padding:6px 10px; border-radius:999px;
-      border:1px solid var(--ring); background:#fff; cursor:pointer; user-select:none
+      border:1px solid var(--ring); background:#fff; cursor:pointer; user-select:none;
+      transition: all 0.3s;
     }
+    .chip:hover{ background:rgba(102,126,234,0.05); }
     .chip.active{ background:var(--indigo); color:#fff; border-color:transparent; box-shadow:0 4px 10px rgba(102,126,234,.25) }
 
     /* Grid */
@@ -91,16 +105,11 @@
 </head>
 <body>
   <div class="wrap">
-    <!-- Header mínimo -->
+    <!-- Header con logo horizontal -->
     <div class="head">
-      <div class="brand">
-        <img src="./peak1.png" alt="PeekPay">
-        <div>
-          <h1>PeekPay</h1>
-          <p class="muted">Demo interactivo (Early Access)</p>
-        </div>
-      </div>
-      <a href="./index.html" class="btn-back">← Volver</a>
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
+      <span class="muted">Demo interactivo (Early Access)</span>
+      <a href="./profile.html" class="btn-back">← Volver</a>
     </div>
 
     <!-- Band sin iconos -->
@@ -148,176 +157,69 @@
       try{ const r=await fetch(url,{method:'HEAD'}); return r.ok; }catch(_){ return false; }
     }
 
-    // === Rutas por CATEGORÍA (coinciden con /public/photos) ===
-    const CREATOR_SOURCES = {
-      'ink-aria': { name:'ink aria',
-        arte:'./photos/arte/ink-aria/arte1.jpg',
-        artistico:'./photos/artistico/ink-aria/inkart.jpg',
-        cosplay:'./photos/cosplay/ink-aria/ink1.jpg',
-        fitness:'./photos/fitness/ink-aria/inkfit.jpg',
-        lenceria:'./photos/lenceria/ink-aria/inklen.jpg',
-      },
-      'lina-fit': { name:'lina fit',
-        arte:'./photos/arte/lina-fit/linaarte.jpg',
-        artistico:'./photos/artistico/lina-fit/lianart.jpg',
-        cosplay:'./photos/cosplay/lina-fit/lina1.jpg',
-        fitness:'./photos/fitness/lina-fit/linafit.jpg',
-        lenceria:'./photos/lenceria/lina-fit/linalen.jpg',
-      },
-      'noa-lace': { name:'noa lace',
-        arte:'./photos/arte/noa-lace/noaarte.jpg',
-        artistico:'./photos/artistico/noa-lace/noaart.jpg',
-        cosplay:'./photos/cosplay/noa-lace/noa1.jpg',
-        fitness:'./photos/fitness/noa-lace/noafit.jpg',
-        lenceria:'./photos/lenceria/noa-lace/noalen.jpg',
-      },
-      'rio-out': { name:'rio out',
-        arte:'./photos/arte/rio-out/rioarte.jpg',
-        artistico:'./photos/artistico/rio-out/rioart.jpg',
-        cosplay:'./photos/cosplay/rio-out/rio1.jpg',
-        fitness:'./photos/fitness/rio-out/riofit.jpg',
-        lenceria:'./photos/lenceria/rio-out/riolen.jpg',
-      },
-      'sasha-dance': { name:'sasha dance',
-        arte:'./photos/arte/sasha-dance/sashaarte.jpg',
-        artistico:'./photos/artistico/sasha-dance/sahsaart.jpg',
-        cosplay:'./photos/cosplay/sasha-dance/sasha1.jpg',
-        fitness:'./photos/fitness/sasha-dance/sashafit.jpg',
-        lenceria:'./photos/lenceria/sasha-dance/sashalen.jpg',
-      },
-      'sol-light': { name:'sol light',
-        arte:'./photos/arte/sol-light/solarte.jpg',
-        artistico:'./photos/artistico/sol-light/solart.jpg',
-        cosplay:'./photos/cosplay/sol-light/sol1.jpg',
-        fitness:'./photos/fitness/sol-light/solfit.jpg',
-        lenceria:'./photos/lenceria/sol-light/sollen.jpg',
-      },
-      'val-cos': { name:'val cos',
-        arte:'./photos/arte/val-cos/valarte.jpg',
-        artistico:'./photos/artistico/val-cos/valart.jpg',
-        cosplay:'./photos/cosplay/val-cos/val1.jpg',
-        fitness:'./photos/fitness/val-cos/valfit.jpg',
-        lenceria:'./photos/lenceria/val-cos/vallen.jpg',
-      },
-      'zen-well': { name:'zen well',
-        arte:'./photos/arte/zen-well/zenarte.jpg',
-        artistico:'./photos/artistico/zen-well/zenart.jpg',
-        cosplay:'./photos/cosplay/zen-well/zen1.jpg',
-        fitness:'./photos/fitness/zen-well/zenfit.jpg',
-        lenceria:'./photos/lenceria/zen-well/zenlen.jpg',
-      },
-    };
+    // === Data mock ===
+    const CREATORS = [
+      { id:'lina-fit', handle:'@lina', name:'Lina', cat:'fitness', sets:3, photo:'./photos/fitness/lina-fit/linafit.jpg' },
+      { id:'noa-lace', handle:'@noa', name:'Noa', cat:'lenceria', sets:3, photo:'./photos/lenceria/noa-lace/sets/set-01/full.jpg' },
+      { id:'rio-out', handle:'@rio', name:'Rio', cat:'lenceria', sets:1, photo:'./photos/lenceria/rio-out/riolen.jpg' },
+      { id:'sasha-dance', handle:'@sasha', name:'Sasha', cat:'cosplay', sets:1, photo:'./peak1.png' },
+      { id:'sol-light', handle:'@sol', name:'Sol', cat:'artistico', sets:1, photo:'./peak1.png' },
+      { id:'val-cos', handle:'@val', name:'Val', cat:'cosplay', sets:1, photo:'./peak1.png' },
+      { id:'zen-well', handle:'@zen', name:'Zen', cat:'fitness', sets:1, photo:'./peak1.png' },
+      { id:'ink-aria', handle:'@ink.aria', name:'Ink', cat:'lenceria', sets:1, photo:'./photos/lenceria/ink-aria/inklen.jpg' }
+    ];
 
-    // Prioridad para "Todos"
-    const ALL_PRIORITY = ['lenceria','cosplay','fitness','arte','artistico'];
+    function catNormalize(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 
     const grid = document.getElementById('grid');
-    const empty = document.getElementById('empty');
+    const emptyEl = document.getElementById('empty');
+    const chips = document.querySelectorAll('.chip');
+    const params = new URLSearchParams(location.search);
+    let activeCat = params.get('cat') || 'all';
 
-    async function buildEntries(category){
-      const entries = [];
-      const handles = Object.keys(CREATOR_SOURCES);
+    async function render(){
+      grid.innerHTML='';
+      const norm = catNormalize(activeCat);
+      const filtered = (norm==='all' || !norm) 
+        ? CREATORS 
+        : CREATORS.filter(c=> catNormalize(c.cat)===norm);
+      if(!filtered.length){ emptyEl.style.display='block'; return; }
+      emptyEl.style.display='none';
 
-      if (category === 'all') {
-        for (const h of handles){
-          const srcs = CREATOR_SOURCES[h];
-          let chosenCat = null, chosenUrl = null;
-          for (const cat of ALL_PRIORITY){
-            if (!srcs[cat]) continue;
-            if (await exists(srcs[cat])) { chosenCat = cat; chosenUrl = srcs[cat]; break; }
-          }
-          if (!chosenUrl){
-            for (const [cat,url] of Object.entries(srcs)){
-              if (cat === 'name') continue;
-              if (await exists(url)){ chosenCat=cat; chosenUrl=url; break; }
-            }
-          }
-          if (chosenUrl){
-            entries.push({ handle:h, name:srcs.name, cat:chosenCat, cover:chosenUrl });
-          }
-        }
-        return entries;
+      for(const cr of filtered){
+        const photoOk = await exists(cr.photo);
+        const a = document.createElement('a');
+        a.href=`./peek.html?creator=${cr.id}`;
+        a.className='card';
+        a.innerHTML=`
+          <div class="frame wide">
+            <img src="${photoOk ? cr.photo : './peak1.png'}" alt="${cr.name}" loading="lazy">
+          </div>
+          <div class="meta">
+            <h3>${cr.handle}</h3>
+            <span class="badge-sets">${cr.sets} set${cr.sets>1?'s':''}</span>
+          </div>
+        `;
+        grid.appendChild(a);
       }
-
-      // Categoría concreta
-      for (const h of handles){
-        const srcs = CREATOR_SOURCES[h];
-        const url = srcs[category];
-        if (url && await exists(url)){
-          entries.push({ handle:h, name:srcs.name, cat:category, cover:url });
-        }
-      }
-      return entries;
     }
 
-    function cardFor({handle,name,cat,cover}){
-      const a = document.createElement('a');
-
-      // Ruta ABSOLUTA a demo: en producción es /demo.html; en Vite local es /public/demo.html
-      const isLocal = ['localhost','127.0.0.1'].includes(location.hostname);
-      const demoPath = isLocal ? '/public/demo.html' : '/demo.html';
-      const demoUrl = new URL(demoPath, location.origin);
-      demoUrl.searchParams.set('c', handle);
-      demoUrl.hash = 'ea';
-      a.href = demoUrl.toString();
-
-      a.className = 'card';
-      a.setAttribute('data-cat', cat);
-      a.title = 'Demo (Early Access)';
-
-      const frame = document.createElement('div');
-      frame.className = 'frame';
-
-      const img = document.createElement('img');
-      img.loading = 'lazy'; img.decoding = 'async';
-      img.alt = name || handle || 'Creator';
-      img.src = cover;
-      img.addEventListener('load', ()=>{
-        const wide = img.naturalWidth >= img.naturalHeight;
-        if (wide) frame.classList.add('wide');
+    chips.forEach(ch=>{
+      const val = ch.dataset.cat||'all';
+      if(catNormalize(val)===catNormalize(activeCat)) ch.classList.add('active');
+      ch.addEventListener('click',()=>{
+        chips.forEach(c=>c.classList.remove('active'));
+        ch.classList.add('active');
+        activeCat=val;
+        const u=new URL(location.href);
+        if(val==='all') u.searchParams.delete('cat');
+        else u.searchParams.set('cat',val);
+        history.replaceState(null,'',u);
+        render();
       });
+    });
 
-      const meta = document.createElement('div');
-      meta.className = 'meta';
-      meta.innerHTML = `<h3>${name}</h3><span class="badge-sets">0 sets</span>`;
-
-      frame.appendChild(img);
-      a.appendChild(frame);
-      a.appendChild(meta);
-      return a;
-    }
-
-    async function render(category){
-      grid.innerHTML = '';
-      empty.style.display = 'none';
-      const entries = await buildEntries(category);
-      if (!entries.length){ empty.style.display='block'; return; }
-      const frag = document.createDocumentFragment();
-      entries.forEach(e=> frag.appendChild(cardFor(e)));
-      grid.appendChild(frag);
-    }
-
-    // Chips + ?cat=
-    (function initFilters(){
-      const params = new URLSearchParams(location.search);
-      const initial = (params.get('cat') || 'all').toLowerCase();
-      const chips = document.getElementById('chips');
-
-      const initialChip = chips.querySelector(`.chip[data-cat="${initial}"]`) || chips.querySelector('.chip[data-cat="all"]');
-      initialChip.classList.add('active');
-
-      render(initialChip.dataset.cat);
-
-      chips.addEventListener('click', (e)=>{
-        const chip = e.target.closest('.chip'); if(!chip) return;
-        chips.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-        chip.classList.add('active');
-        const p = new URLSearchParams(location.search);
-        if (chip.dataset.cat==='all') p.delete('cat'); else p.set('cat', chip.dataset.cat);
-        history.replaceState(null,'', location.pathname + (p.toString()?`?${p}`:''));
-        render(chip.dataset.cat);
-      });
-    })();
+    render();
   </script>
 </body>
 </html>
