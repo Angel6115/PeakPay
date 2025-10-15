@@ -310,254 +310,252 @@
 
   <script type="module">
     // Inicializar Supabase
-    const supabase = window.supabase.createClient(
-      window.PP_ENV.sb_url,
-      window.PP_ENV.sb_anon,
-      { auth: { persistSession: true, storageKey: 'pp-auth' } }
-    );
+  const supabase = window.supabase.createClient(
+    window.PP_ENV.sb_url,
+    window.PP_ENV.sb_anon,
+    { auth: { persistSession: true, storageKey: 'pp-auth' } }
+  );
 
-    const $ = (id) => document.getElementById(id);
-    const loadingMsg = $('loadingMsg');
-    const errorMsg = $('errorMsg');
-    const content = $('content');
+  const $ = (id) => document.getElementById(id);
+  const loadingMsg = $('loadingMsg');
+  const errorMsg = $('errorMsg');
+  const contentDiv = $('content');
 
-    let currentUser = null;
-    let creatorContent = null;
+  let currentUser = null;
+  let creatorContent = null;
 
-    // Check authentication
-    async function checkAuth() {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error || !user) {
-        showError('No has iniciado sesión. Redirigiendo...');
-        setTimeout(() => location.href = './login.html?next=creator-dashboard.html', 2000);
+  // Check authentication
+  async function checkAuth() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      showError('No has iniciado sesión. Redirigiendo...');
+      setTimeout(() => location.href = './login.html?next=creator-dashboard.html', 2000);
+      return null;
+    }
+    return user;
+  }
+
+  // Show error
+  function showError(msg) {
+    loadingMsg.style.display = 'none';
+    errorMsg.textContent = msg;
+    errorMsg.style.display = 'block';
+    contentDiv.style.display = 'none';
+  }
+
+  // Load creator content
+  async function loadCreatorContent(userId) {
+    const { data, error } = await supabase
+      .from('creator_content')
+      .select('*')
+      .eq('creator_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
         return null;
       }
-      return user;
+      throw error;
     }
 
-    // Show error
-    function showError(msg) {
+    return data;
+  }
+
+  // Load profile
+  async function loadProfile(userId) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  // Render mosaic
+  function buildMosaic(teaserUrl, blurIntensity = 12) {
+    const tiles = $('tiles');
+    tiles.innerHTML = '';
+    const freeTiles = [0, 5, 11];
+    
+    $('canvas').style.setProperty('--bpx', blurIntensity + 'px');
+    $('miniBlur').value = blurIntensity;
+    $('blurVal').textContent = String(blurIntensity);
+
+    if (!teaserUrl) {
+      $('bg').style.backgroundImage = 'none';
+      tiles.innerHTML = '<div class="muted" style="margin:auto;text-align:center">No has subido contenido aún.<br><a href="./upload-teaser.html">Subir ahora</a></div>';
+      return;
+    }
+
+    $('bg').style.backgroundImage = `url(${teaserUrl})`;
+
+    const rows = 4, cols = 4;
+    for (let i = 0; i < rows * cols; i++) {
+      const r = Math.floor(i / cols), c = i % cols;
+      const t = document.createElement('div');
+      const isFree = freeTiles.includes(i);
+      t.className = 'tile ' + (isFree ? 'free' : 'lock');
+      
+      if (isFree) {
+        const sharp = document.createElement('div');
+        sharp.className = 'sharp';
+        sharp.style.backgroundImage = `url(${teaserUrl})`;
+        const step = 33.333;
+        sharp.style.backgroundPosition = `${-c * step}% ${-r * step}%`;
+        sharp.style.backgroundSize = '400% 400%';
+        t.appendChild(sharp);
+      }
+      tiles.appendChild(t);
+    }
+    
+    $('mosaicFooter').textContent = 'Preview · 3 gratis + 13 bloqueados';
+  }
+
+  // Update blur
+  $('miniBlur').addEventListener('input', (e) => {
+    const v = Number(e.target.value || 12);
+    $('blurVal').textContent = String(v);
+    $('canvas').style.setProperty('--bpx', v + 'px');
+  });
+
+  $('applyBlur').onclick = async () => {
+    if (!creatorContent) return;
+    const newBlur = Number($('miniBlur').value || 12);
+    
+    const { error } = await supabase
+      .from('creator_content')
+      .update({ blur_intensity: newBlur })
+      .eq('id', creatorContent.id);
+
+    if (error) {
+      alert('Error al guardar: ' + error.message);
+    } else {
+      alert('Blur actualizado correctamente');
+      creatorContent.blur_intensity = newBlur;
+    }
+  };
+
+  // Save price
+  $('savePrice').onclick = async () => {
+    if (!creatorContent) {
+      alert('Primero sube contenido');
+      return;
+    }
+    
+    const newPrice = Number($('price').value || 5);
+    if (!newPrice || newPrice < 1) {
+      alert('Ingresa un precio válido');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('creator_content')
+      .update({ price: newPrice })
+      .eq('id', creatorContent.id);
+
+    if (error) {
+      alert('Error al guardar: ' + error.message);
+    } else {
+      alert('Precio guardado correctamente');
+      creatorContent.price = newPrice;
+    }
+  };
+
+  // Calculator
+  function calc() {
+    const price = Number($('price').value || 0);
+    const qty = Number($('calcQty').value || 0);
+    const gross = price * qty;
+    
+    let feeRate = 0.16;
+    if ($('comm0').checked) feeRate = 0;
+    else if ($('comm10').checked) feeRate = 0.10;
+    else if ($('comm15').checked) feeRate = 0.15;
+    
+    const fee = gross * feeRate;
+    const net = gross - fee;
+    
+    $('kGross').textContent = `$${gross.toFixed(2)}`;
+    $('kFee').textContent = `-$${fee.toFixed(2)}`;
+    $('kNet').textContent = `$${net.toFixed(2)}`;
+  }
+  $('doCalc').onclick = calc;
+
+  // Custom calculator
+  function customCalc() {
+    const price = Number($('customPrice').value || 0);
+    const qty = Number($('customQty').value || 0);
+    const rate = Number($('customRate').value || 0.10);
+    const gross = price * qty;
+    const fee = gross * rate;
+    const net = gross - fee;
+    
+    $('ckGross').textContent = `$${gross.toFixed(2)}`;
+    $('ckFee').textContent = `-$${fee.toFixed(2)}`;
+    $('ckNet').textContent = `$${net.toFixed(2)}`;
+  }
+  $('doCustomCalc').onclick = customCalc;
+  $('saveCustom').onclick = () => alert('Precio base guardado (solo local por ahora)');
+
+  // Initialize
+  (async function init() {
+    try {
+      currentUser = await checkAuth();
+      if (!currentUser) return;
+
+      // Load profile and content
+      const [profile, contentData] = await Promise.all([
+        loadProfile(currentUser.id),
+        loadCreatorContent(currentUser.id)
+      ]);
+
+      creatorContent = contentData;
+
+      // Update UI
+      const alias = profile.handle || '@alias';
+      $('hello').textContent = `¡Bienvenido, ${alias}!`;
+      $('contactEmail').textContent = currentUser.email || 'tu email';
+
+      if (profile.avatar_url) {
+        $('creatorAvatar').src = profile.avatar_url;
+      }
+
+      if (contentData) {
+        // Has content
+        $('stateBadge').textContent = contentData.status === 'published' ? 'Publicado' : 'Borrador';
+        $('stateBadge').className = 'badge ' + (contentData.status === 'published' ? 'ok' : 'pending');
+
+        buildMosaic(contentData.teaser_url, contentData.blur_intensity || 12);
+        $('price').value = contentData.price || 5.00;
+
+        // Mock stats (will be real later)
+        $('statFavs').textContent = contentData.views || 0;
+        $('statOrders').textContent = '0';
+        $('statFive').textContent = contentData.unlocks || 0;
+      } else {
+        // No content yet
+        $('stateBadge').textContent = 'Sin contenido';
+        $('stateBadge').className = 'badge pending';
+        buildMosaic(null);
+      }
+
+      // Show content
       loadingMsg.style.display = 'none';
-      errorMsg.textContent = msg;
-      errorMsg.style.display = 'block';
-      content.style.display = 'none';
+      contentDiv.style.display = 'block';
+      
+      // Initial calculations
+      calc();
+      customCalc();
+
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+      showError('Error al cargar el dashboard: ' + error.message);
     }
-
-    // Load creator content
-    async function loadCreatorContent(userId) {
-      const { data, error } = await supabase
-        .from('creator_content')
-        .select('*')
-        .eq('creator_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (error) {
-        // Si no hay contenido, es normal
-        if (error.code === 'PGRST116') {
-          return null;
-        }
-        throw error;
-      }
-
-      return data;
-    }
-
-    // Load profile
-    async function loadProfile(userId) {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      return data;
-    }
-
-    // Render mosaic
-    function buildMosaic(teaserUrl, blurIntensity = 12) {
-      const tiles = $('tiles');
-      tiles.innerHTML = '';
-      const freeTiles = [0, 5, 11];
-      
-      $('canvas').style.setProperty('--bpx', blurIntensity + 'px');
-      $('miniBlur').value = blurIntensity;
-      $('blurVal').textContent = String(blurIntensity);
-
-      if (!teaserUrl) {
-        $('bg').style.backgroundImage = 'none';
-        tiles.innerHTML = '<div class="muted" style="margin:auto;text-align:center">No has subido contenido aún.<br><a href="./upload-teaser.html">Subir ahora</a></div>';
-        return;
-      }
-
-      $('bg').style.backgroundImage = `url(${teaserUrl})`;
-
-      const rows = 4, cols = 4;
-      for (let i = 0; i < rows * cols; i++) {
-        const r = Math.floor(i / cols), c = i % cols;
-        const t = document.createElement('div');
-        const isFree = freeTiles.includes(i);
-        t.className = 'tile ' + (isFree ? 'free' : 'lock');
-        
-        if (isFree) {
-          const sharp = document.createElement('div');
-          sharp.className = 'sharp';
-          sharp.style.backgroundImage = `url(${teaserUrl})`;
-          const step = 33.333;
-          sharp.style.backgroundPosition = `${-c * step}% ${-r * step}%`;
-          sharp.style.backgroundSize = '400% 400%';
-          t.appendChild(sharp);
-        }
-        tiles.appendChild(t);
-      }
-      
-      $('mosaicFooter').textContent = 'Preview · 3 gratis + 13 bloqueados';
-    }
-
-    // Update blur
-    $('miniBlur').addEventListener('input', (e) => {
-      const v = Number(e.target.value || 12);
-      $('blurVal').textContent = String(v);
-      $('canvas').style.setProperty('--bpx', v + 'px');
-    });
-
-    $('applyBlur').onclick = async () => {
-      if (!creatorContent) return;
-      const newBlur = Number($('miniBlur').value || 12);
-      
-      const { error } = await supabase
-        .from('creator_content')
-        .update({ blur_intensity: newBlur })
-        .eq('id', creatorContent.id);
-
-      if (error) {
-        alert('Error al guardar: ' + error.message);
-      } else {
-        alert('Blur actualizado correctamente');
-        creatorContent.blur_intensity = newBlur;
-      }
-    };
-
-    // Save price
-    $('savePrice').onclick = async () => {
-      if (!creatorContent) {
-        alert('Primero sube contenido');
-        return;
-      }
-      
-      const newPrice = Number($('price').value || 5);
-      if (!newPrice || newPrice < 1) {
-        alert('Ingresa un precio válido');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('creator_content')
-        .update({ price: newPrice })
-        .eq('id', creatorContent.id);
-
-      if (error) {
-        alert('Error al guardar: ' + error.message);
-      } else {
-        alert('Precio guardado correctamente');
-        creatorContent.price = newPrice;
-        $('calcPrice').value = String(newPrice);
-      }
-    };
-
-    // Calculator
-    function calc() {
-      const price = Number($('price').value || 0);
-      const qty = Number($('calcQty').value || 0);
-      const gross = price * qty;
-      
-      let feeRate = 0.16;
-      if ($('comm0').checked) feeRate = 0;
-      else if ($('comm10').checked) feeRate = 0.10;
-      else if ($('comm15').checked) feeRate = 0.15;
-      
-      const fee = gross * feeRate;
-      const net = gross - fee;
-      
-      $('kGross').textContent = `$${gross.toFixed(2)}`;
-      $('kFee').textContent = `-$${fee.toFixed(2)}`;
-      $('kNet').textContent = `$${net.toFixed(2)}`;
-    }
-    $('doCalc').onclick = calc;
-
-    // Custom calculator
-    function customCalc() {
-      const price = Number($('customPrice').value || 0);
-      const qty = Number($('customQty').value || 0);
-      const rate = Number($('customRate').value || 0.10);
-      const gross = price * qty;
-      const fee = gross * rate;
-      const net = gross - fee;
-      
-      $('ckGross').textContent = `$${gross.toFixed(2)}`;
-      $('ckFee').textContent = `-$${fee.toFixed(2)}`;
-      $('ckNet').textContent = `$${net.toFixed(2)}`;
-    }
-    $('doCustomCalc').onclick = customCalc;
-    $('saveCustom').onclick = () => alert('Precio base guardado (solo local por ahora)');
-
-    // Initialize
-    (async function init() {
-      try {
-        currentUser = await checkAuth();
-        if (!currentUser) return;
-
-        // Load profile and content
-        const [profile, content] = await Promise.all([
-          loadProfile(currentUser.id),
-          loadCreatorContent(currentUser.id)
-        ]);
-
-        creatorContent = content;
-
-        // Update UI
-        const alias = profile.handle || '@alias';
-        $('hello').textContent = `¡Bienvenido, ${alias}!`;
-        $('contactEmail').textContent = currentUser.email || 'tu email';
-
-        if (profile.avatar_url) {
-          $('creatorAvatar').src = profile.avatar_url;
-        }
-
-        if (content) {
-          // Has content
-          $('stateBadge').textContent = content.status === 'published' ? 'Publicado' : 'Borrador';
-          $('stateBadge').className = 'badge ' + (content.status === 'published' ? 'ok' : 'pending');
-
-          buildMosaic(content.teaser_url, content.blur_intensity || 12);
-          $('price').value = content.price || 5.00;
-
-          // Mock stats (will be real later)
-          $('statFavs').textContent = content.views || 0;
-          $('statOrders').textContent = '0';
-          $('statFive').textContent = content.unlocks || 0;
-        } else {
-          // No content yet
-          $('stateBadge').textContent = 'Sin contenido';
-          $('stateBadge').className = 'badge pending';
-          buildMosaic(null);
-        }
-
-        // Show content
-        loadingMsg.style.display = 'none';
-        content.style.display = 'block';
-        
-        // Initial calculations
-        calc();
-        customCalc();
-
-      } catch (error) {
-        console.error('Error loading dashboard:', error);
-        showError('Error al cargar el dashboard: ' + error.message);
-      }
-    })();
-  </script>
+  })();
+</script>
 </body>
 </html>
