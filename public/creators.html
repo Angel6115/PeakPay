@@ -83,7 +83,7 @@
     @media (min-width:900px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
     @media (min-width:1200px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
 
-    .card{ border:1px solid var(--ring); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; transition:box-shadow .25s ease }
+    .card{ border:1px solid var(--ring); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; transition:box-shadow .25s ease; text-decoration:none; color:inherit; }
     .card:hover{ box-shadow:0 12px 28px rgba(0,0,0,.08) }
     .frame{ width:100%; aspect-ratio:3/4; background:#0b1020; position:relative }
     .frame.wide{ aspect-ratio:4/3 }
@@ -152,7 +152,6 @@
   </div>
 
   <script>
-    // Utilidad simple para comprobar si existe la portada (HEAD)
     async function exists(url){
       try{ const r=await fetch(url,{method:'HEAD'}); return r.ok; }catch(_){ return false; }
     }
@@ -189,7 +188,7 @@
       for(const cr of filtered){
         const photoOk = await exists(cr.photo);
         const a = document.createElement('a');
-        a.href=`./peek.html?creator=${cr.id}`;
+        a.href='./demo.html';
         a.className='card';
         a.innerHTML=`
           <div class="frame wide">

@@ -26,25 +26,45 @@
     }
     .container{ max-width:900px; margin:0 auto; }
 
-    /* Header */
+    /* Header con logo horizontal */
     .header{
-      display:flex; align-items:center; justify-content:space-between;
-      margin-bottom:30px; flex-wrap:wrap; gap:16px;
+      display:flex;
+      align-items:center;
+      gap:16px;
+      padding-bottom:16px;
+      border-bottom:2px solid var(--ring);
+      margin-bottom:24px;
+      flex-wrap:wrap;
     }
-    .logo-area{ display:flex; align-items:center; gap:12px; cursor:pointer; }
     .logo{
-      width:50px; height:50px; border-radius:14px;
-      box-shadow:0 4px 12px rgba(102,126,234,0.15);
+      height:auto;
+      width:clamp(160px, 30%, 240px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+      cursor:pointer;
     }
-    .brand h1{
-      font-size:18px; font-weight:800; margin-bottom:2px;
-      background:linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    .demo-badge{
+      display:inline-block;
+      padding:6px 12px;
+      background:linear-gradient(135deg, rgba(102,126,234,.1), rgba(118,75,162,.1));
+      border:2px solid rgba(102,126,234,.3);
+      border-radius:12px;
+      font-size:12px;
+      font-weight:800;
+      color:var(--accent);
+      letter-spacing:0.5px;
     }
-    .brand p{ font-size:12px; color:var(--muted); }
     .nav-btn{
-      padding:10px 20px; background:white; border:1px solid var(--ring); border-radius:10px;
-      text-decoration:none; color:var(--text); font-size:14px; font-weight:600; transition:.3s;
+      margin-left:auto;
+      padding:10px 20px;
+      background:white;
+      border:1px solid var(--ring);
+      border-radius:10px;
+      text-decoration:none;
+      color:var(--text);
+      font-size:14px;
+      font-weight:700;
+      transition:.3s;
+      white-space:nowrap;
     }
     .nav-btn:hover{ border-color:var(--accent); background:rgba(102,126,234,.05); }
 
@@ -59,11 +79,6 @@
     }
     .creator-name{ font-size:20px; font-weight:800; margin-bottom:4px; }
     .creator-handle{ font-size:14px; color:var(--muted); }
-    .demo-badge{
-      display:inline-block; padding:4px 12px;
-      background:linear-gradient(135deg, rgba(102,126,234,.1), rgba(118,75,162,.1));
-      border:1px solid rgba(102,126,234,.3); border-radius:12px; font-size:11px; font-weight:700; color:var(--accent); margin-left:8px;
-    }
     .creator-desc{ font-size:14px; color:var(--muted); line-height:1.6; }
 
     /* Set Info */
@@ -72,33 +87,29 @@
     .set-stats{ display:flex; gap:16px; font-size:13px; color:var(--muted); }
     .set-stat{ display:flex; align-items:center; gap:6px; }
 
-    /* Mosaic Grid (tiles unidos) */
+    /* Mosaic Grid */
     .mosaic{
       display:grid; grid-template-columns:repeat(4, 1fr); gap:0;
       margin-bottom:20px; background:white; padding:0;
       border-radius:20px; overflow:hidden; box-shadow:0 4px 16px rgba(102,126,234,.08);
     }
 
-    /* Tile base SIN imagen (la imagen va en ::before para poder difuminarla) */
     .tile{
       aspect-ratio:1; border-radius:0; overflow:hidden; position:relative; cursor:pointer; transition:.25s;
-      /* Imagen y posición como variables para poder usarlas dentro de ::before */
       --img: url('./photos/lenceria/rio-out/riolen.jpg');
       --pos: 0% 0%;
-      background:none; /* importante: no mostrar la imagen nítida en el fondo */
+      background:none;
       backface-visibility:hidden; will-change:transform;
     }
 
-    /* Render de la imagen SOLO aquí */
     .tile::before{
       content:''; position:absolute; inset:0;
       background-image:var(--img);
       background-position:var(--pos);
       background-size:400% 400%;
-      transform:scale(1.02); /* cubre bien bordes al aplicar blur */
+      transform:scale(1.02);
     }
 
-    /* Posición de cada tile (silueta correcta por cuadrante) */
     .tile:nth-child(1)  { --pos: 0%   0%; }
     .tile:nth-child(2)  { --pos: 33.33% 0%; }
     .tile:nth-child(3)  { --pos: 66.66% 0%; }
@@ -116,14 +127,8 @@
     .tile:nth-child(15) { --pos: 66.66% 100%; }
     .tile:nth-child(16) { --pos: 100%  100%; }
 
-    /* FREE (preview) — borroso pero legible como demo */
     .tile.free::before{
-      filter:
-        blur(18px)
-        brightness(.90)
-        contrast(.95)
-        saturate(.65)
-        grayscale(.25);
+      filter: blur(18px) brightness(.90) contrast(.95) saturate(.65) grayscale(.25);
       z-index:1;
     }
     .tile.free::after{
@@ -132,25 +137,14 @@
       font-size:10px; font-weight:900; letter-spacing:.5px; box-shadow:0 2px 8px rgba(16,185,129,.4);
       z-index:3;
     }
-    /* LOCKED — estilo “solo silueta”: blur MUY alto + oscurecido + viñeteado */
     .tile.locked::before{
-      filter:
-        blur(18px)
-        brightness(.95)
-        contrast(.95)
-        saturate(.65)
-        grayscale(.10);
+      filter: blur(18px) brightness(.95) contrast(.95) saturate(.65) grayscale(.10);
       z-index:1;
     }
-    /* Viñeta + velo oscuro (sin usar pseudo extra) */
     .tile.locked{
-      /* velo global opaco + viñeta interior */
-      box-shadow:
-        inset 0 0 0 9999px rgba(10,14,24,.35),
-        inset 0 0 120px 40px rgba(10,14,24,.30);
+      box-shadow: inset 0 0 0 9999px rgba(10,14,24,.35), inset 0 0 120px 40px rgba(10,14,24,.30);
     }
 
-    /* Badge */
     .tile.locked::after{
       content:'LOCK'; position:absolute; top:10px; left:10px;
       background:linear-gradient(135deg, var(--accent), var(--purple)); color:white;
@@ -160,7 +154,6 @@
     .tile.locked:hover::after{ transform:scale(1.05); }
     .tile.locked:hover{ transform:scale(1.005); }
 
-    /* Info box */
     .info-box{
       background:#fef3c7; border:2px solid #fbbf24; border-radius:16px; padding:16px;
       font-size:14px; color:#78350f; line-height:1.6; margin-top:20px;
@@ -207,6 +200,7 @@
     .btn-secondary:hover{ border-color:var(--accent); background:rgba(102,126,234,.05); }
 
     @media (max-width:640px){
+      .logo{ width:clamp(140px, 50%, 200px); }
       .mosaic{ gap:0; padding:0; }
       .modal-content{ padding:30px 24px; }
     }
@@ -214,45 +208,39 @@
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
+    <!-- Header con logo horizontal -->
     <div class="header">
-      <div class="logo-area" onclick="location.href='./index.html'">
-        <img src="./peak1.png" alt="PeekPay" class="logo">
-        <div class="brand">
-          <h1>PeekPay</h1>
-          <p>Demo interactivo</p>
-        </div>
-      </div>
-      <a href="./index.html" class="nav-btn">← Volver</a>
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./profile.html'">
+      <span class="demo-badge">DEMO INTERACTIVO</span>
+      <a href="./profile.html" class="nav-btn">← Volver</a>
     </div>
 
     <!-- Creator Card -->
     <div class="creator-card">
       <div class="creator-info">
-        <img src="./peak1.png" alt="Rio Out" class="creator-avatar">
+        <img src="./photos/lenceria/rio-out/riolen.jpg" alt="Rio Out" class="creator-avatar" onerror="this.src='./peak1.png'">
         <div style="flex:1;">
-          <div><span class="creator-name">Rio Out</span><span class="demo-badge">DEMO</span></div>
-          <div class="creator-handle">@rio-out</div>
+          <div class="creator-name">Rio Out</div>
+          <div class="creator-handle">@rio • Lencería</div>
         </div>
       </div>
       <p class="creator-desc">
-        Esta es una demostración de cómo funciona PeekPay. En el soft launch (Q1 2025) podrás explorar creadores reales y desbloquear contenido con Peak Credits.
+        🎮 <strong>Modo Demo:</strong> Esta es una demostración de cómo funciona PeekPay. Los tiles "FREE" muestran un preview con blur suave. Los "LOCK" requieren registro para desbloquear. En el soft launch (Q1 2025) podrás explorar creadores reales y desbloquear contenido con Peak Credits.
       </p>
     </div>
 
     <!-- Set -->
     <div class="creator-card">
       <div class="set-header">
-        <h3 class="set-title">Set Demo • Lencería</h3>
+        <h3 class="set-title">Set Demo • Mosaico 4×4</h3>
         <div class="set-stats">
           <span class="set-stat"><span style="color:var(--green);">●</span> 3 preview gratis</span>
           <span class="set-stat"><span style="color:var(--accent);">●</span> 13 bloqueados</span>
         </div>
       </div>
 
-      <!-- Mosaic Grid 4x4 (unido) -->
+      <!-- Mosaic Grid 4x4 -->
       <div class="mosaic" id="grid">
-        <!-- FREE / LOCKED: estructura fija -->
         <div class="tile free"></div>
         <div class="tile locked"></div>
         <div class="tile locked"></div>
@@ -275,8 +263,7 @@
       </div>
 
       <div class="info-box">
-        <strong>🎮 Modo Demo:</strong> Los tiles “FREE” muestran un preview con blur suave.
-        Los “LOCK” aplican blur muy alto, oscuridad y viñeta para que solo se perciba la silueta.
+        <strong>💡 ¿Cómo funciona?</strong> Los tiles FREE son preview gratuitos. Los tiles LOCK requieren Peak Credits para desbloquear. Click en cualquier LOCK para ver cómo unirte al Early Access.
       </div>
     </div>
   </div>
@@ -309,7 +296,6 @@
   </div>
 
   <script>
-    // Modal en tiles LOCKED
     const modal = document.getElementById('modal');
     document.querySelectorAll('.tile.locked').forEach(t=>{
       t.addEventListener('click', ()=>{ modal.classList.add('active'); modal.setAttribute('aria-hidden','false'); });
