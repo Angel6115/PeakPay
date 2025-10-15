@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Subir teaser (pre-launch) — PeekPay</title>
+  <title>Subir contenido — PeekPay</title>
   <link rel="icon" href="./favicon.ico">
+  
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root{
       --bg:#eef2ff; --bg2:#e0e7ff; --card:#fff; --ring:#e5e7eb; --text:#0f172a; --muted:#64748b;
@@ -19,18 +23,52 @@
       min-height:100vh; padding:22px;
     }
     .wrap{max-width:980px;margin:0 auto}
-    .top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-    .logo{height:26px}
+    
+    /* ✨ Header con logo horizontal */
+    .top{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom:20px;
+      padding-bottom:16px;
+      border-bottom:2px solid var(--ring);
+    }
+    .logo{
+      height:auto;
+      width:clamp(160px, 30%, 240px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+    }
+    .top .muted{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:600;
+    }
     .back{margin-left:auto}
+    
     .btn{
       appearance:none;border:1px solid var(--ring);background:#fff;color:#111827;border-radius:10px;
-      padding:8px 12px;cursor:pointer;font-weight:800;box-shadow:0 4px 14px rgba(102,126,234,.12)
+      padding:10px 16px;cursor:pointer;font-weight:800;box-shadow:0 4px 14px rgba(102,126,234,.12);
+      transition: all 0.3s;
     }
-    .card{background:var(--card);border:1px solid var(--ring);border-radius:18px;padding:16px;box-shadow:0 12px 40px rgba(102,126,234,.10)}
+    .btn:hover{
+      border-color:var(--indigo);
+      background:rgba(102,126,234,0.05);
+    }
+    .btn.primary{
+      background:linear-gradient(135deg,var(--indigo),var(--purple));
+      color:#fff;
+      border-color:transparent;
+    }
+    .btn.primary:hover{
+      transform: translateY(-2px);
+      box-shadow:0 8px 20px rgba(102,126,234,.3);
+    }
+    
+    .card{background:var(--card);border:1px solid var(--ring);border-radius:18px;padding:20px;box-shadow:0 12px 40px rgba(102,126,234,.10)}
     .area{display:grid;gap:14px}
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     @media (max-width:860px){ .row2{grid-template-columns:1fr} }
-    .h{font-size:18px;font-weight:900;margin-bottom:8px}
+    .h{font-size:18px;font-weight:900;margin-bottom:10px}
     .muted{color:var(--muted);font-size:12px}
     .fld label{display:block;font-size:12px;color:#334155;font-weight:800;margin-bottom:6px}
     .fld input,.fld select{width:100%;padding:10px;border:1px solid var(--ring);border-radius:10px}
@@ -46,12 +84,12 @@
     .gridOverlay{
       pointer-events:none; position:absolute; inset:0; display:grid;
       grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(4,1fr);
-      gap:2px; padding:0; /* celdas “pegadas” con un hairline */
+      gap:2px; padding:0;
     }
     .cell{
-      border:1px solid rgba(255,255,255,.45);          /* marca las celdas sutilmente */
-      background:rgba(255,255,255,.10);                /* película tenue para notar el grid */
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);      /* bordecito interno */
+      border:1px solid rgba(255,255,255,.45);
+      background:rgba(255,255,255,.10);
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
     }
     .cell.free{
       background:linear-gradient(135deg,var(--free),var(--free2));
@@ -61,34 +99,66 @@
 
     .bar{position:absolute;left:0;right:0;bottom:0;background:rgba(102,126,234,.95);color:#fff;
          font-size:12px;font-weight:800;text-align:center;padding:6px}
-    .actions{display:flex;gap:10px;justify-content:flex-end}
+    .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 
-    .sliderRow{display:flex;align-items:center;gap:10px}
-    input[type="range"]{width:100%}
+    .sliderRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    input[type="range"]{flex:1;min-width:200px}
 
     .pill{font-size:11px;color:#065f46;background:#d1fae5;border:1px solid #a7f3d0;border-radius:999px;padding:3px 8px;font-weight:800}
+    
+    .status{
+      padding:12px;
+      background:rgba(251,191,36,0.1);
+      border:1px solid rgba(251,191,36,0.3);
+      border-radius:10px;
+      font-size:13px;
+      color:#92400e;
+      margin-top:12px;
+    }
+    .status.success{
+      background:rgba(16,185,129,0.1);
+      border-color:rgba(16,185,129,0.3);
+      color:#065f46;
+    }
+    .status.error{
+      background:rgba(239,68,68,0.1);
+      border-color:rgba(239,68,68,0.3);
+      color:#991b1b;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="top">
       <img src="./assets/brand/peekpay-logo-h.svg" class="logo" alt="PeekPay">
-      <span class="muted">Pre-launch</span>
-      <button class="btn back" onclick="location.href='./creator-dashboard.html'">Volver</button>
+      <span class="muted">Subir contenido</span>
+      <button class="btn back" onclick="location.href='./creator-dashboard.html'">← Volver</button>
     </div>
 
+    <div id="statusMsg" class="status" style="display:none"></div>
+
     <div class="card area">
-      <div class="h">Detalles (opcionales por ahora)</div>
+      <div class="h">Detalles del contenido</div>
       <div class="row2">
-        <div class="fld"><label>Título para tu perfil o set</label><input id="title" placeholder="Ej. CoscoMelon"></div>
+        <div class="fld">
+          <label>Título del set</label>
+          <input id="title" placeholder="Ej. Summer Vibes">
+        </div>
         <div class="row2" style="grid-template-columns:1fr 1fr;gap:12px">
           <div class="fld">
             <label>Categoría</label>
             <select id="cat">
-              <option>Lencería</option><option>Cosplay</option><option>Fitness</option><option>Artístico</option><option>Arte</option>
+              <option>Lencería</option>
+              <option>Cosplay</option>
+              <option>Fitness</option>
+              <option>Artístico</option>
+              <option>Arte</option>
             </select>
           </div>
-          <div class="fld"><label>@alias</label><input id="alias" placeholder="ej. dura"></div>
+          <div class="fld">
+            <label>Precio (USD)</label>
+            <input id="price" type="number" min="1" max="50" step="0.5" value="5.00">
+          </div>
         </div>
       </div>
     </div>
@@ -96,22 +166,28 @@
     <div class="row2" style="margin-top:14px">
       <!-- Avatar -->
       <div class="card">
-        <div class="h">1) Avatar</div>
+        <div class="h">1) Avatar de perfil</div>
         <div class="avatarWrap">
-          <img id="avatarImg" class="avatar" alt="">
+          <img id="avatarImg" class="avatar" alt="" src="./peak1.png">
           <div style="flex:1">
             <div class="fld">
               <label>Sube tu foto de perfil (recomendado 800×800, JPG/PNG)</label>
               <input id="avatarFile" type="file" accept="image/*">
             </div>
-            <div class="muted" style="margin-top:6px">Tip: usa un encuadre centrado. Puedes reemplazarla en cualquier momento. <span id="avatarState" class="ok" style="display:none">Listo</span></div>
+            <div class="muted" style="margin-top:6px">
+              Tip: usa un encuadre centrado. 
+              <span id="avatarState" class="ok" style="display:none">✓ Listo</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Teaser -->
       <div class="card">
-        <div class="h">2) Teaser (con blur) <span id="teaserPill" class="pill" style="display:none">Imagen cargada</span></div>
+        <div class="h">
+          2) Imagen del set 
+          <span id="teaserPill" class="pill" style="display:none">✓ Imagen cargada</span>
+        </div>
         <div class="teaserBox">
           <canvas id="cv" class="teaserCanvas"></canvas>
           <div id="grid" class="gridOverlay" aria-hidden="true"></div>
@@ -119,78 +195,102 @@
         </div>
 
         <div class="fld" style="margin-top:10px">
-          <label>Sube tu imagen teaser (JPG/PNG)</label>
+          <label>Sube tu imagen (JPG/PNG, mínimo 1200x1200)</label>
           <input id="teaserFile" type="file" accept="image/*">
         </div>
 
-        <div class="sliderRow" style="margin-top:8px">
-          <span class="muted" style="width:120px">Intensidad del blur</span>
+        <div class="sliderRow" style="margin-top:12px">
+          <span class="muted" style="min-width:140px">Intensidad del blur</span>
           <input id="blur" type="range" min="4" max="28" step="1" value="18">
-          <button class="btn" id="regen">Regenerar blur</button>
+          <span id="blurValue" class="muted">18px</span>
         </div>
 
-        <div class="muted" style="margin-top:10px">
-          Recomendaciones: que el teaser sea sugerente pero no explícito; evita texto muy pequeño; deja el foco en el sujeto.
+        <div class="muted" style="margin-top:10px;line-height:1.5">
+          💡 Recomendaciones: que el teaser sea sugerente pero no explícito; evita texto muy pequeño; deja el foco en el sujeto.
         </div>
 
-        <div class="actions" style="margin-top:12px">
-          <button class="btn" id="saveDraft">Guardar borrador</button>
-          <button class="btn" style="background:linear-gradient(135deg,var(--indigo),var(--purple));color:#fff;border-color:transparent" id="markReady">
-            Marcar listo para pre-launch
-          </button>
+        <div class="actions" style="margin-top:16px">
+          <button class="btn" id="saveDraft" disabled>Guardar borrador</button>
+          <button class="btn primary" id="publish" disabled>Publicar contenido</button>
         </div>
       </div>
     </div>
   </div>
 
-<script>
-(() => {
+<script type="module">
+  // Inicializar Supabase
+  const supabase = window.supabase.createClient(
+    window.PP_ENV.sb_url,
+    window.PP_ENV.sb_anon,
+    { auth: { persistSession: true, storageKey: 'pp-auth' } }
+  );
+
   const cv = document.getElementById('cv');
   const ctx = cv.getContext('2d');
   const grid = document.getElementById('grid');
   const blurInput = document.getElementById('blur');
+  const blurValue = document.getElementById('blurValue');
   const teaserPill = document.getElementById('teaserPill');
+  const statusMsg = document.getElementById('statusMsg');
+  const saveDraftBtn = document.getElementById('saveDraft');
+  const publishBtn = document.getElementById('publish');
 
-  let img = null;            // Imagen original del teaser
+  let img = null;
+  let avatarFile = null;
+  let teaserFile = null;
   let blurVal = +blurInput.value;
+  let currentUser = null;
 
-  // --- Utilidades de storage
-  const setLS = (k,v)=>{ try{ localStorage.setItem(k,v) }catch(e){} };
-  const getLS = (k)=>{ try{ return localStorage.getItem(k) }catch(e){ return null } };
+  // Show status message
+  function showStatus(msg, type='info') {
+    statusMsg.textContent = msg;
+    statusMsg.className = 'status ' + type;
+    statusMsg.style.display = 'block';
+    if(type === 'success') {
+      setTimeout(() => statusMsg.style.display = 'none', 5000);
+    }
+  }
 
-  // --- Dibuja el teaser con blur y devuelve dataURL (para guardar)
+  // Check auth
+  async function checkAuth() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      showStatus('⚠️ No has iniciado sesión. Redirigiendo...', 'error');
+      setTimeout(() => location.href = './login.html?next=upload-teaser.html', 2000);
+      return null;
+    }
+    return user;
+  }
+
+  // Render teaser to canvas
   function renderTeaserToCanvas() {
     const size = Math.min(cv.clientWidth, cv.clientHeight);
-    // fija canvas cuadrado consistente
     const px = Math.max(640, Math.floor(size * devicePixelRatio));
     cv.width = px; cv.height = px;
 
     ctx.clearRect(0,0,cv.width,cv.height);
     if (!img){
-      // fondo vacío
       ctx.fillStyle = '#f1f5f9';
       ctx.fillRect(0,0,cv.width,cv.height);
       return null;
     }
-    // Dibujar la imagen conteniendo el cuadrado (cover centrado)
+
     const iw = img.naturalWidth, ih = img.naturalHeight;
     const s = Math.min(iw, ih);
     const sx = (iw - s)/2, sy = (ih - s)/2;
 
     ctx.save();
-    // blur live
     ctx.filter = `blur(${blurVal}px)`;
     ctx.drawImage(img, sx, sy, s, s, 0, 0, cv.width, cv.height);
     ctx.restore();
 
-    // devuelve dataURL para previsualizar luego
     return cv.toDataURL('image/jpeg', 0.85);
   }
 
-  // --- Construye la cuadrícula 4×4 con celdas “pegadas” y 3 FREE
+  // Build 4x4 grid
   function buildGrid() {
     grid.innerHTML = '';
-    const free = [0,5,11]; // 3 previews
+    const free = [0,5,11];
     for (let i=0;i<16;i++){
       const c = document.createElement('div');
       c.className = 'cell' + (free.includes(i) ? ' free' : '');
@@ -198,111 +298,140 @@
     }
   }
 
-  // --- Inputs: teaser
-  document.getElementById('teaserFile').addEventListener('change', (e)=>{
+  // Convert canvas to blob
+  function canvasToBlob(canvas, type='image/jpeg', quality=0.85) {
+    return new Promise(resolve => {
+      canvas.toBlob(resolve, type, quality);
+    });
+  }
+
+  // Upload to Supabase Storage
+  async function uploadToStorage(file, path) {
+    const { data, error } = await supabase.storage
+      .from('creator-content')
+      .upload(path, file, { upsert: true });
+    
+    if (error) throw error;
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('creator-content')
+      .getPublicUrl(path);
+    
+    return publicUrl;
+  }
+
+  // Save content to database
+  async function saveContent(status = 'draft') {
+    if (!currentUser) {
+      showStatus('Error: No hay sesión activa', 'error');
+      return;
+    }
+
+    if (!teaserFile) {
+      showStatus('⚠️ Debes subir una imagen del set', 'error');
+      return;
+    }
+
+    try {
+      showStatus('📤 Subiendo contenido...', 'info');
+      
+      const timestamp = Date.now();
+      let avatarUrl = null;
+      let teaserUrl = null;
+
+      // Upload avatar if exists
+      if (avatarFile) {
+        const avatarPath = `${currentUser.id}/avatar.jpg`;
+        avatarUrl = await uploadToStorage(avatarFile, avatarPath);
+      }
+
+      // Upload teaser (always required)
+      const teaserPath = `${currentUser.id}/teaser-${timestamp}.jpg`;
+      teaserUrl = await uploadToStorage(teaserFile, teaserPath);
+
+      // Save to database
+      const { data, error } = await supabase
+        .from('creator_content')
+        .insert({
+          creator_id: currentUser.id,
+          title: document.getElementById('title').value || 'Sin título',
+          category: document.getElementById('cat').value,
+          price: parseFloat(document.getElementById('price').value) || 5.00,
+          avatar_url: avatarUrl,
+          teaser_url: teaserUrl,
+          blur_intensity: blurVal,
+          free_tiles: [0, 5, 11],
+          status: status
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      showStatus(`✅ Contenido ${status === 'published' ? 'publicado' : 'guardado'} exitosamente`, 'success');
+      
+      setTimeout(() => {
+        location.href = './creator-dashboard.html';
+      }, 1500);
+
+    } catch (error) {
+      console.error('Error saving content:', error);
+      showStatus('❌ Error: ' + error.message, 'error');
+    }
+  }
+
+  // Event listeners
+  blurInput.addEventListener('input', (e) => {
+    blurVal = +e.target.value || 18;
+    blurValue.textContent = blurVal + 'px';
+    renderTeaserToCanvas();
+  });
+
+  document.getElementById('teaserFile').addEventListener('change', (e) => {
     const f = e.target.files?.[0];
     if(!f) return;
+    
+    teaserFile = f;
     const u = URL.createObjectURL(f);
     const image = new Image();
+    
     image.onload = () => {
       img = image;
       teaserPill.style.display = 'inline-block';
-      renderTeaserToCanvas(); // pinta
-      // guardamos un “snapshot” para el dashboard
-      const data = renderTeaserToCanvas();
-      if (data) setLS('pp_teaser_src_tmp', data);
-      setLS('pp_teaser_blur', String(blurVal));
-      // revoke
+      renderTeaserToCanvas();
+      saveDraftBtn.disabled = false;
+      publishBtn.disabled = false;
       URL.revokeObjectURL(u);
     };
     image.src = u;
   });
 
-  blurInput.addEventListener('input', (e)=>{
-    blurVal = +e.target.value || 18;
-    const data = renderTeaserToCanvas();
-    if (data) setLS('pp_teaser_src_tmp', data);
-    setLS('pp_teaser_blur', String(blurVal));
-  });
-  document.getElementById('regen').addEventListener('click', ()=>{
-    const data = renderTeaserToCanvas();
-    if (data) setLS('pp_teaser_src_tmp', data);
-  });
-
-  // --- Avatar
-  const avatarImg = document.getElementById('avatarImg');
-  const avatarState = document.getElementById('avatarState');
-  document.getElementById('avatarFile').addEventListener('change', (e)=>{
+  document.getElementById('avatarFile').addEventListener('change', (e) => {
     const f = e.target.files?.[0];
     if(!f) return;
+    
+    avatarFile = f;
     const u = URL.createObjectURL(f);
     const a = new Image();
+    
     a.onload = () => {
-      // mostramos preview circular y guardamos dataURL cuadrado 512
-      avatarImg.src = u;
-      avatarState.style.display = 'inline';
-      // Volcar a canvas temporal para dataURL
-      const s = 512;
-      const c = document.createElement('canvas');
-      c.width = s; c.height = s;
-      const ax = c.getContext('2d');
-      const iw = a.naturalWidth, ih = a.naturalHeight;
-      const side = Math.min(iw, ih);
-      ax.drawImage(a, (iw-side)/2, (ih-side)/2, side, side, 0,0,s,s);
-      try { setLS('pp_avatar_tmp', c.toDataURL('image/jpeg',0.9)); } catch {}
-      URL.revokeObjectURL(u);
+      document.getElementById('avatarImg').src = u;
+      document.getElementById('avatarState').style.display = 'inline';
     };
     a.src = u;
   });
 
-  // --- Guardado de perfil mínimo
-  function saveProfileSkeleton(){
-    const profile = {
-      alias: (document.getElementById('alias').value || '').trim(),
-      category: document.getElementById('cat').value,
-      title: (document.getElementById('title').value || '').trim(),
-      ts: Date.now()
-    };
-    try{ localStorage.setItem('pp_prelaunch_profile', JSON.stringify(profile)); }catch{}
-  }
+  saveDraftBtn.addEventListener('click', () => saveContent('draft'));
+  publishBtn.addEventListener('click', () => saveContent('published'));
 
-  document.getElementById('saveDraft').addEventListener('click', ()=>{
-    saveProfileSkeleton();
-    alert('Borrador guardado localmente.');
-  });
-
-  document.getElementById('markReady').addEventListener('click', ()=>{
-    saveProfileSkeleton();
-    // fuerza último snapshot del teaser y blur
-    const snap = renderTeaserToCanvas();
-    if (snap) setLS('pp_teaser_src_tmp', snap);
-    setLS('pp_teaser_blur', String(blurVal));
-    // redirige al dashboard
-    location.href = './creator-dashboard.html';
-  });
-
-  // init
-  buildGrid();
-  // si había algo previo, puebla el UI
-  (function hydrate(){
-    try{
-      const prof = JSON.parse(getLS('pp_prelaunch_profile')||'{}');
-      if (prof.title) document.getElementById('title').value = prof.title || '';
-      if (prof.category) document.getElementById('cat').value = prof.category;
-      if (prof.alias) document.getElementById('alias').value = prof.alias;
-    }catch{}
-    const av = getLS('pp_avatar_tmp');
-    if (av){ avatarImg.src = av; avatarState.style.display='inline'; }
-    const snap = getLS('pp_teaser_src_tmp');
-    const b = +(getLS('pp_teaser_blur')||blurVal);
-    blurVal = b; blurInput.value = b;
-    if (snap){
-      const im = new Image();
-      im.onload = ()=>{ img = im; teaserPill.style.display='inline-block'; renderTeaserToCanvas(); };
-      im.src = snap;
-    }
+  // Initialize
+  (async function init() {
+    currentUser = await checkAuth();
+    if (!currentUser) return;
+    
+    buildGrid();
+    renderTeaserToCanvas();
   })();
-})();
 </script>
 </body>
 </html>
