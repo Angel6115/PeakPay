@@ -111,30 +111,30 @@
     .early-banner-close:hover{ opacity: 1; }
     .early-banner.hidden{ display: none; }
     
-    /* ✨ NEW: Founders Slider */
+    /* ✨ Founders Slider - COMPACTO */
     .founders-section{
       background: white;
       border-bottom: 2px solid var(--ring);
-      padding: 24px 0;
+      padding: 16px 0 20px;
       overflow: hidden;
     }
     .founders-header{
       max-width: 1120px;
-      margin: 0 auto 20px;
+      margin: 0 auto 16px;
       padding: 0 20px;
       text-align: center;
     }
     .founders-header h2{
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       background: linear-gradient(135deg, var(--accent), var(--purple));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .founders-header p{
-      font-size: 14px;
+      font-size: 13px;
       color: var(--muted);
     }
     .slider-container{
@@ -144,7 +144,7 @@
     }
     .slider-track{
       display: flex;
-      gap: 20px;
+      gap: 16px;
       animation: scroll 40s linear infinite;
       will-change: transform;
     }
@@ -156,11 +156,11 @@
       100%{ transform: translateX(-50%); }
     }
     .founder-card{
-      flex: 0 0 280px;
+      flex: 0 0 200px;
       background: white;
       border: 2px solid var(--ring);
-      border-radius: 20px;
-      padding: 20px;
+      border-radius: 16px;
+      padding: 28px 16px 16px;
       text-align: center;
       transition: all 0.3s;
       cursor: pointer;
@@ -175,47 +175,47 @@
     }
     .founder-badge{
       position: absolute;
-      top: -12px;
+      top: 8px;
       left: 50%;
       transform: translateX(-50%);
       background: linear-gradient(135deg, var(--accent), var(--purple));
       color: white;
-      padding: 4px 16px;
-      border-radius: 12px;
-      font-size: 11px;
+      padding: 3px 12px;
+      border-radius: 10px;
+      font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.5px;
       box-shadow: 0 4px 12px rgba(102,126,234,0.3);
     }
     .founder-avatar{
-      width: 100px;
-      height: 100px;
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
-      margin: 12px auto 16px;
+      margin: 0 auto 12px;
       object-fit: cover;
-      border: 4px solid white;
+      border: 3px solid white;
       box-shadow: 0 8px 24px rgba(102,126,234,0.2);
     }
     .founder-alias{
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .founder-category{
-      font-size: 13px;
+      font-size: 12px;
       color: var(--muted);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       font-weight: 600;
     }
     .founder-peeks{
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
+      gap: 4px;
+      padding: 4px 10px;
       background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
       border: 1px solid rgba(102,126,234,0.3);
-      border-radius: 12px;
-      font-size: 13px;
+      border-radius: 10px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--accent);
     }
@@ -240,7 +240,6 @@
       width: clamp(220px, 42vw, 440px);
       max-width: 440px;
     }
-    /* ✨ NEW: Login button */
     .login-btn{
       position: absolute;
       right: 20px;
@@ -498,7 +497,8 @@
       .slide{padding:30px 20px;}
       .grid-demo{max-width:280px;gap:6px;}
       .logo-center{ width: clamp(200px, 56vw, 280px); max-width: 280px; }
-      .founder-card{ flex: 0 0 240px; }
+      .founder-card{ flex: 0 0 180px; padding: 24px 14px 14px; }
+      .founder-avatar{ width: 60px; height: 60px; }
     }
   </style>
 </head>
@@ -516,7 +516,7 @@
   <button class="early-banner-close" id="closeBanner" aria-label="Cerrar banner">×</button>
 </div>
 
-<!-- ✨ NEW: Founders Slider -->
+<!-- ✨ Founders Slider - COMPACTO -->
 <section class="founders-section">
   <div class="founders-header">
     <h2>🎉 Conoce a los Founders</h2>
@@ -723,14 +723,14 @@
 <script>
   // ✨ Founders Data
   const FOUNDERS = [
-    { id: 'ink-aria', alias: '@ink.aria', name: 'Ink Aria', category: 'Lencería', peeks: 156, avatar: './photos/lenceria/ink-aria/inklen.jpg' },
     { id: 'lina-fit', alias: '@lina', name: 'Lina', category: 'Fitness', peeks: 127, avatar: './photos/fitness/lina-fit/linafit.jpg' },
     { id: 'noa-lace', alias: '@noa', name: 'Noa', category: 'Lencería', peeks: 143, avatar: './photos/lenceria/noa-lace/sets/set-01/full.jpg' },
-    { id: 'rio-out', alias: '@rio', name: 'Rio', category: 'Arte', peeks: 98, avatar: './photos/lenceria/rio-out/riolen.jpg' },
-    { id: 'sasha-dance', alias: '@sasha', name: 'Sasha', category: 'Cosplay', peeks: 112, avatar: './photos/cosplay/sasha-dance/sash1.jpg' },
-    { id: 'sol-light', alias: '@sol', name: 'Sol', category: 'Artístico', peeks: 89, avatar: './photos/artistico/sol-light/sol1.jpg' },
-    { id: 'val-cos', alias: '@val', name: 'Val', category: 'Cosplay', peeks: 134, avatar: './photos/cosplay/val-cos/val1.jpg' },
-    { id: 'zen-well', alias: '@zen', name: 'Zen', category: 'Fitness', peeks: 104, avatar: './photos/fitness/zen-well/zenfit.jpg' }
+    { id: 'rio-out', alias: '@rio', name: 'Rio', category: 'Lencería', peeks: 98, avatar: './photos/lenceria/rio-out/riolen.jpg' },
+    { id: 'sasha-dance', alias: '@sasha', name: 'Sasha', category: 'Cosplay', peeks: 112, avatar: './peak1.png' },
+    { id: 'sol-light', alias: '@sol', name: 'Sol', category: 'Artístico', peeks: 89, avatar: './peak1.png' },
+    { id: 'val-cos', alias: '@val', name: 'Val', category: 'Cosplay', peeks: 134, avatar: './peak1.png' },
+    { id: 'zen-well', alias: '@zen', name: 'Zen', category: 'Fitness', peeks: 104, avatar: './peak1.png' },
+    { id: 'ink-aria', alias: '@ink.aria', name: 'Ink', category: 'Lencería', peeks: 156, avatar: './photos/lenceria/ink-aria/inklen.jpg' }
   ];
 
   // ✨ Render Founders Slider (duplicate for infinite scroll)
