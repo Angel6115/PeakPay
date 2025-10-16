@@ -15,7 +15,6 @@
       --card:#fff; --ring:#e5e7eb; --text:#0f172a; --muted:#64748b;
       --indigo:#667eea; --purple:#764ba2; --accent:#6366f1;
       --ok:#10b981; --warn:#f59e0b;
-
       --tile-gap:2px;
       --tile-radius:12px;
       --grid-alpha:.20;
@@ -349,23 +348,24 @@
       contentArea.style.display = 'none';
     }
 
-    // ✅ CORREGIDO: Leer de tabla SETS
+    // ✅ CORREGIDO: Leer de tabla SETS con campos correctos
     async function loadCreatorContent(userId) {
+      console.log('🔍 Loading content for user:', userId);
+      
       const { data, error } = await supabase
         .from('sets')
         .select('*')
         .eq('creator_id', userId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          return null;
-        }
-        throw error;
+        console.error('❌ Error:', error);
+        return null;
       }
 
+      console.log('✅ Content loaded:', data);
       return data;
     }
 
@@ -380,7 +380,19 @@
       return data;
     }
 
-    function buildMosaic(teaserUrl, blurIntensity = 12) {
+    // ✅ Helper: Convertir path a URL pública
+    function getPublicUrl(path) {
+      if (!path) return null;
+      if (path.startsWith('http')) return path;
+      
+      const { data } = supabase.storage
+        .from('creator-content')
+        .getPublicUrl(path);
+      
+      return data?.publicUrl || null;
+    }
+
+    function buildMosaic(imagePath, blurIntensity = 12) {
       const tiles = $('tiles');
       tiles.innerHTML = '';
       const freeTiles = [0, 5, 11];
@@ -389,13 +401,17 @@
       $('miniBlur').value = blurIntensity;
       $('blurVal').textContent = String(blurIntensity);
 
-      if (!teaserUrl) {
+      if (!imagePath) {
         $('bg').style.backgroundImage = 'none';
         tiles.innerHTML = '<div class="muted" style="margin:auto;text-align:center">No has subido contenido aún.<br><a href="./upload-teaser.html">Subir ahora</a></div>';
         return;
       }
 
-      $('bg').style.backgroundImage = `url(${teaserUrl})`;
+      // ✅ Convertir path a URL pública
+      const imageUrl = getPublicUrl(imagePath);
+      console.log('🖼️ Image URL:', imageUrl);
+
+      $('bg').style.backgroundImage = `url(${imageUrl})`;
 
       const rows = 4, cols = 4;
       for (let i = 0; i < rows * cols; i++) {
@@ -420,11 +436,8 @@
       $('canvas').style.setProperty('--bpx', v + 'px');
     });
 
-    $('applyBlur').onclick = async () => {
-      if (!creatorContent) return;
-      const newBlur = Number($('miniBlur').value || 12);
-      
-      alert('Blur settings guardado localmente. En Fase 2 se guardará en BD.');
+    $('applyBlur').onclick = () => {
+      alert('Blur guardado localmente. En Fase 2 se guardará en BD.');
     };
 
     $('savePrice').onclick = async () => {
@@ -513,18 +526,17 @@
         }
 
         if (content) {
-          // ✅ CORREGIDO: usar is_active en lugar de status
           const isActive = content.is_active !== false;
           $('stateBadge').textContent = isActive ? 'Publicado' : 'Borrador';
           $('stateBadge').className = 'badge ' + (isActive ? 'ok' : 'pending');
 
-          // ✅ CORREGIDO: usar image_url de tabla sets
-          buildMosaic(content.image_url, 12);
+          // ✅ USAR full_path
+          buildMosaic(content.full_path || content.path, 12);
           $('price').value = content.price || 5.00;
 
-          $('statFavs').textContent = content.views || 0;
+          $('statFavs').textContent = '0';
           $('statOrders').textContent = '0';
-          $('statFive').textContent = content.unlocks || 0;
+          $('statFive').textContent = '0';
         } else {
           $('stateBadge').textContent = 'Sin contenido';
           $('stateBadge').className = 'badge pending';
