@@ -7,11 +7,8 @@
 
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./_header.js" defer></script>
 
   <link rel="icon" href="./favicon.ico">
-  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
 
   <style>
     :root{ 
@@ -26,7 +23,6 @@
     }
     .wrap{max-width:980px;margin:0 auto;padding:28px 16px 64px}
     
-    /* Header con logo horizontal */
     .top{
       display:flex;
       align-items:center;
@@ -40,6 +36,7 @@
       height:auto;
       width:clamp(160px, 30%, 240px);
       filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+      cursor:pointer;
     }
     .back{
       margin-left:auto;
@@ -74,6 +71,7 @@
       cursor:pointer;
       box-shadow:0 6px 16px rgba(79,70,229,.25);
       transition:all 0.3s;
+      font-weight:700;
     }
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(79,70,229,.35)}
     .btn:disabled{opacity:.6;cursor:not-allowed}
@@ -92,7 +90,7 @@
 <body>
   <div class="wrap">
     <div class="top">
-      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="goBack()">
       <a id="btnBack" class="back" href="./profile.html">← Volver</a>
     </div>
 
@@ -103,7 +101,7 @@
 
           <div id="warn" class="bar-warn" style="display:none">
             No hay sesión iniciada en esta pestaña.
-            <a href="./auth-signup.html?return=./settings.html" style="color:#1d4ed8">Entrar</a> para continuar.
+            <a href="./login.html?return=./settings.html" style="color:#1d4ed8">Entrar</a> para continuar.
           </div>
 
           <div style="display:flex;gap:12px;align-items:center;margin:10px 0">
@@ -183,11 +181,35 @@
     const sendReset = $('#sendReset');
     const logout = $('#logout');
 
-    (function mountBack(){
-      const getReturn = window.__pp_getReturn || ((d)=>d||'./profile.html');
-      $('#btnBack').href = getReturn('./profile.html');
-      $('#btnBack').onclick = (e)=>{ e.preventDefault(); location.href = getReturn('./profile.html'); };
-    })();
+    let isCreator = false;
+
+    // ✅ DETECTAR ROL Y CONFIGURAR NAVEGACIÓN
+    async function detectRole(sb, userId) {
+      try {
+        const { data: profile } = await sb
+          .from('profiles')
+          .select('role, is_creator')
+          .eq('id', userId)
+          .single();
+
+        if (profile && (profile.role === 'creator' || profile.is_creator)) {
+          isCreator = true;
+          $('#btnBack').href = './creator-profile.html';
+          console.log('✅ Creador detectado');
+        } else {
+          isCreator = false;
+          $('#btnBack').href = './profile.html';
+          console.log('✅ Usuario detectado');
+        }
+      } catch (err) {
+        console.warn('Could not detect role:', err);
+        $('#btnBack').href = './profile.html';
+      }
+    }
+
+    function goBack() {
+      location.href = isCreator ? './creator-profile.html' : './profile.html';
+    }
 
     function setMsg(t, ok){ msg.textContent = t||''; msg.className = 'msg ' + (ok?'ok':'err'); }
 
@@ -206,9 +228,13 @@
           disableUI(true);
           return;
         }
+        
         warn.style.display = 'none';
         email.value = session.user.email || '';
         disableUI(false);
+
+        // ✅ DETECTAR ROL
+        await detectRole(sb, session.user.id);
 
         const m = session.user.user_metadata || {};
         name.value   = m.name || '';
@@ -250,9 +276,9 @@
             if (err1) throw err1;
             setMsg('Perfil actualizado ✓', true);
             
-            // Redirigir después de 1 segundo para que vea el mensaje
+            // ✅ REDIRIGIR SEGÚN ROL
             setTimeout(() => {
-              location.href = './profile.html';
+              location.href = isCreator ? './creator-profile.html' : './profile.html';
             }, 1000);
           }catch(e){ setMsg(e.message||'No se pudo guardar.'); }
         };
@@ -269,7 +295,7 @@
 
         logout.onclick = async ()=>{
           try{ await sb.auth.signOut(); }catch{}
-          location.href = './auth-signup.html?return=./profile.html';
+          location.href = './login.html';
         };
 
       }catch(e){

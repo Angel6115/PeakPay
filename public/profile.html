@@ -34,8 +34,6 @@
       --accent:#667eea;
       --purple:#764ba2;
       --green:#10b981;
-      --blue:#3b82f6;
-      --orange:#f59e0b;
     }
     *{ box-sizing:border-box; margin:0; padding:0 }
     body{ 
@@ -50,7 +48,6 @@
       margin: 0 auto;
     }
     
-    /* Header con logo horizontal */
     .header{
       display: flex;
       align-items: center;
@@ -59,21 +56,11 @@
       flex-wrap: wrap;
       gap: 16px;
     }
-    .logo-area{
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-    }
     .logo{
       height: auto;
       width: clamp(160px, 25%, 220px);
       filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
-    }
-    .brand-text p{
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 4px;
+      cursor: pointer;
     }
     .nav{
       display: flex;
@@ -448,11 +435,8 @@
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
     <div class="header">
-      <div class="logo-area" onclick="location.href='./index.html'">
-        <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
-      </div>
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./index.html'">
       <div class="nav">
         <a href="./index.html" class="nav-btn">Inicio</a>
         <a href="./creators.html" class="nav-btn">Explorar</a>
@@ -461,9 +445,7 @@
       </div>
     </div>
 
-    <!-- Grid -->
     <div class="grid">
-      <!-- Left Column: Profile Card -->
       <div class="card">
         <div class="profile-header">
           <img id="u-avatar" src="./assets/brand/peekpay-mark.svg" alt="Avatar" class="avatar">
@@ -476,7 +458,6 @@
           </div>
         </div>
 
-        <!-- Wallet Preview -->
         <div class="wallet-preview">
           <div class="wallet-circle">
             <svg viewBox="0 0 100 100" width="100" height="100">
@@ -509,7 +490,6 @@
           </div>
         </div>
 
-        <!-- Quick Actions Grid -->
         <div class="quick-actions-grid">
           <a href="./creators.html?sort=trending" class="action-card">
             <span class="action-icon">🔥</span>
@@ -548,9 +528,7 @@
         </div>
       </div>
 
-      <!-- Right Column: Activity & Settings -->
       <div style="display:flex;flex-direction:column;gap:24px">
-        <!-- Activity Feed -->
         <div class="card">
           <div class="section-title">
             <h2>📊 Actividad reciente</h2>
@@ -565,7 +543,6 @@
           </div>
         </div>
 
-        <!-- Settings Preview -->
         <div class="card">
           <div class="section-title">
             <h2>⚙️ Configuración</h2>
@@ -608,6 +585,27 @@
         attempts++;
       }
       return window.supabaseClient;
+    }
+
+    // ✅ VERIFICAR SI ES CREADOR Y REDIRIGIR
+    async function checkIfCreator(sb, userId) {
+      try {
+        const { data: profile } = await sb
+          .from('profiles')
+          .select('role, is_creator')
+          .eq('id', userId)
+          .single();
+        
+        if (profile && (profile.role === 'creator' || profile.is_creator)) {
+          console.log('🔄 Creador detectado, redirigiendo a creator-profile.html');
+          location.href = './creator-profile.html';
+          return true;
+        }
+        return false;
+      } catch (err) {
+        console.warn('Could not check creator status:', err);
+        return false;
+      }
     }
 
     function timeAgo(date) {
@@ -708,14 +706,12 @@
       }
 
       try {
-        // IMPORTANTE: Refrescar sesión para obtener datos más recientes
         const { data: { session }, error: refreshError } = await sb.auth.refreshSession();
         
         if (refreshError) {
           console.warn('Refresh error:', refreshError);
         }
 
-        // Obtener usuario con datos frescos
         const { data: { user }, error: userError } = await sb.auth.getUser();
         
         if (userError || !user) {
@@ -729,7 +725,11 @@
           return;
         }
 
-        // Leer perfil de la BD
+        // ✅ VERIFICAR SI ES CREADOR
+        if (await checkIfCreator(sb, user.id)) {
+          return; // Detener ejecución, ya se redirigió
+        }
+
         const { data: profile, error: profileError } = await sb
           .from('profiles')
           .select('*')
@@ -749,13 +749,11 @@
         sbHint.textContent = '✅ Conectado';
         sbHint.style.color = '#10b981';
 
-        // PRIORIDAD: user_metadata (más reciente) > profile BD
         const metadata = user.user_metadata || {};
         const displayName = metadata.name || profile.display_name || profile.handle || user.email?.split('@')[0] || 'Usuario';
         const handle = metadata.handle || profile.handle || 'usuario';
         const avatarUrl = metadata.avatar_url || profile.avatar_url;
 
-        // Actualizar UI
         $('#u-name').textContent = displayName;
         $('#u-handle').textContent = '@' + handle;
         $('#stat-credits').textContent = (profile.credits || 0).toLocaleString();
@@ -767,15 +765,11 @@
           $('#u-avatar').src = avatarUrl;
         }
 
-        // Badges
         const badgesContainer = $('#badges-container');
         badgesContainer.innerHTML = '';
         
         if (profile.early_access) {
           badgesContainer.innerHTML += '<span class="badge">🎉 Founder</span>';
-        }
-        if (profile.is_creator) {
-          badgesContainer.innerHTML += '<span class="badge">⭐ Creador</span>';
         }
         
         const country = profile.country || profile.location;
@@ -822,9 +816,7 @@
       };
     }
 
-    // Bootstrap - Forzar recarga al volver de settings
     (async function init(){
-      // Listener para cambios de storage (cuando vuelves de settings)
       window.addEventListener('storage', (e) => {
         if (e.key && e.key.includes('pp-auth')) {
           console.log('🔄 Storage changed, reloading profile...');
@@ -832,7 +824,6 @@
         }
       });
 
-      // Listener para cuando la pestaña vuelve a ser visible
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
           console.log('👀 Tab visible, reloading profile...');
