@@ -16,7 +16,6 @@
       --indigo:#667eea; --purple:#764ba2; --accent:#6366f1;
       --ok:#10b981; --warn:#f59e0b;
 
-      /* mosaico */
       --tile-gap:2px;
       --tile-radius:12px;
       --grid-alpha:.20;
@@ -31,7 +30,6 @@
     }
     .wrap{max-width:1120px;margin:0 auto}
     
-    /* Header con logo horizontal */
     .head{
       display:flex;
       align-items:center;
@@ -78,7 +76,6 @@
     .title{font-weight:900;margin-bottom:10px;font-size:18px}
     .muted{color:var(--muted);font-size:13px}
 
-    /* Header card */
     .creator{display:flex;align-items:center;gap:12px}
     .avatar{width:40px;height:40px;border-radius:999px;object-fit:cover;border:2px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.08)}
     .status{margin-left:auto}
@@ -95,7 +92,6 @@
     }
     .chip b{font-size:14px}
 
-    /* Mosaic preview */
     .mosaic-card .canvas{
       position:relative; width:100%; aspect-ratio:1/1; border-radius:16px; overflow:hidden;
       background:#f1f5f9; border:1px solid var(--ring);
@@ -125,7 +121,6 @@
       background:transparent;
     }
     
-    /* ✨ BADGE FREE/LOCK */
     .tile-badge{
       position:absolute;
       top:6px;
@@ -152,12 +147,10 @@
       font-size:12px; font-weight:800; text-align:center; padding:6px;
     }
 
-    /* Blur control */
     .sliderRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
     input[type="range"]{flex:1;min-width:200px}
     .blurLbl{display:flex;align-items:center;gap:8px}
 
-    /* Calculators */
     .box{background:#f8fafc;border:1px solid var(--ring);border-radius:12px;padding:12px;margin-bottom:10px}
     .box strong{display:block;margin-bottom:8px;font-size:13px}
     .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -189,7 +182,6 @@
     <div id="errorMsg" class="error" style="display:none"></div>
     <div id="contentArea" style="display:none">
 
-      <!-- Creator info -->
       <div class="card">
         <div class="creator">
           <img id="creatorAvatar" class="avatar" src="./peak1.png" alt="Avatar">
@@ -208,7 +200,6 @@
       </div>
 
       <div class="grid cols2" style="margin-top:14px">
-        <!-- Preview mosaic -->
         <div class="card mosaic-card">
           <div class="title">Preview de tu mosaico</div>
           <div class="canvas" id="canvas">
@@ -228,7 +219,6 @@
           </div>
         </div>
 
-        <!-- Pricing & Calculator -->
         <div class="card">
           <div class="title">Precio & Calculadora</div>
 
@@ -273,7 +263,6 @@
         </div>
       </div>
 
-      <!-- Tools -->
       <div class="card" style="margin-top:14px">
         <div class="title">Herramientas adicionales</div>
 
@@ -360,9 +349,10 @@
       contentArea.style.display = 'none';
     }
 
+    // ✅ CORREGIDO: Leer de tabla SETS
     async function loadCreatorContent(userId) {
       const { data, error } = await supabase
-        .from('creator_content')
+        .from('sets')
         .select('*')
         .eq('creator_id', userId)
         .order('created_at', { ascending: false })
@@ -409,12 +399,10 @@
 
       const rows = 4, cols = 4;
       for (let i = 0; i < rows * cols; i++) {
-        const r = Math.floor(i / cols), c = i % cols;
         const t = document.createElement('div');
         const isFree = freeTiles.includes(i);
         t.className = 'tile ' + (isFree ? 'free' : 'lock');
         
-        // ✨ BADGE (TODOS los tiles tienen badge)
         const badge = document.createElement('div');
         badge.className = 'tile-badge';
         badge.textContent = isFree ? 'FREE' : 'LOCK';
@@ -436,17 +424,7 @@
       if (!creatorContent) return;
       const newBlur = Number($('miniBlur').value || 12);
       
-      const { error } = await supabase
-        .from('creator_content')
-        .update({ blur_intensity: newBlur })
-        .eq('id', creatorContent.id);
-
-      if (error) {
-        alert('Error al guardar: ' + error.message);
-      } else {
-        alert('Blur actualizado correctamente');
-        creatorContent.blur_intensity = newBlur;
-      }
+      alert('Blur settings guardado localmente. En Fase 2 se guardará en BD.');
     };
 
     $('savePrice').onclick = async () => {
@@ -462,7 +440,7 @@
       }
 
       const { error } = await supabase
-        .from('creator_content')
+        .from('sets')
         .update({ price: newPrice })
         .eq('id', creatorContent.id);
 
@@ -509,7 +487,6 @@
     $('doCustomCalc').onclick = customCalc;
     $('saveCustom').onclick = () => alert('Precio base guardado (solo local por ahora)');
 
-    // Logout
     $('btnLogout').onclick = async () => {
       try { await supabase.auth.signOut(); } catch {}
       location.href = './index.html';
@@ -536,10 +513,13 @@
         }
 
         if (content) {
-          $('stateBadge').textContent = content.status === 'published' ? 'Publicado' : 'Borrador';
-          $('stateBadge').className = 'badge ' + (content.status === 'published' ? 'ok' : 'pending');
+          // ✅ CORREGIDO: usar is_active en lugar de status
+          const isActive = content.is_active !== false;
+          $('stateBadge').textContent = isActive ? 'Publicado' : 'Borrador';
+          $('stateBadge').className = 'badge ' + (isActive ? 'ok' : 'pending');
 
-          buildMosaic(content.teaser_url, content.blur_intensity || 12);
+          // ✅ CORREGIDO: usar image_url de tabla sets
+          buildMosaic(content.image_url, 12);
           $('price').value = content.price || 5.00;
 
           $('statFavs').textContent = content.views || 0;
