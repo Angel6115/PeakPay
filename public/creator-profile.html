@@ -33,7 +33,6 @@
       margin: 0 auto;
     }
     
-    /* Header */
     .header{
       display: flex;
       align-items: center;
@@ -63,80 +62,72 @@
       font-size: 14px;
       font-weight: 600;
       transition: all 0.3s;
+      cursor: pointer;
     }
     .nav-btn:hover{
       border-color: var(--accent);
       background: rgba(102,126,234,0.05);
     }
-    .nav-btn.active{
+    .nav-btn.primary{
       background: linear-gradient(135deg, var(--accent), var(--purple));
       color: white;
-      border-color: transparent;
+      border: none;
     }
     
-    /* Grid */
-    .grid{
-      display: grid;
-      grid-template-columns: 350px 1fr;
-      gap: 24px;
-    }
-    @media (max-width: 960px){
-      .grid{ grid-template-columns: 1fr; }
-    }
-    
-    /* Card */
-    .card{
-      background: var(--card);
+    .profile-header{
+      background: white;
       border: 1px solid var(--ring);
       border-radius: 24px;
       padding: 32px;
+      margin-bottom: 30px;
       box-shadow: 0 10px 30px rgba(102,126,234,0.08);
     }
-    
-    /* Profile */
-    .profile-header{
+    .profile-top{
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 20px;
+      margin-bottom: 20px;
     }
     .avatar{
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       border-radius: 50%;
-      border: 3px solid white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       object-fit: cover;
+      border: 3px solid white;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .profile-info{
+      flex: 1;
     }
     .profile-name{
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 4px;
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 6px;
     }
     .profile-handle{
-      font-size: 14px;
+      font-size: 16px;
       color: var(--muted);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
     .badge{
-      font-size: 11px;
-      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
       background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
       border: 1px solid rgba(102,126,234,0.3);
       border-radius: 12px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       color: var(--accent);
-      display: inline-block;
     }
     
-    /* Stats */
     .stats{
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 16px;
     }
-    .stat{
+    .stat-card{
       padding: 16px;
       background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.05));
       border: 1px solid var(--ring);
@@ -144,7 +135,7 @@
       text-align: center;
     }
     .stat-value{
-      font-size: 24px;
+      font-size: 32px;
       font-weight: 900;
       background: linear-gradient(135deg, var(--accent), var(--purple));
       -webkit-background-clip: text;
@@ -153,197 +144,179 @@
       margin-bottom: 4px;
     }
     .stat-label{
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
       font-weight: 600;
     }
     
-    /* Quick Actions */
-    .quick-actions{
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .action-btn{
+    .section-title{
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background: white;
-      border: 2px solid var(--ring);
-      border-radius: 14px;
-      text-decoration: none;
-      color: var(--text);
-      font-weight: 600;
-      transition: all 0.3s;
+      justify-content: space-between;
+      margin-bottom: 20px;
     }
-    .action-btn:hover{
-      border-color: var(--accent);
-      transform: translateX(4px);
-      box-shadow: 0 4px 12px rgba(102,126,234,0.15);
-    }
-    .action-icon{
+    .section-title h2{
       font-size: 24px;
+      font-weight: 900;
     }
     
-    /* Section */
-    .section-title{
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-    
-    /* Sets Grid */
     .sets-grid{
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-    @media (min-width: 1100px){
-      .sets-grid{ grid-template-columns: repeat(3, 1fr); }
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
     }
     
     .set-card{
-      border: 1px solid var(--ring);
-      border-radius: 14px;
-      overflow: hidden;
       background: white;
+      border: 1px solid var(--ring);
+      border-radius: 20px;
+      overflow: hidden;
       transition: all 0.3s;
       cursor: pointer;
     }
     .set-card:hover{
-      box-shadow: 0 8px 24px rgba(102,126,234,0.15);
-      transform: translateY(-2px);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(102,126,234,0.15);
+      border-color: var(--accent);
     }
-    .set-thumb{
-      width: 100%;
+    
+    .set-image{
+      position: relative;
       aspect-ratio: 1;
-      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
+      background: #f1f5f9;
+      overflow: hidden;
     }
-    .set-info{
-      padding: 12px;
+    .set-image img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
-    .set-name{
-      font-weight: 700;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-    .set-stats{
+    .set-badge{
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 8px;
       font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .set-badge.active{
+      color: var(--green);
+      border: 1px solid var(--green);
+    }
+    
+    .set-info{
+      padding: 16px;
+    }
+    .set-title{
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .set-meta{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
       color: var(--muted);
+    }
+    .set-price{
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--accent);
     }
     
     .empty{
-      padding: 48px 32px;
       text-align: center;
+      padding: 80px 20px;
       color: var(--muted);
-      background: linear-gradient(135deg, rgba(102,126,234,0.03), rgba(118,75,162,0.03));
-      border-radius: 16px;
-      border: 2px dashed var(--ring);
     }
     .empty-icon{
-      font-size: 48px;
-      margin-bottom: 12px;
+      font-size: 64px;
+      margin-bottom: 20px;
       opacity: 0.5;
     }
     
-    .hint{
-      padding: 12px;
+    .hint-box{
       background: rgba(251,191,36,0.1);
       border: 1px solid rgba(251,191,36,0.3);
-      border-radius: 10px;
-      font-size: 13px;
+      border-radius: 16px;
+      padding: 20px;
       color: #92400e;
-      line-height: 1.5;
+      font-size: 14px;
+      line-height: 1.6;
     }
     
     @media (max-width: 640px){
-      .card{ padding: 24px 20px; }
-      .sets-grid{ grid-template-columns: 1fr; }
+      .sets-grid{
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
     <div class="header">
-      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./creator-dashboard.html'">
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./index.html'">
       <div class="nav">
-        <a href="./creator-dashboard.html" class="nav-btn">Dashboard</a>
-        <a href="./creator-profile.html" class="nav-btn active">Perfil</a>
-        <a href="./creator-wallet.html" class="nav-btn">Ganancias</a>
-        <a href="./settings.html" class="nav-btn">Ajustes</a>
+        <button class="nav-btn" onclick="location.href='./creator-dashboard.html'">Dashboard</button>
+        <button class="nav-btn" onclick="location.href='./creator-wallet.html'">Ganancias</button>
+        <button class="nav-btn" onclick="location.href='./settings.html'">Ajustes</button>
+        <button class="nav-btn primary" onclick="location.href='./upload-teaser.html'">+ Subir contenido</button>
       </div>
     </div>
 
-    <!-- Grid -->
-    <div class="grid">
-      <!-- Left: Profile Card -->
-      <div class="card">
-        <div class="profile-header">
-          <img id="avatar" src="./assets/brand/peekpay-mark.svg" alt="Avatar" class="avatar">
-          <div style="flex:1">
-            <div class="profile-name" id="name">Cargando...</div>
-            <div class="profile-handle" id="handle">@...</div>
-            <span class="badge">⭐ Creador</span>
-          </div>
-        </div>
-
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-value" id="stat-views">0</div>
-            <div class="stat-label">Vistas</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value" id="stat-likes">0</div>
-            <div class="stat-label">Likes</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value" id="stat-subs">0</div>
-            <div class="stat-label">Seguidores</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value" id="stat-sets">0</div>
-            <div class="stat-label">Sets</div>
-          </div>
-        </div>
-
-        <div class="quick-actions">
-          <a href="./creator-dashboard.html" class="action-btn">
-            <span class="action-icon">📊</span>
-            <span>Ver dashboard</span>
-          </a>
-          <a href="./creator-wallet.html" class="action-btn">
-            <span class="action-icon">💰</span>
-            <span>Ver ganancias</span>
-          </a>
-          <a href="./settings.html" class="action-btn">
-            <span class="action-icon">⚙️</span>
-            <span>Configuración</span>
-          </a>
-        </div>
-
-        <div class="hint">
-          💡 <strong>Consejo:</strong> Sube contenido de calidad regularmente para mantener a tus seguidores comprometidos.
+    <div class="profile-header">
+      <div class="profile-top">
+        <img id="profileAvatar" src="./assets/brand/peekpay-mark.svg" alt="Avatar" class="avatar">
+        <div class="profile-info">
+          <div class="profile-name" id="profileName">Cargando...</div>
+          <div class="profile-handle" id="profileHandle">@...</div>
+          <span class="badge">⭐ Creador</span>
         </div>
       </div>
-
-      <!-- Right: Sets -->
-      <div class="card">
-        <h2 class="section-title">📸 Mis Sets</h2>
-        
-        <div id="setsGrid" class="sets-grid">
-          <div class="empty">
-            <div class="empty-icon">📦</div>
-            <p><strong>Cargando sets...</strong></p>
-          </div>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="statVisits">0</div>
+          <div class="stat-label">Visitas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statLikes">0</div>
+          <div class="stat-label">Likes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statFollowers">0</div>
+          <div class="stat-label">Seguidores</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statSets">0</div>
+          <div class="stat-label">Sets</div>
         </div>
       </div>
+    </div>
+
+    <div class="section-title">
+      <h2>📸 Mis Sets</h2>
+    </div>
+
+    <div id="setsGrid" class="sets-grid"></div>
+
+    <div id="emptyState" class="empty" style="display:none">
+      <div class="empty-icon">🎨</div>
+      <h3>Aún no tienes sets publicados</h3>
+      <p style="margin-top:12px">Sube tu primer contenido para comenzar</p>
+      <button class="nav-btn primary" onclick="location.href='./upload-teaser.html'" style="margin-top:20px;display:inline-block">
+        + Subir contenido
+      </button>
+    </div>
+
+    <div class="hint-box" style="margin-top:30px">
+      <strong>💡 Consejo:</strong> Sube contenido de calidad regularmente para mantener a tus seguidores comprometidos.
     </div>
   </div>
 
@@ -356,10 +329,23 @@
 
     const $ = id => document.getElementById(id);
 
-    async function loadProfile(){
+    // Helper: Convertir path a URL pública
+    function getPublicUrl(path) {
+      if (!path) return null;
+      if (path.startsWith('http')) return path;
+      
+      const { data } = supabase.storage
+        .from('creator-content')
+        .getPublicUrl(path);
+      
+      return data?.publicUrl || null;
+    }
+
+    async function loadProfile() {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error || !user) {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
           location.href = './login.html';
           return;
         }
@@ -372,17 +358,12 @@
           .single();
 
         if (profile) {
-          $('name').textContent = profile.display_name || profile.handle || 'Creador';
-          $('handle').textContent = '@' + (profile.handle || 'creador');
+          $('profileName').textContent = profile.display_name || profile.handle || 'Creador';
+          $('profileHandle').textContent = '@' + (profile.handle || 'creador');
           
           if (profile.avatar_url) {
-            $('avatar').src = profile.avatar_url;
+            $('profileAvatar').src = profile.avatar_url;
           }
-
-          // Stats (mock for now)
-          $('stat-views').textContent = '0';
-          $('stat-likes').textContent = '0';
-          $('stat-subs').textContent = '0';
         }
 
         // Load sets
@@ -392,37 +373,47 @@
           .eq('creator_id', user.id)
           .order('created_at', { ascending: false });
 
-        const setsGrid = $('setsGrid');
-        
+        if (setsError) throw setsError;
+
+        $('statSets').textContent = sets?.length || 0;
+
         if (!sets || sets.length === 0) {
-          setsGrid.innerHTML = `
-            <div class="empty">
-              <div class="empty-icon">📦</div>
-              <p><strong>Aún no tienes sets</strong></p>
-              <p style="margin-top:8px;font-size:12px">Ve al dashboard para crear tu primer set</p>
-            </div>
-          `;
+          $('emptyState').style.display = 'block';
         } else {
-          $('stat-sets').textContent = sets.length;
-          
-          let html = '';
-          sets.forEach(set => {
-            html += `
-              <div class="set-card" onclick="location.href='./creator-dashboard.html'">
-                <div class="set-thumb">🎨</div>
-                <div class="set-info">
-                  <div class="set-name">${set.title || 'Set sin título'}</div>
-                  <div class="set-stats">${set.category || 'Sin categoría'} • ${set.grid || 4}×${set.grid || 4}</div>
-                </div>
-              </div>
-            `;
-          });
-          setsGrid.innerHTML = html;
+          renderSets(sets);
         }
 
-      } catch (err) {
-        console.error('Error loading profile:', err);
+      } catch (error) {
+        console.error('Error loading profile:', error);
       }
+    }
+
+    function renderSets(sets) {
+      const grid = $('setsGrid');
+      
+      grid.innerHTML = sets.map(set => {
+        const imageUrl = getPublicUrl(set.full_path || set.path);
+        const isActive = set.is_active !== false;
+        const title = set.title || 'Sin título';
+        const category = set.blurb || 'Sin categoría';
+        const price = set.price || 5;
+
+        return `
+          <div class="set-card" onclick="location.href='./creator-dashboard.html'">
+            <div class="set-image">
+              <img src="${imageUrl || './assets/brand/peekpay-mark.svg'}" alt="${title}">
+              <span class="set-badge ${isActive ? 'active' : ''}">${isActive ? '✓ Activo' : 'Borrador'}</span>
+            </div>
+            <div class="set-info">
+              <div class="set-title">${title}</div>
+              <div class="set-meta">
+                <span>${category} • 4×4</span>
+                <span class="set-price">$${price.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     loadProfile();

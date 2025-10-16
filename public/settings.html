@@ -183,7 +183,6 @@
 
     let isCreator = false;
 
-    // ✅ DETECTAR ROL Y CONFIGURAR NAVEGACIÓN
     async function detectRole(sb, userId) {
       try {
         const { data: profile } = await sb
@@ -192,7 +191,7 @@
           .eq('id', userId)
           .single();
 
-        if (profile && (profile.role === 'creator' || profile.is_creator)) {
+        if (profile && (profile.role === 'creador' || profile.is_creator)) {
           isCreator = true;
           $('#btnBack').href = './creator-profile.html';
           console.log('✅ Creador detectado');
@@ -233,7 +232,6 @@
         email.value = session.user.email || '';
         disableUI(false);
 
-        // ✅ DETECTAR ROL
         await detectRole(sb, session.user.id);
 
         const m = session.user.user_metadata || {};
@@ -250,10 +248,12 @@
             const file = f.files[0];
             const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
             const key = `u/${session.user.id}/${Date.now()}.${ext}`;
-            const { error } = await sb.storage.from('avatars').upload(key, file, { upsert:false });
+            
+            // ✅ BUCKET CORRECTO
+            const { error } = await sb.storage.from('creator-content').upload(key, file, { upsert:true });
             if (error) throw error;
 
-            const { data } = sb.storage.from('avatars').getPublicUrl(key);
+            const { data } = sb.storage.from('creator-content').getPublicUrl(key);
             if (!data?.publicUrl) throw new Error('No se obtuvo URL pública');
             avatar.value = data.publicUrl;
             img.src = data.publicUrl;
@@ -276,7 +276,6 @@
             if (err1) throw err1;
             setMsg('Perfil actualizado ✓', true);
             
-            // ✅ REDIRIGIR SEGÚN ROL
             setTimeout(() => {
               location.href = isCreator ? './creator-profile.html' : './profile.html';
             }, 1000);
