@@ -24,7 +24,6 @@
     }
     .wrap{max-width:980px;margin:0 auto}
     
-    /* ✨ Header con logo horizontal */
     .top{
       display:flex;
       align-items:center;
@@ -73,12 +72,10 @@
     .fld label{display:block;font-size:12px;color:#334155;font-weight:800;margin-bottom:6px}
     .fld input,.fld select{width:100%;padding:10px;border:1px solid var(--ring);border-radius:10px}
 
-    /* Avatar block */
     .avatarWrap{display:flex;align-items:flex-start;gap:12px}
     .avatar{width:68px;height:68px;border-radius:999px;object-fit:cover;border:2px solid var(--ring);background:#f8fafc}
     .ok{color:var(--ok);font-weight:800}
 
-    /* Teaser preview */
     .teaserBox{position:relative;border:1px solid var(--ring);border-radius:14px;overflow:hidden;background:#fff}
     .teaserCanvas{display:block;width:100%;aspect-ratio:1/1;background:#f1f5f9}
     .gridOverlay{
@@ -218,7 +215,6 @@
   </div>
 
 <script type="module">
-  // Inicializar Supabase
   const supabase = window.supabase.createClient(
     window.PP_ENV.sb_url,
     window.PP_ENV.sb_anon,
@@ -241,7 +237,6 @@
   let blurVal = +blurInput.value;
   let currentUser = null;
 
-  // Show status message
   function showStatus(msg, type='info') {
     statusMsg.textContent = msg;
     statusMsg.className = 'status ' + type;
@@ -251,7 +246,6 @@
     }
   }
 
-  // Check auth
   async function checkAuth() {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) {
@@ -262,7 +256,6 @@
     return user;
   }
 
-  // Render teaser to canvas
   function renderTeaserToCanvas() {
     const size = Math.min(cv.clientWidth, cv.clientHeight);
     const px = Math.max(640, Math.floor(size * devicePixelRatio));
@@ -287,7 +280,6 @@
     return cv.toDataURL('image/jpeg', 0.85);
   }
 
-  // Build 4x4 grid
   function buildGrid() {
     grid.innerHTML = '';
     const free = [0,5,11];
@@ -298,29 +290,13 @@
     }
   }
 
-  // Convert canvas to blob
   function canvasToBlob(canvas, type='image/jpeg', quality=0.85) {
     return new Promise(resolve => {
       canvas.toBlob(resolve, type, quality);
     });
   }
 
-  // Upload to Supabase Storage
-  async function uploadToStorage(file, path) {
-    const { data, error } = await supabase.storage
-      .from('creator-content')
-      .upload(path, file, { upsert: true });
-    
-    if (error) throw error;
-    
-    const { data: { publicUrl } } = supabase.storage
-      .from('creator-content')
-      .getPublicUrl(path);
-    
-    return publicUrl;
-  }
-
-  // Save content to database
+  // ✅ CORREGIDO: Guardar en tabla SETS
   async function saveContent(status = 'draft') {
     if (!currentUser) {
       showStatus('Error: No hay sesión activa', 'error');
@@ -335,33 +311,61 @@
     try {
       showStatus('📤 Subiendo contenido...', 'info');
       
+      // Get profile info
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('handle')
+        .eq('id', currentUser.id)
+        .single();
+      
+      const handle = profile?.handle || 'creator';
       const timestamp = Date.now();
-      let avatarUrl = null;
-      let teaserUrl = null;
+      const setSlug = `set-${timestamp}`;
+
+      // Upload teaser (canvas con blur)
+      const teaserPath = `photos/${handle}/sets/${setSlug}/full.webp`;
+      const teaserBlob = await canvasToBlob(cv, 'image/webp', 0.90);
+      
+      const { error: uploadError } = await supabase.storage
+        .from('creator-content')
+        .upload(teaserPath, teaserBlob, { upsert: true });
+      
+      if (uploadError) throw uploadError;
 
       // Upload avatar if exists
+      let avatarPath = null;
       if (avatarFile) {
-        const avatarPath = `${currentUser.id}/avatar.jpg`;
-        avatarUrl = await uploadToStorage(avatarFile, avatarPath);
+        avatarPath = `photos/${handle}/avatar.jpg`;
+        await supabase.storage
+          .from('creator-content')
+          .upload(avatarPath, avatarFile, { upsert: true });
+        
+        // También actualizar avatar en profiles
+        await supabase
+          .from('profiles')
+          .update({ 
+            avatar_url: supabase.storage.from('creator-content').getPublicUrl(avatarPath).data.publicUrl 
+          })
+          .eq('id', currentUser.id);
       }
 
-      // Upload teaser (always required)
-      const teaserPath = `${currentUser.id}/teaser-${timestamp}.jpg`;
-      teaserUrl = await uploadToStorage(teaserFile, teaserPath);
-
-      // Save to database
+      // ✅ GUARDAR EN TABLA SETS
       const { data, error } = await supabase
-        .from('creator_content')
+        .from('sets')
         .insert({
           creator_id: currentUser.id,
+          slug: setSlug,
+          grid: 4,
           title: document.getElementById('title').value || 'Sin título',
-          category: document.getElementById('cat').value,
-          price: parseFloat(document.getElementById('price').value) || 5.00,
-          avatar_url: avatarUrl,
-          teaser_url: teaserUrl,
-          blur_intensity: blurVal,
-          free_tiles: [0, 5, 11],
-          status: status
+          blurb: document.getElementById('cat').value || 'General',
+          cover_url: avatarPath ? `/public/${avatarPath}` : null,
+          full_path: teaserPath,
+          path: teaserPath,
+          cover_path: avatarPath,
+          creator_slug: handle,
+          set_slug: setSlug,
+          is_active: status === 'published',
+          price: parseFloat(document.getElementById('price').value) || 5.00
         })
         .select()
         .single();
@@ -380,7 +384,6 @@
     }
   }
 
-  // Event listeners
   blurInput.addEventListener('input', (e) => {
     blurVal = +e.target.value || 18;
     blurValue.textContent = blurVal + 'px';
@@ -424,7 +427,6 @@
   saveDraftBtn.addEventListener('click', () => saveContent('draft'));
   publishBtn.addEventListener('click', () => saveContent('published'));
 
-  // Initialize
   (async function init() {
     currentUser = await checkAuth();
     if (!currentUser) return;
