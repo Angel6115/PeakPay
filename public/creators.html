@@ -1,224 +1,472 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PeekPay — Creadores</title>
-
-  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Explorar Creadores — PeekPay</title>
   <link rel="icon" href="./favicon.ico">
-  <link rel="canonical" href="https://peak-pay.vercel.app/creators">
-
-  <meta name="description" content="Explora creadores en Early Access y visualiza la demo.">
-  <meta property="og:site_name" content="PeekPay">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Creadores — PeekPay">
-  <meta property="og:description" content="Explora perfiles y vista demo (Early Access).">
-  <meta property="og:url" content="https://peak-pay.vercel.app/creators">
-  <meta property="og:image" content="https://peak-pay.vercel.app/peak1.png">
-  <meta name="twitter:card" content="summary_large_image">
-
+  
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root{
-      --bg-grad: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-      --text:#0b1020; --muted:#475569; --card:#ffffff; --ring:#e2e8f0;
-      --indigo:#667eea; --blue:#764ba2;
+      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --accent:#667eea;
+      --purple:#764ba2;
+      --green:#10b981;
     }
-    *{ box-sizing:border-box }
-    body{
-      margin:0; color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
-      background: var(--bg-grad);
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
     }
-    .wrap{ max-width:1120px; margin:0 auto; padding:20px 16px 64px }
-
-    /* Header con logo horizontal */
-    .head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:20px;
-      padding-bottom:16px;
-      border-bottom:2px solid var(--ring);
-      flex-wrap:wrap;
+    .container{
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     .logo{
-      height:auto;
-      width:clamp(160px, 30%, 240px);
+      height: auto;
+      width: clamp(160px, 25%, 220px);
       filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+      cursor: pointer;
     }
-    .muted{ color:var(--muted); font-size:13px; font-weight:600 }
-
-    .btn-back{
-      border:1px solid var(--ring); background:#fff; color:#111827;
-      border-radius:10px; padding:10px 16px; text-decoration:none; font-weight:700;
-      box-shadow:0 4px 14px rgba(102,126,234,.15);
+    .nav{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .nav-btn{
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
       transition: all 0.3s;
     }
-    .btn-back:hover{
-      background:rgba(102,126,234,0.05);
-      border-color:var(--indigo);
+    .nav-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
     }
-
-    .panel{
-      border:1px solid var(--ring); background:var(--card);
-      border-radius:16px; padding:16px; margin-top:12px;
-      box-shadow:0 10px 30px rgba(102,126,234,.10);
+    
+    /* Page Title */
+    .page-title{
+      text-align: center;
+      margin-bottom: 40px;
     }
-
-    /* Chips categorías */
-    .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px }
-    .chip{
-      font-size:12px; padding:6px 10px; border-radius:999px;
-      border:1px solid var(--ring); background:#fff; cursor:pointer; user-select:none;
+    .page-title h1{
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-title p{
+      color: var(--muted);
+      font-size: 16px;
+    }
+    
+    /* Filters */
+    .filters{
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .filter-btn{
+      padding: 10px 20px;
+      background: white;
+      border: 2px solid var(--ring);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
       transition: all 0.3s;
     }
-    .chip:hover{ background:rgba(102,126,234,0.05); }
-    .chip.active{ background:var(--indigo); color:#fff; border-color:transparent; box-shadow:0 4px 10px rgba(102,126,234,.25) }
-
+    .filter-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    .filter-btn.active{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border-color: transparent;
+    }
+    
     /* Grid */
-    .grid{ display:grid; gap:12px; margin-top:12px; grid-template-columns:repeat(2,minmax(0,1fr)) }
-    @media (min-width:900px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    @media (min-width:1200px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
-
-    .card{ border:1px solid var(--ring); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; transition:box-shadow .25s ease; text-decoration:none; color:inherit; }
-    .card:hover{ box-shadow:0 12px 28px rgba(0,0,0,.08) }
-    .frame{ width:100%; aspect-ratio:3/4; background:#0b1020; position:relative }
-    .frame.wide{ aspect-ratio:4/3 }
-    .frame img{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; object-position:center 22%;
-      display:block; transition:transform .35s ease; filter:saturate(.92) contrast(.98);
+    .creators-grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
     }
-    .frame.wide img{ object-position:center center }
-    .card:hover .frame img{ transform:scale(1.02) }
-
-    .meta{ padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px }
-    .meta h3{ margin:0; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:800 }
-    .badge-sets{ font-size:11px; color:#64748b; border:1px solid #e5e7eb; border-radius:8px; padding:3px 8px; background:#f8fafc }
-
-    /* Band minimal sin iconos */
-    .band{ display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap }
+    
+    /* Creator Card */
+    .creator-card{
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .creator-card:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(102,126,234,0.15);
+      border-color: var(--accent);
+    }
+    
+    .creator-header{
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--ring);
+    }
+    .creator-avatar{
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .creator-info{
+      flex: 1;
+    }
+    .creator-name{
+      font-weight: 800;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .creator-handle{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    
+    .mosaic-preview{
+      position: relative;
+      aspect-ratio: 1;
+      background: #f1f5f9;
+    }
+    .mosaic-grid{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 2px;
+      height: 100%;
+    }
+    .mosaic-tile{
+      position: relative;
+      background-size: 400% 400%;
+      background-repeat: no-repeat;
+      filter: blur(12px) brightness(0.9);
+    }
+    .mosaic-tile.free{
+      filter: none;
+    }
+    
+    .tile-badge{
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 8px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: white;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+    .tile-badge.free{
+      background: linear-gradient(135deg, var(--green), #34d399);
+    }
+    .tile-badge.lock{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+    }
+    
+    .creator-footer{
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .price-tag{
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    .unlock-btn{
+      padding: 8px 16px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .unlock-btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+    }
+    
+    /* Loading & Empty States */
+    .loading{
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .loading-spinner{
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--ring);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin{
+      to{ transform: rotate(360deg); }
+    }
+    
+    .empty{
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+    .empty-icon{
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    @media (max-width: 640px){
+      .creators-grid{
+        grid-template-columns: 1fr;
+      }
+      .page-title h1{
+        font-size: 28px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- Header con logo horizontal -->
-    <div class="head">
-      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
-      <span class="muted">Demo interactivo (Early Access)</span>
-      <a href="./profile.html" class="btn-back">← Volver</a>
-    </div>
-
-    <!-- Band sin iconos -->
-    <div class="panel band">
-      <span class="muted">Privacidad primero</span>
-      <span class="muted">Peek Credits</span>
-      <span class="muted">Mosaicos</span>
-    </div>
-
-    <!-- Título + chips -->
-    <section class="panel" style="padding-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <h2 style="margin:0;font-weight:900">Creadores destacados</h2>
-        <div class="chips" id="chips">
-          <span class="chip" data-cat="all">Todos</span>
-          <span class="chip" data-cat="arte">Arte</span>
-          <span class="chip" data-cat="artistico">Artístico</span>
-          <span class="chip" data-cat="cosplay">Cosplay</span>
-          <span class="chip" data-cat="fitness">Fitness</span>
-          <span class="chip" data-cat="lenceria">Lencería</span>
-        </div>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./index.html'">
+      <div class="nav">
+        <a href="./index.html" class="nav-btn">Inicio</a>
+        <a href="./creators.html" class="nav-btn">Explorar</a>
+        <a href="./profile.html" class="nav-btn">Mi Perfil</a>
       </div>
-      <div id="grid" class="grid" aria-live="polite"></div>
-      <p id="empty" class="muted" style="display:none">No hay creadores para mostrar.</p>
-    </section>
+    </div>
 
-    <!-- About corto -->
-    <section class="panel" style="display:grid;gap:12px;grid-template-columns:1fr 1fr">
-      <article class="card">
-        <div class="meta" style="justify-content:flex-start; gap:10px"><h3 style="font-size:16px">¿Qué es PeekPay?</h3></div>
-        <div style="padding:12px" class="muted">Cada set es un mosaico: algunas celdas son preview y el resto se desbloquea con Peek Credits. Esta es una vista de demostración durante Early Access.</div>
-      </article>
-      <article class="card">
-        <div class="meta" style="justify-content:flex-start; gap:10px"><h3 style="font-size:16px">Para creadores</h3></div>
-        <div style="padding:12px" class="muted">Únete como creador y prepara tus sets para el Soft Launch.</div>
-      </article>
-    </section>
+    <!-- Page Title -->
+    <div class="page-title">
+      <h1>🔥 Explora Creadores</h1>
+      <p>Descubre contenido exclusivo de nuestros creadores founders</p>
+    </div>
 
-    <footer class="muted" style="margin-top:18px">© PeekPay • Fase 0</footer>
+    <!-- Filters -->
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">🌟 Todos</button>
+      <button class="filter-btn" data-filter="trending">🔥 Trending</button>
+      <button class="filter-btn" data-filter="new">✨ Nuevos</button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Cargando creadores...</p>
+    </div>
+
+    <!-- Creators Grid -->
+    <div id="creatorsGrid" class="creators-grid" style="display:none"></div>
+
+    <!-- Empty State -->
+    <div id="empty" class="empty" style="display:none">
+      <div class="empty-icon">📦</div>
+      <h3>Aún no hay creadores</h3>
+      <p style="margin-top:12px">Sé el primero en unirte como creador</p>
+    </div>
   </div>
 
-  <script>
-    async function exists(url){
-      try{ const r=await fetch(url,{method:'HEAD'}); return r.ok; }catch(_){ return false; }
-    }
+  <script type="module">
+    const supabase = window.supabase.createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
+    );
 
-    // === Data mock ===
-    const CREATORS = [
-      { id:'lina-fit', handle:'@lina', name:'Lina', cat:'fitness', sets:3, photo:'./photos/fitness/lina-fit/linafit.jpg' },
-      { id:'noa-lace', handle:'@noa', name:'Noa', cat:'lenceria', sets:3, photo:'./photos/lenceria/noa-lace/sets/set-01/full.jpg' },
-      { id:'rio-out', handle:'@rio', name:'Rio', cat:'lenceria', sets:1, photo:'./photos/lenceria/rio-out/riolen.jpg' },
-      { id:'sasha-dance', handle:'@sasha', name:'Sasha', cat:'cosplay', sets:1, photo:'./peak1.png' },
-      { id:'sol-light', handle:'@sol', name:'Sol', cat:'artistico', sets:1, photo:'./peak1.png' },
-      { id:'val-cos', handle:'@val', name:'Val', cat:'cosplay', sets:1, photo:'./peak1.png' },
-      { id:'zen-well', handle:'@zen', name:'Zen', cat:'fitness', sets:1, photo:'./peak1.png' },
-      { id:'ink-aria', handle:'@ink.aria', name:'Ink', cat:'lenceria', sets:1, photo:'./photos/lenceria/ink-aria/inklen.jpg' }
-    ];
+    const $ = id => document.getElementById(id);
+    const loading = $('loading');
+    const creatorsGrid = $('creatorsGrid');
+    const empty = $('empty');
 
-    function catNormalize(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+    let allSets = [];
+    let currentFilter = 'all';
 
-    const grid = document.getElementById('grid');
-    const emptyEl = document.getElementById('empty');
-    const chips = document.querySelectorAll('.chip');
-    const params = new URLSearchParams(location.search);
-    let activeCat = params.get('cat') || 'all';
+    // Load sets from database
+    async function loadSets() {
+      try {
+        loading.style.display = 'block';
+        creatorsGrid.style.display = 'none';
+        empty.style.display = 'none';
 
-    async function render(){
-      grid.innerHTML='';
-      const norm = catNormalize(activeCat);
-      const filtered = (norm==='all' || !norm) 
-        ? CREATORS 
-        : CREATORS.filter(c=> catNormalize(c.cat)===norm);
-      if(!filtered.length){ emptyEl.style.display='block'; return; }
-      emptyEl.style.display='none';
+        // Fetch sets with creator info
+        const { data: sets, error } = await supabase
+          .from('sets')
+          .select(`
+            *,
+            profiles:creator_id (
+              id,
+              display_name,
+              handle,
+              avatar_url
+            )
+          `)
+          .order('created_at', { ascending: false });
 
-      for(const cr of filtered){
-        const photoOk = await exists(cr.photo);
-        const a = document.createElement('a');
-        a.href='./demo.html';
-        a.className='card';
-        a.innerHTML=`
-          <div class="frame wide">
-            <img src="${photoOk ? cr.photo : './peak1.png'}" alt="${cr.name}" loading="lazy">
-          </div>
-          <div class="meta">
-            <h3>${cr.handle}</h3>
-            <span class="badge-sets">${cr.sets} set${cr.sets>1?'s':''}</span>
-          </div>
-        `;
-        grid.appendChild(a);
+        if (error) throw error;
+
+        allSets = sets || [];
+        
+        loading.style.display = 'none';
+
+        if (allSets.length === 0) {
+          empty.style.display = 'block';
+        } else {
+          renderSets(allSets);
+        }
+
+      } catch (error) {
+        console.error('Error loading sets:', error);
+        loading.style.display = 'none';
+        empty.style.display = 'block';
       }
     }
 
-    chips.forEach(ch=>{
-      const val = ch.dataset.cat||'all';
-      if(catNormalize(val)===catNormalize(activeCat)) ch.classList.add('active');
-      ch.addEventListener('click',()=>{
-        chips.forEach(c=>c.classList.remove('active'));
-        ch.classList.add('active');
-        activeCat=val;
-        const u=new URL(location.href);
-        if(val==='all') u.searchParams.delete('cat');
-        else u.searchParams.set('cat',val);
-        history.replaceState(null,'',u);
-        render();
+    // Render sets
+    function renderSets(sets) {
+      if (sets.length === 0) {
+        creatorsGrid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      creatorsGrid.style.display = 'grid';
+      empty.style.display = 'none';
+
+      creatorsGrid.innerHTML = sets.map(set => {
+        const creator = set.profiles || {};
+        const creatorName = creator.display_name || creator.handle || 'Creador';
+        const creatorHandle = creator.handle || 'creador';
+        const avatarUrl = creator.avatar_url || './assets/brand/peekpay-mark.svg';
+        const imageUrl = set.image_url || '';
+        const price = set.price || 5;
+        const freeTiles = set.free_tiles || [0, 5, 11];
+
+        // Generate mosaic tiles
+        let tilesHtml = '';
+        for (let i = 0; i < 16; i++) {
+          const row = Math.floor(i / 4);
+          const col = i % 4;
+          const isFree = freeTiles.includes(i);
+          const step = 33.333;
+          const bgPosition = `${-col * step}% ${-row * step}%`;
+          
+          tilesHtml += `
+            <div class="mosaic-tile ${isFree ? 'free' : ''}" 
+                 style="background-image:url(${imageUrl});background-position:${bgPosition}">
+              <span class="tile-badge ${isFree ? 'free' : 'lock'}">${isFree ? 'FREE' : 'LOCK'}</span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="creator-card" data-set-id="${set.id}">
+            <div class="creator-header">
+              <img src="${avatarUrl}" alt="${creatorName}" class="creator-avatar">
+              <div class="creator-info">
+                <div class="creator-name">${creatorName}</div>
+                <div class="creator-handle">@${creatorHandle}</div>
+              </div>
+            </div>
+            
+            <div class="mosaic-preview">
+              <div class="mosaic-grid">
+                ${tilesHtml}
+              </div>
+            </div>
+            
+            <div class="creator-footer">
+              <div class="price-tag">$${price.toFixed(2)}</div>
+              <button class="unlock-btn" onclick="handleUnlock('${set.id}', ${price})">
+                Desbloquear →
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Handle unlock (mock for now)
+    window.handleUnlock = async function(setId, price) {
+      alert(`🎯 Sistema de unlock próximamente!\n\nEste set cuesta: $${price.toFixed(2)}\n\nEn la siguiente fase podrás desbloquearlo con tus Peak Credits.`);
+    };
+
+    // Filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        currentFilter = btn.dataset.filter;
+        
+        let filteredSets = allSets;
+        
+        if (currentFilter === 'trending') {
+          // Mock: sort by views (when we have them)
+          filteredSets = [...allSets].sort((a, b) => (b.views || 0) - (a.views || 0));
+        } else if (currentFilter === 'new') {
+          // Already sorted by created_at desc
+          filteredSets = allSets;
+        }
+        
+        renderSets(filteredSets);
       });
     });
 
-    render();
+    // Initialize
+    loadSets();
   </script>
 </body>
 </html>
