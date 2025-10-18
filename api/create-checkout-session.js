@@ -1,4 +1,4 @@
-// api/create-checkout-session.js
+// /api/create-checkout-session.js
 import Stripe from 'stripe';
 import { URL } from 'url';
 
@@ -26,8 +26,8 @@ function resolveBaseUrl(req) {
     }
   } catch (_) {}
 
-  // Prod (ajústalo a tu dominio si usas otro)
-  return process.env.NEXT_PUBLIC_BASE_URL || 'https://peak-pay.vercel.app';
+  // Prod (tu dominio live)
+  return process.env.NEXT_PUBLIC_BASE_URL || 'https://peek-pay.com';
 }
 
 export default async function handler(req, res) {
@@ -52,14 +52,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Email inválido' });
     }
 
-    // ✅ NUEVO: Recibir userId de Supabase
-    const userId = body.userId || '';
+    // userId y priceId
+    const userId = (body.userId || '').toString().trim();
+    const priceId = (body.priceId || '').toString().trim(); // <- usar este si viene
 
     const BASE_URL = resolveBaseUrl(req);
 
-    // Pricing
     const isCreator = role === 'creator';
-    const unitAmount = isCreator ? 499 : 999;
     const productName = isCreator
       ? 'PeekPay Early Access (Creator)'
       : 'PeekPay Early Access (User)';
@@ -71,14 +70,12 @@ export default async function handler(req, res) {
     // Imagen del producto
     const productImage = `${BASE_URL}/assets/brand/peekpay-logo-h.svg`;
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      customer_email: customerEmail,
-      payment_method_types: ['card'],
-      allow_promotion_codes: true,
-      automatic_tax: { enabled: false },
-      line_items: [
-        {
+    // Construir line_items:
+    // - Si viene priceId LIVE (price_...), úsalo directamente → mostrará $0.99
+    // - Si no viene, fallback a price_data (tu 4.99/9.99 actual)
+    const line_items = priceId
+      ? [{ price: priceId, quantity: 1 }]
+      : [{
           price_data: {
             currency: 'usd',
             product_data: {
@@ -86,18 +83,25 @@ export default async function handler(req, res) {
               description: 'Acceso anticipado + 1,000 Peak Credits + Beneficios exclusivos',
               images: [productImage],
             },
-            unit_amount: unitAmount,
+            unit_amount: isCreator ? 499 : 999, // fallback si no pasas priceId
           },
           quantity: 1,
-        },
-      ],
+        }];
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      customer_email: customerEmail,
+      payment_method_types: ['card'],
+      allow_promotion_codes: true,
+      automatic_tax: { enabled: false },
+      line_items,
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {
         email: customerEmail,
         product: isCreator ? 'early_access_creator' : 'early_access_user',
         type: isCreator ? 'creator' : 'user',
-        userId: userId, // ✅ NUEVO: Guardar userId en metadata para el webhook
+        userId: userId, // guardamos para el webhook
       },
     });
 
