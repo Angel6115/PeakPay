@@ -54,7 +54,21 @@ export default async function handler(req, res) {
 
     // userId y priceId
     const userId = (body.userId || '').toString().trim();
-    const priceId = (body.priceId || '').toString().trim(); // <- usar este si viene
+    const priceId = (body.priceId || '').toString().trim();
+
+    // Log útil para Vercel (sin datos sensibles)
+    console.log('[create-checkout-session] body:', {
+      hasPriceId: Boolean(priceId),
+      priceIdStartsWithPrice: priceId.startsWith?.('price_') || false,
+      emailPresent: Boolean(customerEmail),
+      userIdPresent: Boolean(userId),
+      role
+    });
+
+    // En producción exigimos priceId para evitar montos fallback
+    if (!priceId || !priceId.startsWith('price_')) {
+      return res.status(400).json({ error: 'priceId requerido (formato price_...)' });
+    }
 
     const BASE_URL = resolveBaseUrl(req);
 
@@ -70,23 +84,8 @@ export default async function handler(req, res) {
     // Imagen del producto
     const productImage = `${BASE_URL}/assets/brand/peekpay-logo-h.svg`;
 
-    // Construir line_items:
-    // - Si viene priceId LIVE (price_...), úsalo directamente → mostrará $0.99
-    // - Si no viene, fallback a price_data (tu 4.99/9.99 actual)
-    const line_items = priceId
-      ? [{ price: priceId, quantity: 1 }]
-      : [{
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: productName,
-              description: 'Acceso anticipado + 1,000 Peak Credits + Beneficios exclusivos',
-              images: [productImage],
-            },
-            unit_amount: isCreator ? 499 : 999, // fallback si no pasas priceId
-          },
-          quantity: 1,
-        }];
+    // Siempre usar el price de Stripe (evita errores de monto)
+    const line_items = [{ price: priceId, quantity: 1 }];
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -102,12 +101,13 @@ export default async function handler(req, res) {
         product: isCreator ? 'early_access_creator' : 'early_access_user',
         type: isCreator ? 'creator' : 'user',
         userId: userId, // guardamos para el webhook
+        product_name: productName
       },
     });
 
     return res.status(200).json({ url: session.url });
   } catch (err) {
-    console.error('Error creating checkout session:', err);
+    console.error('[create-checkout-session] error:', err);
     return res.status(500).json({ error: 'Error al crear sesión de pago', message: err.message });
   }
 }

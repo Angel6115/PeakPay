@@ -1,249 +1,467 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <link rel="stylesheet" href="/public/styles.css">
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PeekPay — Creadores</title>
-
-  <link rel="icon" href="/public/favicon.ico">
-  <script defer data-domain="peak-pay.vercel.app" src="https://plausible.io/js/script.js"></script>
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Explorar Creadores — PeekPay</title>
+  <link rel="icon" href="./favicon.ico">
+  
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root{
-      /* mismos tokens que wallet.html */
-      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
-      --ok:#059669; --err:#b91c1c;
-      --indigo:#4f46e5; --blue:#2563eb; --indigo-soft:#eef2ff;
-      --badge-ring:#c7d2fe; --badge-text:#1e1b4b;
+      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --text:#0f172a;
+      --muted:#64748b;
+      --card:#ffffff;
+      --ring:#e2e8f0;
+      --accent:#667eea;
+      --purple:#764ba2;
+      --green:#10b981;
     }
-
-    *{ box-sizing:border-box }
-    body{ margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif }
-    .wrap{ max-width:1120px; margin:0 auto; padding:28px 16px 56px }
-
-    /* Top */
-    .top{ margin-bottom:12px }
-    .head{ display:flex; align-items:center; gap:10px; }
-    header{ display:flex; align-items:center; gap:10px }
-    header img{ width:44px; height:44px; border-radius:12px; object-fit:cover; box-shadow:0 6px 14px rgba(79,70,229,.06) }
-    .brand h1{ margin:0; font-size:18px }
-    .brand p{ margin:0; color:var(--muted); font-size:12px }
-
-    /* Botones (idénticos a wallet) */
-    .btn{
-      border:0;
-      background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
-      color:#fff; border-radius:10px; padding:10px 14px; cursor:pointer; text-decoration:none;
-      box-shadow: 0 6px 16px rgba(79,70,229,.25); white-space:nowrap;
+    *{ box-sizing:border-box; margin:0; padding:0 }
+    body{ 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
     }
-    .btn:hover{ filter: brightness(1.05) }
-    .btn[disabled]{ opacity:.6; cursor:not-allowed }
-
-    /* fila de botones debajo del logo */
-    .nav-row{
-      display:flex; gap:8px; flex-wrap:wrap;
-      margin-top:8px; margin-left:54px; /* alinear con texto tras icono de 44px + 10px gap */
+    .container{
+      max-width: 1400px;
+      margin: 0 auto;
     }
-    @media (max-width:520px){
-      .nav-row{ margin-left:0 }
+    
+    .header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
-
-    /* Panel */
-    .panel{
-      border:1px solid var(--ring); background:var(--card);
-      border-radius:16px; padding:14px; margin-top:12px;
-      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    .logo{
+      height: auto;
+      width: clamp(160px, 25%, 220px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+      cursor: pointer;
     }
-    .panel h2{ margin:0 0 8px; font-size:clamp(18px,4.6vw,20px) }
-    .panel p{ margin:0; color:var(--muted); font-size:14px }
-
-    /* Filtros */
-    .filters{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0 6px }
-    .input, .select{
-      border:1px solid var(--ring); background:#fff; color:var(--text);
-      border-radius:12px; padding:10px 14px; font-size:14px;
-      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+    .nav{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .select{
-      min-width: 230px;
-      appearance: none; -webkit-appearance: none; -moz-appearance:none;
-      background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7l5 5 5-5' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat:no-repeat; background-position: right 12px center; background-size:14px;
-      padding-right: 38px;
+    .nav-btn{
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
     }
-    .input:focus, .select:focus{ outline:2px solid #bfdbfe; outline-offset:2px }
-    .results{ margin-left:auto; color:var(--muted); font-size:12px }
-
-    /* Grid */
-    .grid{ display:grid; gap:14px }
-    @media (min-width:560px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
-    @media (min-width:900px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
-    @media (min-width:1100px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
-
-    /* Cards */
-    .card{
-      position:relative; overflow:hidden; border-radius:14px; border:1px solid var(--ring);
-      background:#fff; box-shadow: 0 6px 14px rgba(79,70,229,.06);
-      display:block; text-decoration:none; color:inherit; aspect-ratio:4/3;
-      transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease;
+    .nav-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
     }
-    .card:hover{ transform:translateY(-1px); box-shadow: 0 12px 32px rgba(79,70,229,.10); border-color: color-mix(in srgb, var(--indigo) 30%, var(--ring)); }
-    .card img{
-      position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 35%;
-      filter:brightness(.98);
+    
+    .page-title{
+      text-align: center;
+      margin-bottom: 40px;
     }
-    .overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.38) 100%); pointer-events:none; }
-    .info{ position:absolute; left:0; right:0; bottom:0; padding:12px; color:#fff }
-    .name{ font-weight:600; text-shadow: 0 1px 2px rgba(0,0,0,.35) }
-    .muted{ opacity:.9; font-size:12px }
-
-    .badge{
-      position:absolute; top:10px; left:10px; z-index:2; font-size:11px; color:#fff;
-      background: linear-gradient(90deg, #059669, #22c55e);
-      border:1px solid rgba(255,255,255,.55); padding:4px 8px; border-radius:999px;
-      box-shadow:0 6px 14px rgba(79,70,229,.06);
+    .page-title h1{
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-
-    .empty{ color:var(--muted); padding:24px 8px }
+    .page-title p{
+      color: var(--muted);
+      font-size: 16px;
+    }
+    
+    .filters{
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .filter-btn{
+      padding: 10px 20px;
+      background: white;
+      border: 2px solid var(--ring);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .filter-btn:hover{
+      border-color: var(--accent);
+      background: rgba(102,126,234,0.05);
+    }
+    .filter-btn.active{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border-color: transparent;
+    }
+    
+    .creators-grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    
+    .creator-card{
+      background: white;
+      border: 1px solid var(--ring);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .creator-card:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(102,126,234,0.15);
+      border-color: var(--accent);
+    }
+    
+    .creator-header{
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--ring);
+    }
+    .creator-avatar{
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .creator-info{
+      flex: 1;
+    }
+    .creator-name{
+      font-weight: 800;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .creator-handle{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    
+    .mosaic-preview{
+      position: relative;
+      aspect-ratio: 1;
+      background: #f1f5f9;
+    }
+    .mosaic-grid{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 2px;
+      height: 100%;
+    }
+    .mosaic-tile{
+      position: relative;
+      background-size: 400% 400%;
+      background-repeat: no-repeat;
+      filter: blur(12px) brightness(0.9);
+    }
+    .mosaic-tile.free{
+      filter: none;
+    }
+    
+    .tile-badge{
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 8px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: white;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+    .tile-badge.free{
+      background: linear-gradient(135deg, var(--green), #34d399);
+    }
+    .tile-badge.lock{
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+    }
+    
+    .creator-footer{
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .price-tag{
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    .unlock-btn{
+      padding: 8px 16px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .unlock-btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+    }
+    
+    .loading{
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .loading-spinner{
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--ring);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin{
+      to{ transform: rotate(360deg); }
+    }
+    
+    .empty{
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+    .empty-icon{
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    @media (max-width: 640px){
+      .creators-grid{
+        grid-template-columns: 1fr;
+      }
+      .page-title h1{
+        font-size: 28px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="head">
-        <header>
-          <img src="/public/peak1.PNG" alt="PeekPay logo">
-          <div class="brand">
-            <h1>PeekPay</h1>
-            <p>Perfil de creadores</p>
-          </div>
-        </header>
+  <div class="container">
+    <div class="header">
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./index.html'">
+      <div class="nav">
+        <a href="./index.html" class="nav-btn">Inicio</a>
+        <a href="./creators.html" class="nav-btn">Explorar</a>
+        <a href="./profile.html" class="nav-btn">Mi Perfil</a>
       </div>
-      <!-- fila de botones debajo del logo -->
-      <nav class="nav-row" aria-label="Atajos">
-        <a class="btn" href="./categories.html">Categorías</a>
-        <a class="btn" href="./index.html">Inicio</a>
-        <a class="btn" href="./wallet.html">Wallet</a>
-      </nav>
     </div>
 
-    <section class="panel">
-      <h2 id="title">Creadores</h2>
-      <p id="subtitle">Selecciona un perfil para ver y desbloquear peeks.</p>
-    </section>
+    <div class="page-title">
+      <h1>🔥 Explora Creadores</h1>
+      <p>Descubre contenido exclusivo de nuestros creadores founders</p>
+    </div>
 
     <div class="filters">
-      <input id="q" class="input" type="search" placeholder="Buscar por nombre o @usuario…" aria-label="Buscar creadores">
-      <select id="sort" class="select" aria-label="Ordenar por">
-        <option value="default">Orden recomendado</option>
-        <option value="likes">Más likes</option>
-        <option value="posts">Más posts</option>
-        <option value="revealed">Más peeks revelados</option>
-      </select>
-      <div class="results"><span id="count">0</span> resultados</div>
+      <button class="filter-btn active" data-filter="all">🌟 Todos</button>
+      <button class="filter-btn" data-filter="trending">🔥 Trending</button>
+      <button class="filter-btn" data-filter="new">✨ Nuevos</button>
     </div>
 
-    <div id="grid" class="grid" aria-live="polite"></div>
-    <p id="empty" class="empty" hidden>— No hay coincidencias.</p>
+    <div id="loading" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Cargando creadores...</p>
+    </div>
+
+    <div id="creatorsGrid" class="creators-grid" style="display:none"></div>
+
+    <div id="empty" class="empty" style="display:none">
+      <div class="empty-icon">📦</div>
+      <h3>Aún no hay creadores</h3>
+      <p style="margin-top:12px">Sé el primero en unirte como creador</p>
+    </div>
   </div>
 
-  <script>
-    const params = new URLSearchParams(location.search);
-    const cat = (params.get('cat') || '').trim().toLowerCase();
+  <script type="module">
+    const supabase = window.supabase.createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
+    );
 
-    const $title   = document.getElementById('title');
-    const $subtitle= document.getElementById('subtitle');
-    const $grid    = document.getElementById('grid');
-    const $empty   = document.getElementById('empty');
-    const $q       = document.getElementById('q');
-    const $sort    = document.getElementById('sort');
-    const $count   = document.getElementById('count');
+    const $ = id => document.getElementById(id);
+    const loading = $('loading');
+    const creatorsGrid = $('creatorsGrid');
+    const empty = $('empty');
 
-    const CAT_LABEL = {
-      lenceria:'Lencería Sensual (SFW)',
-      fitness:'Fitness SFW',
-      arte:'Arte Corporal',
-      cosplay:'Cosplay Fantasía',
-      artistico:'Artístico (SFW)'
-    };
+    let allSets = [];
+    let currentFilter = 'all';
 
-    if (cat) {
-      $title.textContent = `Creadores — ${CAT_LABEL[cat] || cat}`;
-      $subtitle.textContent = 'Perfiles compatibles con esta categoría.';
+    // ✅ Helper: Convertir path a URL pública
+    function getPublicUrl(path) {
+      if (!path) return null;
+      if (path.startsWith('http')) return path;
+      
+      const { data } = supabase.storage
+        .from('creator-content')
+        .getPublicUrl(path);
+      
+      return data?.publicUrl || null;
     }
 
-    let ALL = [];
+    async function loadSets() {
+      try {
+        loading.style.display = 'block';
+        creatorsGrid.style.display = 'none';
+        empty.style.display = 'none';
 
-    function mkCard(c){
-      const a = document.createElement('a');
-      a.href = c.profile || `./peek.html?creator=${encodeURIComponent(c.id)}`;
-      a.className = 'card';
-      a.setAttribute('aria-label', c.name);
+        const { data: sets, error } = await supabase
+          .from('sets')
+          .select(`
+            *,
+            profiles:creator_id (
+              id,
+              display_name,
+              handle,
+              avatar_url
+            )
+          `)
+          .order('created_at', { ascending: false });
 
-      const img = document.createElement('img');
-      img.loading = 'lazy'; img.decoding = 'async';
-      img.alt = `${c.name} thumb`; img.src = c.thumb || '/public/peak1.PNG';
-      if (c.focalY != null) img.style.objectPosition = `center ${c.focalY}%`;
+        if (error) throw error;
 
-      const overlay = document.createElement('div'); overlay.className = 'overlay';
+        allSets = sets || [];
+        
+        loading.style.display = 'none';
 
-      const stats = c.stats || {};
-      const quick = typeof stats.likes === 'number' ? `${stats.likes.toLocaleString('en-US')} likes`
-                   : typeof stats.posts === 'number' ? `${stats.posts} posts`
-                   : typeof stats.revealed === 'number' ? `${stats.revealed.toLocaleString('en-US')} peeks`
-                   : 'Nuevo';
-      const badge = document.createElement('div'); badge.className='badge'; badge.textContent=quick;
+        if (allSets.length === 0) {
+          empty.style.display = 'block';
+        } else {
+          renderSets(allSets);
+        }
 
-      const info = document.createElement('div');
-      info.className = 'info';
-      info.innerHTML = `<div class="name">${c.name}</div><div class="muted">@${c.id}</div>`;
-
-      a.appendChild(img); a.appendChild(overlay); a.appendChild(badge); a.appendChild(info);
-      return a;
+      } catch (error) {
+        console.error('Error loading sets:', error);
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+      }
     }
 
-    function render(list){
-      $grid.innerHTML = '';
-      if (!list.length){ $empty.hidden = false; $count.textContent='0'; return; }
-      $empty.hidden = true; $count.textContent = String(list.length);
-      list.forEach(c => $grid.appendChild(mkCard(c)));
-    }
-
-    function applyFilters(){
-      const term = ($q.value || '').trim().toLowerCase();
-      let rows = ALL;
-
-      if (term){
-        rows = rows.filter(c =>
-          (c.name || '').toLowerCase().includes(term) ||
-          (c.id || '').toLowerCase().includes(term)
-        );
+    function renderSets(sets) {
+      if (sets.length === 0) {
+        creatorsGrid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
       }
 
-      const sort = $sort.value;
-      if (sort === 'likes') rows = rows.slice().sort((a,b)=>(b.stats?.likes||0)-(a.stats?.likes||0));
-      else if (sort === 'posts') rows = rows.slice().sort((a,b)=>(b.stats?.posts||0)-(a.stats?.posts||0));
-      else if (sort === 'revealed') rows = rows.slice().sort((a,b)=>(b.stats?.revealed||0)-(a.stats?.revealed||0));
+      creatorsGrid.style.display = 'grid';
+      empty.style.display = 'none';
 
-      render(rows);
+      creatorsGrid.innerHTML = sets.map(set => {
+        const creator = set.profiles || {};
+        const creatorName = creator.display_name || creator.handle || 'Creador';
+        const creatorHandle = creator.handle || 'creador';
+        const avatarUrl = creator.avatar_url || './assets/brand/peekpay-mark.svg';
+        
+        // ✅ USAR full_path en lugar de image_url
+        const imagePath = set.full_path || set.path;
+        const imageUrl = getPublicUrl(imagePath);
+        
+        const price = set.price || 5;
+        const freeTiles = [0, 5, 11]; // Por ahora hardcoded
+
+        let tilesHtml = '';
+        for (let i = 0; i < 16; i++) {
+          const row = Math.floor(i / 4);
+          const col = i % 4;
+          const isFree = freeTiles.includes(i);
+          const step = 33.333;
+          const bgPosition = `${-col * step}% ${-row * step}%`;
+          
+          tilesHtml += `
+            <div class="mosaic-tile ${isFree ? 'free' : ''}" 
+                 style="background-image:url(${imageUrl});background-position:${bgPosition}">
+              <span class="tile-badge ${isFree ? 'free' : 'lock'}">${isFree ? 'FREE' : 'LOCK'}</span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="creator-card" data-set-id="${set.id}">
+            <div class="creator-header">
+              <img src="${avatarUrl}" alt="${creatorName}" class="creator-avatar">
+              <div class="creator-info">
+                <div class="creator-name">${creatorName}</div>
+                <div class="creator-handle">@${creatorHandle}</div>
+              </div>
+            </div>
+            
+            <div class="mosaic-preview">
+              <div class="mosaic-grid">
+                ${tilesHtml}
+              </div>
+            </div>
+            
+            <div class="creator-footer">
+              <div class="price-tag">$${price.toFixed(2)}</div>
+              <button class="unlock-btn" onclick="handleUnlock('${set.id}', ${price})">
+                Desbloquear →
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    fetch('/public/peeks.json?ts='+Date.now())
-      .then(r => r.json())
-      .then(data => {
-        const base = cat ? (data.categories?.[cat] || []) : (data.creators || []);
-        ALL = Array.isArray(base) ? base : [];
-        render(ALL);
-      })
-      .catch(err => {
-        console.error('peeks.json error', err);
-        ALL = []; render(ALL);
-      });
+    window.handleUnlock = async function(setId, price) {
+      alert(`🎯 Sistema de unlock próximamente!\n\nEste set cuesta: $${price.toFixed(2)}\n\nEn la siguiente fase podrás desbloquearlo con tus Peak Credits.`);
+    };
 
-    $q.addEventListener('input', applyFilters);
-    $sort.addEventListener('change', applyFilters);
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        currentFilter = btn.dataset.filter;
+        
+        let filteredSets = allSets;
+        
+        if (currentFilter === 'trending') {
+          filteredSets = [...allSets].sort((a, b) => (b.views || 0) - (a.views || 0));
+        } else if (currentFilter === 'new') {
+          filteredSets = allSets;
+        }
+        
+        renderSets(filteredSets);
+      });
+    });
+
+    loadSets();
   </script>
 </body>
 </html>

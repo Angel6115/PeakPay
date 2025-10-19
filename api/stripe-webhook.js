@@ -1,23 +1,19 @@
-// api/stripe-webhook.js
+// /api/stripe-webhook.js
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
 
-// Inicializar cliente de Supabase con SERVICE ROLE KEY (para el backend)
+// Supabase con SERVICE ROLE (backend)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Buffer para leer el raw body (necesario para verificar firma de Stripe)
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Vercel/Next: necesitamos raw body para verificar firma
+export const config = { api: { bodyParser: false } };
 
-// Helper para leer el body como buffer
+// Helper para leer raw body
 async function buffer(readable) {
   const chunks = [];
   for await (const chunk of readable) {
@@ -33,85 +29,97 @@ export default async function handler(req, res) {
 
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
   if (!webhookSecret) {
-    console.error('❌ STRIPE_WEBHOOK_SECRET no está configurado');
+    console.error('❌ Falta STRIPE_WEBHOOK_SECRET');
     return res.status(500).json({ error: 'Webhook secret no configurado' });
   }
 
   let event;
-
   try {
-    // Leer el body raw
     const buf = await buffer(req);
-    
-    // Verificar la firma de Stripe
     event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
   } catch (err) {
-    console.error('❌ Error verificando firma del webhook:', err.message);
-    return res.status(400).json({ error: `Webhook signature verification failed: ${err.message}` });
+    console.error('❌ Verificación de firma falló:', err?.message);
+    return res.status(400).json({ error: `Invalid signature: ${err?.message}` });
   }
 
-  // Manejar el evento
   console.log('✅ Webhook recibido:', event.type);
 
+  // Solo manejamos checkout.session.completed por ahora
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
 
-    console.log('💰 Pago completado:', {
+    // Campos útiles
+    const metadata = session.metadata || {};
+    const email = session.customer_email || metadata.email || '';
+    const userIdMeta = metadata.userId || '';
+    const roleMeta = (metadata.role || metadata.type || '').toLowerCase();
+    const isCreator = roleMeta === 'creator' || roleMeta === 'creador';
+
+    console.log('💰 Pago completado', {
       sessionId: session.id,
-      email: session.customer_email,
-      metadata: session.metadata,
+      email,
+      metadata,
+      customer: session.customer
     });
 
     try {
-      const { email, userId, type, role } = session.metadata;
-      let finalUserId = userId;
+      // 1) Resolver userId
+      let finalUserId = userIdMeta;
 
-      // Si no tenemos userId, buscar en auth.users por email
-      if (!finalUserId) {
-        console.warn('⚠️ No se encontró userId en metadata, buscando por email en auth.users');
-        
-        // Buscar en auth.users
-        const { data: authUser, error: findError } = await supabase.auth.admin.listUsers();
-        
-        if (findError) {
-          throw new Error(`Error buscando usuario: ${findError.message}`);
+      if (!finalUserId && email) {
+        // Primero buscamos en profiles por email (más directo)
+        const { data: p, error: pErr } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', email)
+          .limit(1)
+          .single();
+        if (pErr) {
+          console.warn('⚠️ Búsqueda en profiles por email falló (continuamos):', pErr.message);
         }
-
-        const user = authUser.users.find(u => u.email === email);
-        
-        if (!user) {
-          throw new Error(`No se pudo encontrar usuario con email ${email}`);
+        if (p?.id) {
+          finalUserId = p.id;
+          console.log('✅ userId resuelto desde profiles.email:', finalUserId);
         }
-
-        finalUserId = user.id;
-        console.log(`✅ Usuario encontrado por email: ${finalUserId}`);
       }
 
-      // Activar acceso con el userId correcto
-      const userType = role === 'creator' ? 'creator' : (type === 'creator' ? 'creator' : 'user');
-      await activateAccess(finalUserId, session, userType);
+      if (!finalUserId && email) {
+        // Fallback: auth admin list (costoso, pero última opción)
+        const { data: list, error: listErr } = await supabase.auth.admin.listUsers();
+        if (listErr) throw new Error(`Admin.listUsers error: ${listErr.message}`);
+        const match = list.users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+        if (match) {
+          finalUserId = match.id;
+          console.log('✅ userId resuelto desde auth.users:', finalUserId);
+        }
+      }
+
+      if (!finalUserId) {
+        throw new Error(`No se pudo resolver userId (metadata.userId/email)`);
+      }
+
+      // 2) Activar acceso
+      await activateAccess(finalUserId, session, isCreator ? 'creator' : 'user');
 
       return res.status(200).json({ received: true, message: 'Acceso activado' });
     } catch (err) {
       console.error('❌ Error procesando pago:', err);
-      return res.status(500).json({ error: 'Error procesando pago', message: err.message });
+      return res.status(500).json({ error: 'Error procesando pago', message: err?.message });
     }
   }
 
-  // Otros eventos (por ahora solo logueamos)
+  // Otros eventos: solo log
   console.log('ℹ️ Evento no manejado:', event.type);
   return res.status(200).json({ received: true });
 }
 
-// Función para activar acceso del usuario
+// ---- helpers ----
 async function activateAccess(userId, session, userType) {
   const isCreator = userType === 'creator';
-
   console.log(`🔓 Activando acceso para ${isCreator ? 'CREADOR' : 'USUARIO'} ${userId}`);
 
-  // PASO 1: Actualizar perfil principal
+  // 1) Actualizar perfil principal
   const profileUpdate = {
     early_access: true,
     paid_at: new Date().toISOString(),
@@ -119,13 +127,15 @@ async function activateAccess(userId, session, userType) {
     stripe_session_id: session.id,
     is_creator: isCreator,
     role: isCreator ? 'creador' : 'usuario',
+    founder_paid: true,
+    founder_paid_at: new Date().toISOString(),
   };
 
-  // Solo usuarios reciben 1000 créditos
+  // Créditos: solo usuarios
   if (!isCreator) {
     profileUpdate.credits = 1000;
   } else {
-    profileUpdate.credits = 0; // Creadores siempre 0 créditos
+    profileUpdate.credits = 0;
   }
 
   const { error: profileError } = await supabase
@@ -135,67 +145,52 @@ async function activateAccess(userId, session, userType) {
 
   if (profileError) {
     console.error('❌ Error actualizando perfil:', profileError);
-    throw new Error(`Error actualizando perfil: ${profileError.message}`);
+    throw new Error(`Actualizar perfil: ${profileError.message}`);
   }
 
-  console.log(`✅ Perfil actualizado - ${isCreator ? 'Creador con 0 créditos' : 'Usuario con 1000 créditos'}`);
+  console.log(`✅ Perfil actualizado (${isCreator ? 'Creador 0 créditos' : 'Usuario 1000 créditos'})`);
 
-  // PASO 2: Si es creador, crear entrada en tabla creators
+  // 2) Si es creador, asegurar fila en creators
   if (isCreator) {
-    // Obtener email del usuario desde auth.users
-    const { data: authUser } = await supabase.auth.admin.getUserById(userId);
-    const userEmail = authUser?.user?.email || 'unknown';
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('handle, display_name')
-      .eq('id', userId)
-      .single();
-
-    // Primero verificar si ya existe
-    const { data: existingCreator } = await supabase
-      .from('creators')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
-
-    if (existingCreator) {
-      // Ya existe, solo actualizar
-      const { error: updateError } = await supabase
+    try {
+      const { data: existing } = await supabase
         .from('creators')
-        .update({
-          is_active: true,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', userId);
-      
-      if (updateError) {
-        console.warn('⚠️ Error actualizando creador:', updateError);
-      } else {
-        console.log('✅ Creador actualizado (ya existía)');
-      }
-    } else {
-      // No existe, crear nuevo
-      const { error: creatorError } = await supabase
-        .from('creators')
-        .insert({
-          user_id: userId,
-          handle: profile?.handle || `creator-${userId.slice(0, 8)}`,
-          name: profile?.display_name || userEmail.split('@')[0] || 'Creator',
-          is_active: true,
-          verified: false,
-          created_at: new Date().toISOString(),
-        });
+        .select('id')
+        .eq('user_id', userId)
+        .single();
 
-      if (creatorError) {
-        console.warn('⚠️ Error creando entrada de creador:', creatorError);
+      if (existing?.id) {
+        await supabase
+          .from('creators')
+          .update({ is_active: true, updated_at: new Date().toISOString() })
+          .eq('user_id', userId);
+        console.log('✅ Creator actualizado');
       } else {
-        console.log('✅ Entrada de creador creada');
+        // Obtener datos básicos del perfil
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('handle, display_name, email')
+          .eq('id', userId)
+          .single();
+
+        await supabase
+          .from('creators')
+          .insert({
+            user_id: userId,
+            handle: profile?.handle || `creator-${userId.slice(0, 8)}`,
+            name: profile?.display_name || (profile?.email?.split('@')[0] ?? 'Creator'),
+            is_active: true,
+            verified: false,
+            created_at: new Date().toISOString(),
+          });
+        console.log('✅ Creator creado');
       }
+    } catch (e) {
+      console.warn('⚠️ Error gestionando tabla creators:', e?.message);
     }
   }
 
-  // PASO 3: Solo USUARIOS reciben transacción de 1000 créditos en wallet_txns
+  // 3) Transacción de créditos (solo usuarios)
   if (!isCreator) {
     try {
       const { error: txnError } = await supabase
@@ -205,7 +200,7 @@ async function activateAccess(userId, session, userType) {
           credits_delta: 1000,
           usd_delta: 10.00,
           type: 'topup',
-          meta: { 
+          meta: {
             description: 'Early Access Bonus - 1,000 Peak Credits',
             source: 'stripe_webhook',
             session_id: session.id
@@ -214,16 +209,16 @@ async function activateAccess(userId, session, userType) {
         });
 
       if (txnError) {
-        console.warn('⚠️ Error creando transacción de créditos:', txnError);
+        console.warn('⚠️ Error creando wallet_txns:', txnError?.message);
       } else {
-        console.log('✅ 1,000 créditos agregados al USUARIO (profiles + wallet_txns)');
+        console.log('✅ 1,000 créditos agregados en wallet_txns');
       }
-    } catch (txnErr) {
-      console.warn('⚠️ Error en transacción de créditos:', txnErr);
+    } catch (e) {
+      console.warn('⚠️ Excepción creando wallet_txns:', e?.message);
     }
   } else {
-    console.log('ℹ️ Creador configurado con 0 créditos (solo vende contenido)');
+    console.log('ℹ️ Creador configurado con 0 créditos');
   }
 
-  console.log(`🎉 Acceso completamente activado para ${isCreator ? 'CREADOR' : 'USUARIO'} ${userId}`);
+  console.log(`🎉 Acceso activado para ${isCreator ? 'CREADOR' : 'USUARIO'} ${userId}`);
 }
