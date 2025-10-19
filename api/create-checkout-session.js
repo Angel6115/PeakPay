@@ -4,7 +4,11 @@ import { URL } from 'url';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
 
-// Normaliza role/type recibido (acepta ES y EN)
+// UUID (v1–v5)
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+// Normaliza role/type recibido (ES/EN)
 function normalizeRole(raw) {
   const v = String(raw || '').trim().toLowerCase();
   if (['creator', 'creador', 'c'].includes(v)) return 'creator';
@@ -12,12 +16,11 @@ function normalizeRole(raw) {
   return 'user';
 }
 
-// Intenta determinar un BASE_URL razonable
+// Determina BASE_URL (dev/prod)
 function resolveBaseUrl(req) {
   const origin = req.headers.origin || '';
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) return origin;
 
-  // Fallback: intenta con Referer
   const referer = req.headers.referer || '';
   try {
     if (referer) {
@@ -26,7 +29,6 @@ function resolveBaseUrl(req) {
     }
   } catch (_) {}
 
-  // Prod (tu dominio live)
   return process.env.NEXT_PUBLIC_BASE_URL || 'https://peek-pay.com';
 }
 
@@ -53,17 +55,8 @@ export default async function handler(req, res) {
     }
 
     // userId y priceId
-    const userId = (body.userId || '').toString().trim();
+    const userIdRaw = (body.userId || '').toString().trim();
     const priceId = (body.priceId || '').toString().trim();
-
-    // Log útil para Vercel (sin datos sensibles)
-    console.log('[create-checkout-session] body:', {
-      hasPriceId: Boolean(priceId),
-      priceIdStartsWithPrice: priceId.startsWith?.('price_') || false,
-      emailPresent: Boolean(customerEmail),
-      userIdPresent: Boolean(userId),
-      role
-    });
 
     // En producción exigimos priceId para evitar montos fallback
     if (!priceId || !priceId.startsWith('price_')) {
@@ -78,14 +71,28 @@ export default async function handler(req, res) {
       : 'PeekPay Early Access (User)';
 
     // Rutas de retorno
-    const successUrl = `${BASE_URL}/payment-complete.html?session_id={CHECKOUT_SESSION_ID}&t=${isCreator ? 'creator' : 'user'}&e=${encodeURIComponent(customerEmail)}`;
+    const successUrl = `${BASE_URL}/payment-complete.html?session_id={CHECKOUT_SESSION_ID}&t=${
+      isCreator ? 'creator' : 'user'
+    }&e=${encodeURIComponent(customerEmail)}`;
     const cancelUrl = `${BASE_URL}/signup.html?canceled=1&t=${isCreator ? 'creator' : 'user'}`;
 
-    // Imagen del producto
+    // Imagen del producto (opcional)
     const productImage = `${BASE_URL}/assets/brand/peekpay-logo-h.svg`;
 
     // Siempre usar el price de Stripe (evita errores de monto)
     const line_items = [{ price: priceId, quantity: 1 }];
+
+    // Construye metadata sin contaminar con placeholders
+    const metadata = {
+      email: customerEmail,
+      product: isCreator ? 'early_access_creator' : 'early_access_user',
+      type: isCreator ? 'creator' : 'user',
+      product_name: productName,
+    };
+    // Sólo incluye userId si es UUID válido
+    if (UUID_RE.test(userIdRaw)) {
+      metadata.userId = userIdRaw;
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -93,16 +100,23 @@ export default async function handler(req, res) {
       payment_method_types: ['card'],
       allow_promotion_codes: true,
       automatic_tax: { enabled: false },
+
+      // 👉 Requerido porque tu cuenta tiene custom_text.shipping_address:
+      //    Stripe exige que, si usas custom_text.shipping_address, definas shipping_address_collection.
+      shipping_address_collection: { allowed_countries: ['US'] }, // PR entra como US
+
       line_items,
       success_url: successUrl,
       cancel_url: cancelUrl,
-      metadata: {
-        email: customerEmail,
-        product: isCreator ? 'early_access_creator' : 'early_access_user',
-        type: isCreator ? 'creator' : 'user',
-        userId: userId, // guardamos para el webhook
-        product_name: productName
+      metadata,
+
+      // Datos del "producto" (no afecta cobro al usar priceId; útil para UI de Stripe)
+      custom_text: {
+        shipping_address: { message: productName },
       },
+
+      // (opcional, si quieres forzar captura de dirección/billing)
+      // billing_address_collection: 'auto',
     });
 
     return res.status(200).json({ url: session.url });
