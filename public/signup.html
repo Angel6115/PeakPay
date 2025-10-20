@@ -306,7 +306,7 @@
         submitBtn.textContent = 'Redirigiendo al pago...';
 
         const apiBase = API_ROOT; // '' = mismo origen (ideal en prod)
-        const endpoint = (apiBase ? apiBase.replace(/\/$/, '') : '') + '/api/create-checkout-session/';
+        const endpoint = '/api/create-checkout-session';
 
         const resp = await fetch(endpoint, {
           method: 'POST',

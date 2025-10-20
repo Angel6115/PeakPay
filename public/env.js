@@ -31,7 +31,7 @@
     window.PP_ENV = Object.freeze({
       sb_url: SB_URL,
       sb_anon: SB_ANON,
-      api_base: apiBase,
+      api_base: '',
       price_user: PRICE_USER,
       price_creator: PRICE_CREATOR,
     });
