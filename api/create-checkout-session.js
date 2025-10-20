@@ -76,9 +76,6 @@ export default async function handler(req, res) {
     }&e=${encodeURIComponent(customerEmail)}`;
     const cancelUrl = `${BASE_URL}/signup.html?canceled=1&t=${isCreator ? 'creator' : 'user'}`;
 
-    // Imagen del producto (opcional)
-    const productImage = `${BASE_URL}/assets/brand/peekpay-logo-h.svg`;
-
     // Siempre usar el price de Stripe (evita errores de monto)
     const line_items = [{ price: priceId, quantity: 1 }];
 
@@ -97,26 +94,24 @@ export default async function handler(req, res) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       customer_email: customerEmail,
-      payment_method_types: ['card'],
-      allow_promotion_codes: true,
-      automatic_tax: { enabled: false },
-
-      // 👉 Requerido porque tu cuenta tiene custom_text.shipping_address:
-      //    Stripe exige que, si usas custom_text.shipping_address, definas shipping_address_collection.
-      shipping_address_collection: { allowed_countries: ['US'] }, // PR entra como US
-
       line_items,
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata,
 
-      // Datos del "producto" (no afecta cobro al usar priceId; útil para UI de Stripe)
+      // Preferencias de cobro/UX
+      allow_promotion_codes: true,          // ponlo en false si no usarás cupones
+      automatic_tax: { enabled: false },    // PR lo vemos luego
+      billing_address_collection: 'auto',
+
+      // Necesario porque usas custom_text.shipping_address (evita warning de Stripe)
+      // PR entra como US
+      shipping_address_collection: { allowed_countries: ['US'] },
+
+      // UI en Checkout (no afecta al cobro al usar priceId)
       custom_text: {
         shipping_address: { message: productName },
       },
-
-      // (opcional, si quieres forzar captura de dirección/billing)
-      // billing_address_collection: 'auto',
     });
 
     return res.status(200).json({ url: session.url });

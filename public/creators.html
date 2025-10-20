@@ -3,12 +3,58 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <!-- Primary SEO -->
   <title>Explorar Creadores — PeekPay</title>
-  <link rel="icon" href="./favicon.ico">
-  
+  <meta name="description" content="Descubre creadores verificados y explora sets con preview gratis. Desbloquea solo lo que quieres ver con Peak Credits en PeekPay." />
+  <link rel="canonical" href="https://peek-pay.com/creators.html" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="theme-color" content="#4f46e5" />
+
+  <!-- Favicons (relativas para local) -->
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="alternate icon" href="./favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./favicon-32.png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://peek-pay.com/creators.html" />
+  <meta property="og:site_name" content="PeekPay" />
+  <meta property="og:title" content="Explorar Creadores — PeekPay" />
+  <meta property="og:description" content="Descubre creadores founders y desbloquea contenido con Peak Credits. 3 mosaicos gratis de preview." />
+  <meta property="og:image" content="https://peek-pay.com/assets/brand/peekpay-mark.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Explorar Creadores — PeekPay" />
+  <meta name="twitter:description" content="Descubre creadores founders y desbloquea contenido con Peak Credits. 3 mosaicos gratis de preview." />
+  <meta name="twitter:image" content="https://peek-pay.com/assets/brand/peekpay-mark.png" />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Explorar Creadores — PeekPay",
+    "description": "Explora creadores verificados y desbloquea contenido con Peak Credits.",
+    "url": "https://peek-pay.com/creators.html",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "PeekPay",
+      "url": "https://peek-pay.com"
+    }
+  }
+  </script>
+
+  <!-- Env + Supabase (usar rutas relativas para local) -->
+  <script>
+    // bandera útil por si quieres condicionar algo
+    window.__IS_LOCAL__ = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  </script>
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <style>
     :root{
       --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
@@ -21,259 +67,114 @@
       --green:#10b981;
     }
     *{ box-sizing:border-box; margin:0; padding:0 }
-    body{ 
+    body{
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       padding: 20px;
     }
-    .container{
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    
+    .container{ max-width: 1400px; margin: 0 auto; }
+
     /* Header */
     .header{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-      gap: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 30px; flex-wrap: wrap; gap: 16px;
     }
     .logo{
-      height: auto;
-      width: clamp(160px, 25%, 220px);
-      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
-      cursor: pointer;
+      height: auto; width: clamp(160px, 25%, 220px);
+      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15)); cursor: pointer;
     }
-    .nav{
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .nav{ display: flex; gap: 8px; flex-wrap: wrap; }
     .nav-btn{
-      padding: 10px 16px;
-      background: white;
-      border: 1px solid var(--ring);
-      border-radius: 10px;
-      text-decoration: none;
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.3s;
+      padding: 10px 16px; background: white; border: 1px solid var(--ring);
+      border-radius: 10px; text-decoration: none; color: var(--text);
+      font-size: 14px; font-weight: 600; transition: all 0.3s;
     }
-    .nav-btn:hover{
-      border-color: var(--accent);
-      background: rgba(102,126,234,0.05);
-    }
-    
+    .nav-btn:hover{ border-color: var(--accent); background: rgba(102,126,234,0.05); }
+
     /* Page Title */
-    .page-title{
-      text-align: center;
-      margin-bottom: 40px;
-    }
+    .page-title{ text-align: center; margin-bottom: 40px; }
     .page-title h1{
-      font-size: 36px;
-      font-weight: 900;
-      margin-bottom: 12px;
+      font-size: 36px; font-weight: 900; margin-bottom: 12px;
       background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .page-title p{
-      color: var(--muted);
-      font-size: 16px;
-    }
-    
+    .page-title p{ color: var(--muted); font-size: 16px; }
+
     /* Filters */
-    .filters{
-      display: flex;
-      gap: 12px;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+    .filters{ display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; justify-content: center; }
     .filter-btn{
-      padding: 10px 20px;
-      background: white;
-      border: 2px solid var(--ring);
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
+      padding: 10px 20px; background: white; border: 2px solid var(--ring);
+      border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s;
     }
-    .filter-btn:hover{
-      border-color: var(--accent);
-      background: rgba(102,126,234,0.05);
-    }
-    .filter-btn.active{
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      color: white;
-      border-color: transparent;
-    }
-    
+    .filter-btn:hover{ border-color: var(--accent); background: rgba(102,126,234,0.05); }
+    .filter-btn.active{ background: linear-gradient(135deg, var(--accent), var(--purple)); color: white; border-color: transparent; }
+
     /* Grid */
     .creators-grid{
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 24px;
-      margin-bottom: 40px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px; margin-bottom: 40px;
     }
-    
+
     /* Creator Card */
     .creator-card{
-      background: white;
-      border: 1px solid var(--ring);
-      border-radius: 20px;
-      overflow: hidden;
-      transition: all 0.3s;
-      cursor: pointer;
+      background: white; border: 1px solid var(--ring); border-radius: 20px;
+      overflow: hidden; transition: all 0.3s; cursor: pointer;
     }
-    .creator-card:hover{
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(102,126,234,0.15);
-      border-color: var(--accent);
-    }
-    
+    .creator-card:hover{ transform: translateY(-4px); box-shadow: 0 12px 32px rgba(102,126,234,0.15); border-color: var(--accent); }
+
     .creator-header{
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-bottom: 1px solid var(--ring);
+      padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--ring);
     }
     .creator-avatar{
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid white;
+      width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .creator-info{
-      flex: 1;
-    }
-    .creator-name{
-      font-weight: 800;
-      font-size: 16px;
-      margin-bottom: 4px;
-    }
-    .creator-handle{
-      font-size: 13px;
-      color: var(--muted);
-    }
-    
-    .mosaic-preview{
-      position: relative;
-      aspect-ratio: 1;
-      background: #f1f5f9;
-    }
+    .creator-info{ flex: 1; }
+    .creator-name{ font-weight: 800; font-size: 16px; margin-bottom: 4px; }
+    .creator-handle{ font-size: 13px; color: var(--muted); }
+
+    .mosaic-preview{ position: relative; aspect-ratio: 1; background: #f1f5f9; }
     .mosaic-grid{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-      gap: 2px;
-      height: 100%;
+      display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr);
+      gap: 2px; height: 100%;
     }
-    .mosaic-tile{
-      position: relative;
-      background-size: 400% 400%;
-      background-repeat: no-repeat;
-      filter: blur(12px) brightness(0.9);
-    }
-    .mosaic-tile.free{
-      filter: none;
-    }
-    
+    .mosaic-tile{ position: relative; background-size: 400% 400%; background-repeat: no-repeat; filter: blur(12px) brightness(0.9); }
+    .mosaic-tile.free{ filter: none; }
+
     .tile-badge{
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      font-size: 8px;
-      font-weight: 900;
-      padding: 2px 5px;
-      border-radius: 4px;
-      color: white;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 10;
+      position: absolute; top: 4px; right: 4px; font-size: 8px; font-weight: 900;
+      padding: 2px 5px; border-radius: 4px; color: white; letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 10;
     }
-    .tile-badge.free{
-      background: linear-gradient(135deg, var(--green), #34d399);
-    }
-    .tile-badge.lock{
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-    }
-    
+    .tile-badge.free{ background: linear-gradient(135deg, var(--green), #34d399); }
+    .tile-badge.lock{ background: linear-gradient(135deg, var(--accent), var(--purple)); }
+
     .creator-footer{
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
     }
-    .price-tag{
-      font-size: 18px;
-      font-weight: 900;
-      color: var(--accent);
-    }
+    .price-tag{ font-size: 18px; font-weight: 900; color: var(--accent); }
     .unlock-btn{
-      padding: 8px 16px;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
+      padding: 8px 16px; background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s;
     }
-    .unlock-btn:hover{
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102,126,234,0.3);
-    }
-    
+    .unlock-btn:hover{ transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+
     /* Loading & Empty States */
-    .loading{
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--muted);
-      font-size: 16px;
-    }
+    .loading{ text-align: center; padding: 80px 20px; color: var(--muted); font-size: 16px; }
     .loading-spinner{
-      width: 48px;
-      height: 48px;
-      border: 4px solid var(--ring);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
+      width: 48px; height: 48px; border: 4px solid var(--ring); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;
     }
-    @keyframes spin{
-      to{ transform: rotate(360deg); }
-    }
-    
-    .empty{
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--muted);
-    }
-    .empty-icon{
-      font-size: 64px;
-      margin-bottom: 20px;
-      opacity: 0.5;
-    }
-    
+    @keyframes spin{ to{ transform: rotate(360deg); } }
+
+    .empty{ text-align: center; padding: 80px 20px; color: var(--muted); }
+    .empty-icon{ font-size: 64px; margin-bottom: 20px; opacity: 0.5; }
+
     @media (max-width: 640px){
-      .creators-grid{
-        grid-template-columns: 1fr;
-      }
-      .page-title h1{
-        font-size: 28px;
-      }
+      .creators-grid{ grid-template-columns: 1fr; }
+      .page-title h1{ font-size: 28px; }
     }
   </style>
 </head>
@@ -281,6 +182,7 @@
   <div class="container">
     <!-- Header -->
     <div class="header">
+      <!-- Logo con ruta relativa para local -->
       <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" onclick="location.href='./index.html'">
       <div class="nav">
         <a href="./index.html" class="nav-btn">Inicio</a>
@@ -320,153 +222,155 @@
   </div>
 
   <script type="module">
-    const supabase = window.supabase.createClient(
-      window.PP_ENV.sb_url,
-      window.PP_ENV.sb_anon,
-      { auth: { persistSession: true, storageKey: 'pp-auth' } }
-    );
+    // 1) Cargar ENV de forma segura (no romper si no existe env.js)
+    const ENV = (window && window.PP_ENV) ? window.PP_ENV : null;
+    if (!ENV || !ENV.sb_url || !ENV.sb_anon) {
+      console.warn('[creators] PP_ENV no disponible (¿env.js 404 en local?). Mostrando estado vacío.');
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('empty').style.display = 'block';
+      // Salimos temprano para evitar errores en local
+      // En producción sí estará definido.
+    } else {
+      // 2) Inicializar Supabase cuando sí hay ENV
+      const supabase = window.supabase.createClient(
+        ENV.sb_url,
+        ENV.sb_anon,
+        { auth: { persistSession: true, storageKey: 'pp-auth' } }
+      );
 
-    const $ = id => document.getElementById(id);
-    const loading = $('loading');
-    const creatorsGrid = $('creatorsGrid');
-    const empty = $('empty');
+      const $ = id => document.getElementById(id);
+      const loading = $('loading');
+      const creatorsGrid = $('creatorsGrid');
+      const empty = $('empty');
 
-    let allSets = [];
-    let currentFilter = 'all';
+      let allSets = [];
+      let currentFilter = 'all';
 
-    // Load sets from database
-    async function loadSets() {
-      try {
-        loading.style.display = 'block';
-        creatorsGrid.style.display = 'none';
+      // Load sets from database
+      async function loadSets() {
+        try {
+          loading.style.display = 'block';
+          creatorsGrid.style.display = 'none';
+          empty.style.display = 'none';
+
+          const { data: sets, error } = await supabase
+            .from('sets')
+            .select(`
+              *,
+              profiles:creator_id (
+                id,
+                display_name,
+                handle,
+                avatar_url
+              )
+            `)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+
+          allSets = sets || [];
+          loading.style.display = 'none';
+
+          if (allSets.length === 0) {
+            empty.style.display = 'block';
+          } else {
+            renderSets(allSets);
+          }
+        } catch (error) {
+          console.error('Error loading sets:', error);
+          loading.style.display = 'none';
+          empty.style.display = 'block';
+        }
+      }
+
+      // Render sets
+      function renderSets(sets) {
+        if (sets.length === 0) {
+          creatorsGrid.style.display = 'none';
+          empty.style.display = 'block';
+          return;
+        }
+
+        creatorsGrid.style.display = 'grid';
         empty.style.display = 'none';
 
-        // Fetch sets with creator info
-        const { data: sets, error } = await supabase
-          .from('sets')
-          .select(`
-            *,
-            profiles:creator_id (
-              id,
-              display_name,
-              handle,
-              avatar_url
-            )
-          `)
-          .order('created_at', { ascending: false });
+        creatorsGrid.innerHTML = sets.map(set => {
+          const creator = set.profiles || {};
+          const creatorName = creator.display_name || creator.handle || 'Creador';
+          const creatorHandle = (creator.handle || 'creador').toString().replace(/^@/, '');
+          const avatarUrl = creator.avatar_url || './assets/brand/peekpay-mark.svg';
+          const imageUrl = set.image_url || '';
+          const price = Number(set.price || 5);
+          const freeTiles = Array.isArray(set.free_tiles) ? set.free_tiles : [0, 5, 11];
 
-        if (error) throw error;
+          // Generate mosaic tiles
+          let tilesHtml = '';
+          for (let i = 0; i < 16; i++) {
+            const row = Math.floor(i / 4);
+            const col = i % 4;
+            const isFree = freeTiles.includes(i);
+            const step = 33.333;
+            const bgPosition = `${-col * step}% ${-row * step}%`;
+            tilesHtml += `
+              <div class="mosaic-tile ${isFree ? 'free' : ''}"
+                   style="background-image:url(${imageUrl});background-position:${bgPosition}">
+                <span class="tile-badge ${isFree ? 'free' : 'lock'}">${isFree ? 'FREE' : 'LOCK'}</span>
+              </div>`;
+          }
 
-        allSets = sets || [];
-        
-        loading.style.display = 'none';
+          return `
+            <div class="creator-card" data-set-id="${set.id}">
+              <div class="creator-header">
+                <img src="${avatarUrl}" alt="${creatorName}" class="creator-avatar" loading="lazy">
+                <div class="creator-info">
+                  <div class="creator-name">${creatorName}</div>
+                  <div class="creator-handle">@${creatorHandle}</div>
+                </div>
+              </div>
 
-        if (allSets.length === 0) {
-          empty.style.display = 'block';
-        } else {
-          renderSets(allSets);
-        }
+              <div class="mosaic-preview" aria-hidden="true">
+                <div class="mosaic-grid">
+                  ${tilesHtml}
+                </div>
+              </div>
 
-      } catch (error) {
-        console.error('Error loading sets:', error);
-        loading.style.display = 'none';
-        empty.style.display = 'block';
-      }
-    }
-
-    // Render sets
-    function renderSets(sets) {
-      if (sets.length === 0) {
-        creatorsGrid.style.display = 'none';
-        empty.style.display = 'block';
-        return;
-      }
-
-      creatorsGrid.style.display = 'grid';
-      empty.style.display = 'none';
-
-      creatorsGrid.innerHTML = sets.map(set => {
-        const creator = set.profiles || {};
-        const creatorName = creator.display_name || creator.handle || 'Creador';
-        const creatorHandle = creator.handle || 'creador';
-        const avatarUrl = creator.avatar_url || './assets/brand/peekpay-mark.svg';
-        const imageUrl = set.image_url || '';
-        const price = set.price || 5;
-        const freeTiles = set.free_tiles || [0, 5, 11];
-
-        // Generate mosaic tiles
-        let tilesHtml = '';
-        for (let i = 0; i < 16; i++) {
-          const row = Math.floor(i / 4);
-          const col = i % 4;
-          const isFree = freeTiles.includes(i);
-          const step = 33.333;
-          const bgPosition = `${-col * step}% ${-row * step}%`;
-          
-          tilesHtml += `
-            <div class="mosaic-tile ${isFree ? 'free' : ''}" 
-                 style="background-image:url(${imageUrl});background-position:${bgPosition}">
-              <span class="tile-badge ${isFree ? 'free' : 'lock'}">${isFree ? 'FREE' : 'LOCK'}</span>
+              <div class="creator-footer">
+                <div class="price-tag">$${price.toFixed(2)}</div>
+                <button class="unlock-btn" onclick="handleUnlock('${set.id}', ${price})">
+                  Desbloquear →
+                </button>
+              </div>
             </div>
           `;
-        }
+        }).join('');
+      }
 
-        return `
-          <div class="creator-card" data-set-id="${set.id}">
-            <div class="creator-header">
-              <img src="${avatarUrl}" alt="${creatorName}" class="creator-avatar">
-              <div class="creator-info">
-                <div class="creator-name">${creatorName}</div>
-                <div class="creator-handle">@${creatorHandle}</div>
-              </div>
-            </div>
-            
-            <div class="mosaic-preview">
-              <div class="mosaic-grid">
-                ${tilesHtml}
-              </div>
-            </div>
-            
-            <div class="creator-footer">
-              <div class="price-tag">$${price.toFixed(2)}</div>
-              <button class="unlock-btn" onclick="handleUnlock('${set.id}', ${price})">
-                Desbloquear →
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
+      // Handle unlock (mock)
+      window.handleUnlock = async function(setId, price) {
+        alert(`🎯 Sistema de unlock próximamente!\n\nEste set cuesta: $${Number(price).toFixed(2)}\n\nEn la siguiente fase podrás desbloquearlo con tus Peak Credits.`);
+      };
 
-    // Handle unlock (mock for now)
-    window.handleUnlock = async function(setId, price) {
-      alert(`🎯 Sistema de unlock próximamente!\n\nEste set cuesta: $${price.toFixed(2)}\n\nEn la siguiente fase podrás desbloquearlo con tus Peak Credits.`);
-    };
+      // Filters
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
 
-    // Filters
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        currentFilter = btn.dataset.filter;
-        
-        let filteredSets = allSets;
-        
-        if (currentFilter === 'trending') {
-          // Mock: sort by views (when we have them)
-          filteredSets = [...allSets].sort((a, b) => (b.views || 0) - (a.views || 0));
-        } else if (currentFilter === 'new') {
-          // Already sorted by created_at desc
-          filteredSets = allSets;
-        }
-        
-        renderSets(filteredSets);
+          currentFilter = btn.dataset.filter;
+
+          let filteredSets = allSets;
+          if (currentFilter === 'trending') {
+            filteredSets = [...allSets].sort((a, b) => (b.views || 0) - (a.views || 0));
+          } else if (currentFilter === 'new') {
+            filteredSets = allSets;
+          }
+          renderSets(filteredSets);
+        });
       });
-    });
 
-    // Initialize
-    loadSets();
+      // Init
+      loadSets();
+    }
   </script>
 </body>
 </html>

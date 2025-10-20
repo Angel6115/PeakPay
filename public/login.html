@@ -3,12 +3,27 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
   <title>Iniciar sesión — PeekPay</title>
-  
+  <meta name="description" content="Accede a tu cuenta PeekPay para continuar donde lo dejaste." />
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="canonical" href="https://peek-pay.com/login.html" />
+  <meta name="theme-color" content="#4f46e5" />
+
+  <!-- Favicons (rutas relativas para funcionar en local y prod) -->
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="alternate icon" href="./favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./favicon-32.png">
+
+  <!-- Env + Supabase -->
+  <script>
+    // Bandera útil para condicionar comportamientos si quisieras
+    window.__IS_LOCAL__ = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  </script>
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="icon" href="./favicon.ico">
-  
+
   <style>
     :root{
       --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
@@ -18,159 +33,70 @@
       --muted:#64748b;
       --err:#dc2626;
       --ok:#059669;
+      --text:#0f172a;
     }
     * {box-sizing:border-box; margin:0; padding:0}
     body{
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
       background:var(--bg);
-      color:#0f172a;
+      color:var(--text);
       min-height:100vh;
       display:flex;
       align-items:center;
       justify-content:center;
       padding:20px;
     }
-    
-    .container{
-      max-width:440px;
-      width:100%;
-    }
-    
-    .header{
-      text-align:center;
-      margin-bottom:32px;
-    }
+    .container{ max-width:440px; width:100%; }
+
+    .header{ text-align:center; margin-bottom:32px; }
     .logo{
-      height:auto;
-      width:clamp(200px, 70%, 300px);
+      height:auto; width:clamp(200px, 70%, 300px);
       filter: drop-shadow(0 4px 16px rgba(102,126,234,0.2));
-      margin:0 auto 20px;
+      margin:0 auto 20px; display:block;
     }
     .header h1{
-      font-size:28px;
-      font-weight:900;
-      margin-bottom:8px;
+      font-size:28px; font-weight:900; margin-bottom:8px;
       background:linear-gradient(135deg, var(--indigo), var(--blue));
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      background-clip:text;
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
     }
-    .header p{
-      color:var(--muted);
-      font-size:15px;
-    }
-    
+    .header p{ color:var(--muted); font-size:15px; }
+
     .card{
-      background:white;
-      border:1px solid var(--ring);
-      border-radius:20px;
-      padding:32px;
-      box-shadow:0 10px 40px rgba(102,126,234,.12);
+      background:white; border:1px solid var(--ring); border-radius:20px;
+      padding:32px; box-shadow:0 10px 40px rgba(102,126,234,.12);
     }
-    
-    .form-group{
-      margin-bottom:16px;
-    }
+
+    .form-group{ margin-bottom:16px; }
     label{
-      display:block;
-      font-size:13px;
-      font-weight:600;
-      color:#374151;
-      margin-bottom:6px;
+      display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;
     }
     input{
-      width:100%;
-      padding:12px;
-      border:1px solid var(--ring);
-      border-radius:10px;
-      font-size:14px;
-      transition:all 0.3s;
+      width:100%; padding:12px; border:1px solid var(--ring); border-radius:10px; font-size:14px; transition:all 0.3s;
+      background:#fff;
     }
-    input:focus{
-      outline:none;
-      border-color:var(--indigo);
-      box-shadow:0 0 0 3px rgba(79,70,229,0.1);
-    }
-    
+    input:focus{ outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px rgba(79,70,229,0.1); }
+
     .btn{
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:12px;
-      font-size:15px;
-      font-weight:700;
-      cursor:pointer;
-      transition:all 0.3s;
-      background:linear-gradient(135deg, var(--indigo), var(--blue));
-      color:white;
-      box-shadow:0 4px 14px rgba(79,70,229,.3);
-      margin-top:8px;
+      width:100%; padding:14px; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.3s;
+      background:linear-gradient(135deg, var(--indigo), var(--blue)); color:white; box-shadow:0 4px 14px rgba(79,70,229,.3); margin-top:8px;
     }
-    .btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 6px 20px rgba(79,70,229,.4);
-    }
-    .btn:disabled{
-      opacity:0.6;
-      cursor:not-allowed;
-      transform:none;
-    }
-    
-    .links{
-      text-align:center;
-      margin-top:20px;
-      font-size:14px;
-    }
-    .links a{
-      color:var(--indigo);
-      text-decoration:none;
-      font-weight:600;
-      transition:all 0.3s;
-    }
-    .links a:hover{
-      text-decoration:underline;
-    }
-    .divider{
-      margin:12px 0;
-      color:var(--muted);
-    }
-    
-    .msg{
-      margin-top:12px;
-      padding:10px;
-      border-radius:8px;
-      font-size:13px;
-      text-align:center;
-      display:none;
-    }
-    .msg.show{
-      display:block;
-    }
-    .msg.ok{
-      background:rgba(5,150,105,0.1);
-      border:1px solid rgba(5,150,105,0.3);
-      color:var(--ok);
-    }
-    .msg.err{
-      background:rgba(220,38,38,0.1);
-      border:1px solid rgba(220,38,38,0.3);
-      color:var(--err);
-    }
-    
-    .back-link{
-      text-align:center;
-      margin-top:24px;
-    }
-    .back-link a{
-      color:var(--muted);
-      text-decoration:none;
-      font-size:13px;
-      transition:all 0.3s;
-    }
-    .back-link a:hover{
-      color:var(--indigo);
-    }
-    
+    .btn:hover{ transform:translateY(-2px); box-shadow:0 6px 20px rgba(79,70,229,.4); }
+    .btn:disabled{ opacity:0.6; cursor:not-allowed; transform:none; }
+
+    .links{ text-align:center; margin-top:20px; font-size:14px; }
+    .links a{ color:var(--indigo); text-decoration:none; font-weight:600; transition:all 0.3s; }
+    .links a:hover{ text-decoration:underline; }
+    .divider{ margin:12px 0; color:var(--muted); }
+
+    .msg{ margin-top:12px; padding:10px; border-radius:8px; font-size:13px; text-align:center; display:none; }
+    .msg.show{ display:block; }
+    .msg.ok{ background:rgba(5,150,105,0.1); border:1px solid rgba(5,150,105,0.3); color:var(--ok); }
+    .msg.err{ background:rgba(220,38,38,0.1); border:1px solid rgba(220,38,38,0.3); color:var(--err); }
+
+    .back-link{ text-align:center; margin-top:24px; }
+    .back-link a{ color:var(--muted); text-decoration:none; font-size:13px; transition:all 0.3s; }
+    .back-link a:hover{ color:var(--indigo); }
+
     @media (max-width: 480px){
       .card{ padding: 24px 20px; }
       .logo{ width: clamp(180px, 80%, 240px); }
@@ -180,70 +106,74 @@
 <body>
   <div class="container">
     <div class="header">
-      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
+      <!-- Ruta relativa para evitar 404 en local -->
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" />
       <h1>Bienvenido de vuelta</h1>
       <p>Inicia sesión para continuar</p>
     </div>
-    
-    <div class="card">
-      <form id="loginForm">
+
+    <div class="card" role="region" aria-label="Formulario de inicio de sesión">
+      <form id="loginForm" autocomplete="on">
         <div class="form-group">
           <label for="email">Email</label>
-          <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            placeholder="tu@email.com" 
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="tu@email.com"
             required
+            inputmode="email"
             autocomplete="email"
+            spellcheck="false"
+            autocapitalize="none"
           >
         </div>
-        
+
         <div class="form-group">
           <label for="password">Contraseña</label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            placeholder="••••••••" 
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••"
             required
             autocomplete="current-password"
           >
         </div>
-        
-        <button type="submit" class="btn" id="btnLogin">
-          Iniciar sesión
-        </button>
+
+        <button type="submit" class="btn" id="btnLogin">Iniciar sesión</button>
       </form>
-      
-      <div id="msg" class="msg"></div>
-      
+
+      <div id="msg" class="msg" role="alert" aria-live="polite"></div>
+
       <div class="links">
-        <a href="./reset-password.html">¿Olvidaste tu contraseña?</a>
+        <!-- Corrijo el 404: en tu repo existe public/reset.html -->
+        <a href="./reset.html">¿Olvidaste tu contraseña?</a>
         <div class="divider">•</div>
         <span style="color:var(--muted)">¿No tienes cuenta?</span>
         <a href="./signup.html">Regístrate</a>
       </div>
     </div>
-    
+
     <div class="back-link">
       <a href="./index.html">← Volver al inicio</a>
     </div>
   </div>
 
   <script type="module">
+    // Helper Supabase con guardas
     function getSB(){
       if (window.__SB) return window.__SB;
       const E = window.PP_ENV || {};
       if (!E.sb_url || !E.sb_anon || !window.supabase?.createClient) return null;
-      const auth = { 
-        persistSession: true, 
-        autoRefreshToken: true, 
-        detectSessionInUrl: true, 
-        storageKey: 'pp-auth' 
+      const auth = {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: 'pp-auth'
       };
       window.__SB = window.supabase.createClient(E.sb_url, E.sb_anon, { auth });
-      window.sb = window.__SB;
+      window.sb = window.__SB; // atajo útil en consola
       return window.__SB;
     }
 
@@ -258,14 +188,18 @@
       msg.textContent = text;
       msg.className = 'msg show ' + (isOk ? 'ok' : 'err');
     }
+    function clearMsg(){ msg.className = 'msg'; }
 
-    function clearMsg(){
-      msg.className = 'msg';
-    }
+    // Si falta env en local, aviso amable (sin romper)
+    (function warnEnv(){
+      if (!window.PP_ENV || !PP_ENV.sb_url || !PP_ENV.sb_anon){
+        console.warn('[login] PP_ENV no disponible (¿env.js sin configurar?). El login no funcionará en local hasta proveer credenciales.');
+      }
+    })();
 
     form.onsubmit = async (e) => {
       e.preventDefault();
-      
+
       const emailValue = email.value.trim();
       const passwordValue = password.value;
 
@@ -275,113 +209,88 @@
       }
 
       btnLogin.disabled = true;
-      btnLogin.textContent = 'Iniciando sesión...';
+      btnLogin.textContent = 'Iniciando sesión…';
       clearMsg();
 
       try {
         const sb = getSB();
-        if (!sb) {
-          throw new Error('Error de configuración');
-        }
+        if (!sb) throw new Error('Configuración ausente. Revisa env.js');
 
-        // 1. Login
+        // 1) Login
         const { data, error } = await sb.auth.signInWithPassword({
           email: emailValue,
           password: passwordValue
         });
-
         if (error) throw error;
 
         if (data.user) {
-          setMsg('✓ Verificando perfil...', true);
-          
-          // 2. CRÍTICO: Verificar ROL del usuario
+          setMsg('✓ Verificando perfil…', true);
+
+          // 2) Verificar rol
           const { data: profile, error: profileError } = await sb
             .from('profiles')
             .select('role, is_creator')
             .eq('id', data.user.id)
             .single();
 
-          if (profileError) {
-            console.warn('Profile error:', profileError);
+          if (profileError) console.warn('Profile error:', profileError);
+
+          // 3) Destino por rol
+          let destination = './profile.html';
+          if (profile && (profile.role === 'creator' || profile.is_creator === true)) {
+            destination = './creator-dashboard.html';
+            setMsg('✓ ¡Bienvenido creador! Redirigiendo…', true);
+          } else {
+            setMsg('✓ ¡Bienvenido! Redirigiendo…', true);
           }
 
-          // 3. Determinar destino según ROL
-          let destination = './profile.html'; // Default para usuarios
-          
-          if (profile) {
-            console.log('✅ User role:', profile.role, 'is_creator:', profile.is_creator);
-            
-            // Si es creador, enviar a creator-dashboard
-            if (profile.role === 'creator' || profile.is_creator === true) {
-              destination = './creator-dashboard.html';
-              setMsg('✓ ¡Bienvenido creador! Redirigiendo...', true);
-            } else {
-              setMsg('✓ ¡Bienvenido! Redirigiendo...', true);
-            }
-          }
-
-          // 4. Permitir override con ?next= solo para usuarios normales
+          // 4) Permitir ?next= sólo si NO es creador
           const params = new URLSearchParams(window.location.search);
           const next = params.get('next');
-          
-          // Solo usar 'next' si NO es creador
-          if (next && profile && profile.role !== 'creator' && !profile.is_creator) {
+          if (next && (!profile || (profile.role !== 'creator' && !profile.is_creator))) {
             destination = next;
           }
 
-          console.log('🎯 Redirecting to:', destination);
-          
-          setTimeout(() => {
-            window.location.href = destination;
-          }, 800);
+          setTimeout(() => { window.location.href = destination; }, 800);
         }
 
       } catch (error) {
         console.error('Login error:', error);
-        
         let errorMsg = 'Error al iniciar sesión';
-        if (error.message.includes('Invalid login credentials')) {
-          errorMsg = 'Email o contraseña incorrectos';
-        } else if (error.message.includes('Email not confirmed')) {
-          errorMsg = 'Por favor confirma tu email primero';
-        } else {
-          errorMsg = error.message || errorMsg;
-        }
-        
+        const m = (error && error.message) ? error.message : '';
+        if (m.includes('Invalid login credentials')) errorMsg = 'Email o contraseña incorrectos';
+        else if (m.includes('Email not confirmed')) errorMsg = 'Por favor confirma tu email primero';
+        else if (m) errorMsg = m;
+
         setMsg(errorMsg);
         btnLogin.disabled = false;
         btnLogin.textContent = 'Iniciar sesión';
       }
     };
 
-    // Auto-login check
+    // Si ya hay sesión, redirige según rol
     (async function checkSession(){
       const sb = getSB();
       if (!sb) return;
-
       try {
         const { data: { session } } = await sb.auth.getSession();
-        if (session) {
-          // Ya hay sesión activa - verificar rol
-          const { data: profile } = await sb
-            .from('profiles')
-            .select('role, is_creator')
-            .eq('id', session.user.id)
-            .single();
+        if (!session) return;
 
-          let destination = './profile.html';
-          
-          if (profile && (profile.role === 'creator' || profile.is_creator)) {
-            destination = './creator-dashboard.html';
-          } else {
-            const params = new URLSearchParams(window.location.search);
-            const next = params.get('next');
-            if (next) destination = next;
-          }
+        const { data: profile } = await sb
+          .from('profiles')
+          .select('role, is_creator')
+          .eq('id', session.user.id)
+          .single();
 
-          window.location.href = destination;
+        let destination = './profile.html';
+        if (profile && (profile.role === 'creator' || profile.is_creator)) {
+          destination = './creator-dashboard.html';
+        } else {
+          const params = new URLSearchParams(window.location.search);
+          const next = params.get('next');
+          if (next) destination = next;
         }
+        window.location.href = destination;
       } catch (err) {
         console.warn('Session check error:', err);
       }
