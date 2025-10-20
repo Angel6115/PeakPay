@@ -14,7 +14,7 @@
   <link rel="alternate icon" href="./favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="./favicon-32.png">
 
-  <!-- Carga robusta de env.js (funciona en /public y en producción) -->
+  <!-- Carga de env.js (en /public y producción) -->
   <script src="./env.js" defer></script>
 
   <style>
@@ -151,18 +151,23 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
 
-    // ==== Config (tolerante a orden de carga) ====
+    // ==== Config robusta (tolera orden de carga y distintos entornos) ====
     const E = (window.PP_ENV || {});
     const WARN = document.getElementById('warnMsg');
 
-    // Resolver API base:
-    // - Si PP_ENV.api_base está vacío y estamos en localhost, usar producción.
-    // - Si tiene valor, se usa tal cual (se recorta la última /).
-    let API_BASE = (E.api_base || '').trim();
-    if (!API_BASE && location.hostname === 'localhost') {
-      API_BASE = 'https://www.peek-pay.com';
-    }
-    const API_ROOT = API_BASE ? API_BASE.replace(/\/$/, '') : '';
+    // Normaliza dominios/base (quita / final; agrega protocolo si hace falta)
+    const normBase = (u) => {
+      if (!u) return '';
+      let base = String(u).trim().replace(/\/+$/, '');
+      if (/^https?:\/\//i.test(base)) return base;
+      return window.location.protocol + '//' + base;
+    };
+
+    // 1) Permite override por query: ?api=http://localhost:8788
+    const qApi = new URLSearchParams(location.search).get('api');
+    // 2) Si no hay override, usa E.api_base si existe; si no, misma-origin (cadena vacía)
+    let API_ROOT = qApi ? normBase(qApi) : (E.api_base ? normBase(E.api_base) : '');
+    // Nota: cadena vacía => usa mismo origen (mejor para CORS)
 
     const PRICE_IDS = {
       user: E.price_user || '',
@@ -297,10 +302,12 @@
           .update({ role: roleHuman === 'creador' ? 'creador' : 'usuario', is_creator: roleHuman === 'creador' })
           .eq('id', authData.user.id);
 
-        // 3) Checkout
+        // 3) Checkout (con **barra final** para evitar redirect del preflight)
         submitBtn.textContent = 'Redirigiendo al pago...';
 
-        const endpoint = (API_ROOT || '') + '/api/create-checkout-session';
+        const apiBase = API_ROOT; // '' = mismo origen (ideal en prod)
+        const endpoint = (apiBase ? apiBase.replace(/\/$/, '') : '') + '/api/create-checkout-session/';
+
         const resp = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -313,7 +320,6 @@
         });
 
         if (!resp.ok) {
-          // intentar leer mensaje del server
           let msg = 'Error al crear sesión de pago';
           try {
             const err = await resp.json();
