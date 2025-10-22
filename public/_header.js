@@ -1,196 +1,129 @@
-// public/_header.js
-// PeekPay header boot
-// - Router local: / -> /public/* sólo en localhost:5173 (sin bucles)
-// - Carga de entorno: combina window.PP_ENV (env.js) + localStorage sin mutar el freeze()
-// - Supabase singleton: window.__SB y alias window.sb
-// - Barra Auth fija “Entrar / Salir”
-// - Util para manejar ?return= en botones Volver
+// /_header.js
+// Header consciente de sesión para PeekPay
+// Requiere: /js/auth-client.js cargado antes (define window.Auth)
 
 (function () {
-    /* ================ Router local → /public (sólo en Vite 5173) ================ */
-    try {
-      const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-      const isVite = isLocal && location.port === '5173';
-      const needsPublic =
-        isVite &&
-        !location.pathname.startsWith('/public') &&
-        !(location.pathname === '/' || location.pathname === '');
-      if (needsPublic) {
-        const to = '/public' + location.pathname + location.search + location.hash;
-        if (!sessionStorage.getItem('__pp_routed')) {
-          sessionStorage.setItem('__pp_routed', '1');
-          location.replace(to);
-          return;
-        }
-      } else {
-        sessionStorage.removeItem('__pp_routed');
+    // Crea el contenedor si no existe
+    function ensureShell() {
+      let el = document.querySelector('header[data-pp="shell"]');
+      if (!el) {
+        el = document.createElement('header');
+        el.setAttribute('data-pp', 'shell');
+        el.style.display = 'block';
+        // Inserta al inicio del body
+        document.body.insertBefore(el, document.body.firstChild);
       }
-    } catch {}
-  
-    /* ==================== Entorno: NO mutar window.PP_ENV ==================== */
-    // 1) Lee lo que expone env.js (puede no existir)
-    const FROM_ENV = (function () {
-      try { return window.PP_ENV || {}; } catch { return {}; }
-    })();
-  
-    // 2) Overlay con valores de localStorage (opcionales para depurar)
-    const LS = {
-      api_base: (localStorage.getItem('pp_api_base') || '').replace(/\/+$/, ''),
-      sb_url: localStorage.getItem('sb_url') || undefined,
-      sb_anon: localStorage.getItem('sb_anon') || undefined,
-    };
-  
-    // 3) Mezcla INMUTABLE sin tocar el objeto freeze() original
-    const MERGED_ENV = Object.freeze({
-      api_base: LS.api_base || FROM_ENV.api_base || '',
-      sb_url:   LS.sb_url   || FROM_ENV.sb_url   || '',
-      sb_anon:  LS.sb_anon  || FROM_ENV.sb_anon  || '',
-    });
-  
-    // Publica un objeto nuevo (no el original) para que el resto del código lea de aquí
-    window.PP_ENV = MERGED_ENV;
-  
-    /* ==================== Supabase singleton ==================== */
-    const supaLib = window.supabase; // CDN @supabase/supabase-js
-    const hasCreds = !!(MERGED_ENV.sb_url && MERGED_ENV.sb_anon);
-  
-    if (hasCreds && supaLib?.createClient) {
-      if (!window.__SB) {
-        try {
-          const auth = {
-            persistSession: true,
-            storageKey: 'pp-auth',
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-          };
-          window.__SB = supaLib.createClient(MERGED_ENV.sb_url, MERGED_ENV.sb_anon, { auth });
-          console.log('[peekpay] Supabase client inicializado');
-        } catch (e) {
-          console.warn('[peekpay] No se pudo crear el cliente Supabase:', e);
-        }
-      }
-      window.sb = window.__SB || null;
-    } else {
-      console.warn('[peekpay] Supabase no configurado (local/demo).');
-      window.sb = null;
+      return el;
     }
   
-    /* ==================== Util: back con ?return= ==================== */
-    // Devuelve la URL a la que “volver” si existe ?return=xxx, si no, usa ./profile.html
-    function getReturnHref(defaultHref) {
+    // Marca la ruta activa
+    function isActive(href) {
       try {
-        const u = new URL(location.href);
-        const ret = u.searchParams.get('return');
-        return ret || defaultHref || './profile.html';
+        const here = location.pathname.replace(/\/+$/, '') || '/';
+        const there = new URL(href, location.origin).pathname.replace(/\/+$/, '') || '/';
+        return here === there;
       } catch {
-        return defaultHref || './profile.html';
+        return false;
       }
     }
-    // Exponer helper global mínimo para botones “Volver”
-    window.__pp_getReturn = getReturnHref;
   
-    /* ==================== Barra Auth fija (Entrar / Salir) ==================== */
-    function mountAuthUI() {
-      if (document.getElementById('pp-authbar')) return;
+    // Construye el HTML del header según la sesión
+    function renderHeader(session) {
+      const nextParam = encodeURIComponent(location.pathname + location.search + location.hash);
+      const authed = !!session;
   
-      const bar = document.createElement('div');
-      bar.id = 'pp-authbar';
-      Object.assign(bar.style, {
-        position: 'fixed',
-        top: '10px',
-        right: '10px',
-        zIndex: '9999',
-        fontFamily: 'system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif'
-      });
+      const linksPublic = `
+        <nav class="pp-nav">
+          <a href="/" class="${isActive('/') ? 'active' : ''}">Inicio</a>
+          <a href="/categories" class="${isActive('/categories') ? 'active' : ''}">Categorías</a>
+          <a href="/creators" class="${isActive('/creators') ? 'active' : ''}">Creadores</a>
+        </nav>
+      `;
   
-      const btn = document.createElement('button');
-      Object.assign(btn.style, {
-        border: '1px solid #c7d2fe',
-        background: '#eef2ff',
-        color: '#1e1b4b',
-        padding: '6px 10px',
-        fontSize: '12px',
-        borderRadius: '999px',
-        cursor: 'pointer',
-        boxShadow: '0 6px 12px rgba(79,70,229,.10)',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '8px'
-      });
+      const authRight = authed
+        ? `
+          <nav class="pp-auth">
+            <a href="/wallet" class="${isActive('/wallet') ? 'active' : ''}">Wallet</a>
+            <a href="/profile" class="${isActive('/profile') ? 'active' : ''}">Perfil</a>
+            <button id="pp-logout" type="button" class="pp-btn-logout" aria-label="Salir">Salir</button>
+          </nav>
+        `
+        : `
+          <nav class="pp-auth">
+            <a href="/login?next=${nextParam}" class="${isActive('/login') ? 'active' : ''}">Entrar</a>
+            <a href="/signup" class="pp-btn-cta ${isActive('/signup') ? 'active' : ''}">Crear cuenta</a>
+          </nav>
+        `;
   
-      const avatar = document.createElement('img');
-      avatar.alt = 'avatar';
-      avatar.width = 18;
-      avatar.height = 18;
-      Object.assign(avatar.style, {
-        borderRadius: '999px',
-        border: '1px solid rgba(0,0,0,.06)',
-        display: 'none'
-      });
-  
-      const txt = document.createElement('span');
-  
-      btn.appendChild(avatar);
-      btn.appendChild(txt);
-      bar.appendChild(btn);
-      document.body.appendChild(bar);
-  
-      const sb = window.sb;
-  
-      async function refresh() {
-        if (!sb) {
-          txt.textContent = 'Entrar';
-          btn.title = 'Entrar';
-          // Preferimos rutas relativas con .html para que funcione igual en Vercel y local
-          btn.onclick = () => (location.href = './auth-signup.html');
-          avatar.style.display = 'none';
-          return;
-        }
-        try {
-          const { data: { session } } = await sb.auth.getSession();
-          if (!session) {
-            txt.textContent = 'Entrar';
-            btn.title = 'Entrar';
-            btn.onclick = () => (location.href = './auth-signup.html');
-            avatar.style.display = 'none';
-          } else {
-            const name = session.user.user_metadata?.name || session.user.email || 'Cuenta';
-            const pic =
-              session.user.user_metadata?.avatar_url ||
-              session.user.user_metadata?.picture ||
-              '';
-            txt.textContent = name.length > 22 ? name.slice(0, 21) + '…' : name;
-            if (pic) {
-              avatar.src = pic;
-              avatar.style.display = 'inline-block';
-            } else {
-              avatar.style.display = 'none';
-            }
-            btn.title = 'Salir';
-            btn.onclick = async () => {
-              try { await sb.auth.signOut(); } catch {}
-              const back = getReturnHref('./auth-signup.html');
-              location.href = back;
-            };
+      return `
+        <div class="pp-wrap">
+          <a class="pp-brand" href="/" aria-label="PeekPay inicio">
+            <span class="pp-logo-dot"></span>
+            <span class="pp-brand-text">PeekPay</span>
+          </a>
+          ${linksPublic}
+          ${authRight}
+        </div>
+        <style>
+          /* Estilos mínimos para no depender de páginas */
+          header[data-pp="shell"] { 
+            position: sticky; top: 0; z-index: 50;
+            background: #ffffff; border-bottom: 1px solid #e5e7eb;
           }
-        } catch (e) {
-          console.warn('[peekpay] auth refresh error', e);
-          txt.textContent = 'Entrar';
-          btn.title = 'Entrar';
-          btn.onclick = () => (location.href = './auth-signup.html');
-          avatar.style.display = 'none';
-        }
+          header[data-pp="shell"] .pp-wrap {
+            max-width: 1080px; margin: 0 auto; padding: 10px 16px;
+            display: flex; align-items: center; gap: 12px; justify-content: space-between;
+          }
+          .pp-brand { display:flex; align-items:center; gap:8px; text-decoration:none; color:#0b1020; font-weight:700 }
+          .pp-logo-dot { width:10px; height:10px; border-radius:999px; background: linear-gradient(90deg,#4f46e5,#2563eb); display:inline-block }
+          .pp-brand-text { font-size: 15px }
+          .pp-nav, .pp-auth { display:flex; align-items:center; gap:12px; }
+          .pp-nav a, .pp-auth a { text-decoration:none; color:#0b1020; padding:8px 10px; border-radius:10px; border:1px solid transparent; }
+          .pp-nav a.active, .pp-auth a.active { background:#f8fafc; border-color:#e5e7eb; }
+          .pp-btn-cta { background: linear-gradient(90deg,#4f46e5,#2563eb); color:#fff !important; }
+          .pp-btn-logout {
+            border:1px solid #e5e7eb; background:#fff; color:#0b1020; 
+            padding:8px 10px; border-radius:10px; cursor:pointer;
+          }
+          @media (max-width:720px){
+            .pp-nav { display:none; } /* Simplificar en móviles */
+          }
+        </style>
+      `;
+    }
+  
+    async function mount() {
+      const shell = ensureShell();
+  
+      // Si no hay Auth, renderiza versión pública básica
+      if (!window.Auth || !Auth.getSession || !Auth.onChange) {
+        shell.innerHTML = renderHeader(null);
+        // Sin listeners (no hay logout si no está Auth)
+        return;
       }
   
-      refresh();
-      setInterval(refresh, 60_000);
-      window.addEventListener('focus', () => setTimeout(refresh, 300));
+      // Primera pintura
+      const ses = await Auth.getSession().catch(() => null);
+      shell.innerHTML = renderHeader(ses);
+  
+      // Wire logout si existe el botón
+      function wireLogout() {
+        const btn = document.getElementById('pp-logout');
+        if (btn) btn.onclick = () => Auth.logout();
+      }
+      wireLogout();
+  
+      // Re-render en cambios de sesión
+      Auth.onChange((session) => {
+        shell.innerHTML = renderHeader(session);
+        wireLogout();
+      });
     }
   
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', mountAuthUI);
+      document.addEventListener('DOMContentLoaded', mount);
     } else {
-      mountAuthUI();
+      mount();
     }
   })();
   
