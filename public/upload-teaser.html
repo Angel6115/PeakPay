@@ -8,6 +8,7 @@
   
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
   
   <style>
     :root{
@@ -296,6 +297,15 @@
     });
   }
 
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   // ✅ CORREGIDO: Guardar en tabla SETS
   async function saveContent(status = 'draft') {
     if (!currentUser) {
@@ -310,14 +320,32 @@
 
     try {
       showStatus('📤 Subiendo contenido...', 'info');
-      
+
+      // Storage tiene su propia política RLS que bloquea el upload directo
+      // del cliente (mismo problema que tuvimos con la tabla `sets`), así
+      // que ambos archivos se suben server-side vía /api/upload/store.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('No hay sesión activa');
+
+      async function uploadViaApi(path, blob, contentType) {
+        const base64 = await blobToBase64(blob);
+        const r = await fetch('/api/upload/store', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({ path, content_base64: base64, content_type: contentType })
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) throw new Error(j.detail || j.error || `No se pudo subir ${path}`);
+        return j;
+      }
+
       // Get profile info
       const { data: profile } = await supabase
         .from('profiles')
         .select('handle')
         .eq('id', currentUser.id)
         .single();
-      
+
       const handle = profile?.handle || 'creator';
       const timestamp = Date.now();
       const setSlug = `set-${timestamp}`;
@@ -325,52 +353,37 @@
       // Upload teaser (canvas con blur)
       const teaserPath = `photos/${handle}/sets/${setSlug}/full.webp`;
       const teaserBlob = await canvasToBlob(cv, 'image/webp', 0.90);
-      
-      const { error: uploadError } = await supabase.storage
-        .from('creator-content')
-        .upload(teaserPath, teaserBlob, { upsert: true });
-      
-      if (uploadError) throw uploadError;
+      await uploadViaApi(teaserPath, teaserBlob, 'image/webp');
 
       // Upload avatar if exists
       let avatarPath = null;
       if (avatarFile) {
         avatarPath = `photos/${handle}/avatar.jpg`;
-        await supabase.storage
-          .from('creator-content')
-          .upload(avatarPath, avatarFile, { upsert: true });
-        
+        const { public_url } = await uploadViaApi(avatarPath, avatarFile, avatarFile.type || 'image/jpeg');
+
         // También actualizar avatar en profiles
         await supabase
           .from('profiles')
-          .update({ 
-            avatar_url: supabase.storage.from('creator-content').getPublicUrl(avatarPath).data.publicUrl 
-          })
+          .update({ avatar_url: public_url })
           .eq('id', currentUser.id);
       }
 
-      // ✅ GUARDAR EN TABLA SETS
-      const { data, error } = await supabase
-        .from('sets')
-        .insert({
-          creator_id: currentUser.id,
-          slug: setSlug,
-          grid: 4,
+      const resp = await fetch('/api/sets/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
           title: document.getElementById('title').value || 'Sin título',
-          blurb: document.getElementById('cat').value || 'General',
-          cover_url: avatarPath ? `/public/${avatarPath}` : null,
-          full_path: teaserPath,
-          path: teaserPath,
-          cover_path: avatarPath,
-          creator_slug: handle,
-          set_slug: setSlug,
-          is_active: status === 'published',
-          price: parseFloat(document.getElementById('price').value) || 5.00
+          category: document.getElementById('cat').value || 'General',
+          price: parseFloat(document.getElementById('price').value) || 5.00,
+          teaser_path: teaserPath,
+          avatar_path: avatarPath,
+          grid: 4,
+          is_published: status === 'published'
         })
-        .select()
-        .single();
+      });
 
-      if (error) throw error;
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.ok) throw new Error(result.detail || result.error || 'Error al guardar el set');
 
       showStatus(`✅ Contenido ${status === 'published' ? 'publicado' : 'guardado'} exitosamente`, 'success');
       

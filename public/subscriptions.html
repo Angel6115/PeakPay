@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
+  <title>PeekPay — Mis suscripciones</title>
+  <link rel="icon" href="./favicon.ico">
+
+  <style>
+    :root{
+      --bg:#FFFAF5; --text:#040A3F; --muted:#64748b; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c; --warn:#b45309;
+      --indigo:#0732EF; --indigo-ink:#0526C4; --indigo-soft:#F4F1FF;
+      --blue:#5E17EB; --mint:#B6FF3D; --mint-soft:#F4FFE0; --pink:#FF66C4;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+      margin:0; background:var(--bg); color:var(--text);
+    }
+    h1,h2,h3,.h2{font-family:'Space Grotesk',system-ui,sans-serif}
+    .wrap{max-width:760px;margin:0 auto;padding:28px 16px 56px}
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+      margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--ring); flex-wrap:wrap;
+    }
+    .logo{ height:auto; width:clamp(160px, 30%, 240px); filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15)); }
+    header .back{
+      border:1px solid var(--ring); background:#fff; color:var(--indigo); border-radius:10px;
+      padding:10px 16px; text-decoration:none; font-weight:700;
+      box-shadow:0 4px 14px rgba(102,126,234,.15); transition: all 0.3s;
+    }
+    header .back:hover{ background:rgba(102,126,234,0.05); border-color:var(--indigo); }
+
+    .panel{
+      border:1px solid var(--ring); background: var(--card); border-radius:24px;
+      padding:16px; margin-top:12px; box-shadow: 0 6px 14px rgba(7,50,239,.06);
+    }
+    .h2{font-weight:800;margin:0 0 8px 0;display:flex;align-items:center;gap:8px}
+    .muted{color:var(--muted);font-size:12px}
+
+    .sub-card{
+      display:flex; align-items:center; gap:14px;
+      border:1px solid var(--ring); background:#fff; border-radius:18px; padding:14px;
+      box-shadow: 0 6px 14px rgba(7,50,239,.06); margin-top:10px;
+    }
+    .sub-avatar{
+      width:52px; height:52px; border-radius:50%; object-fit:cover; flex-shrink:0;
+      background: linear-gradient(135deg, var(--indigo), var(--blue));
+    }
+    .sub-info{ flex:1; min-width:0 }
+    .sub-name{ font-weight:700; font-size:15px }
+    .sub-handle{ color:var(--muted); font-size:12px }
+    .sub-meta{ font-size:12px; color:var(--muted); margin-top:4px }
+    .sub-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0 }
+    .price{ font-weight:800; color:var(--indigo); font-size:15px }
+
+    .status{
+      font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;
+      white-space:nowrap;
+    }
+    .status.active{ background:var(--mint-soft); color:#3f6212 }
+    .status.pending-cancel{ background:#fef3c7; color:var(--warn) }
+    .status.canceled{ background:#f1f5f9; color:var(--muted) }
+
+    .btn{
+      border:1px solid var(--ring); background:#fff; color:var(--err);
+      border-radius:999px; padding:7px 14px; cursor:pointer; font-weight:700; font-size:12px;
+      transition: all 0.2s;
+    }
+    .btn:hover{ background:#fef2f2; border-color:var(--err) }
+    .btn.resume{ color:var(--indigo) }
+    .btn.resume:hover{ background:var(--indigo-soft); border-color:var(--indigo) }
+    .btn[disabled]{ opacity:.5; cursor:not-allowed }
+
+    .empty{ text-align:center; padding:40px 16px; color:var(--muted) }
+    .empty a{ color:var(--indigo); font-weight:700; text-decoration:none }
+
+    .msg{margin-top:8px;font-size:13px;min-height:18px}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
+      <a href="./profile.html" class="back">← Volver</a>
+    </header>
+
+    <section class="panel">
+      <p class="h2"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--indigo)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg> Mis suscripciones</p>
+      <p class="muted">Creadores a los que apoyas cada mes con acceso completo a su catálogo</p>
+      <div id="list" style="margin-top:6px">
+        <p class="muted" style="padding:16px 0">Cargando...</p>
+      </div>
+      <p id="msg" class="msg" role="status"></p>
+    </section>
+  </div>
+
+  <script type="module">
+    const supabase = window.supabase.createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
+    );
+
+    const $ = (id) => document.getElementById(id);
+    const listEl = $('list');
+    const msgEl = $('msg');
+
+    async function checkAuth() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        location.href = './login.html?next=subscriptions.html';
+        return null;
+      }
+      return user;
+    }
+
+    async function authHeaders() {
+      const { data: { session } } = await supabase.auth.getSession();
+      return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token || ''}` };
+    }
+
+    function fmtDate(d) {
+      if (!d) return '';
+      return new Date(d).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function statusBadge(sub) {
+      if (sub.status === 'canceled') return `<span class="status canceled">Cancelada</span>`;
+      if (sub.cancel_at_period_end) return `<span class="status pending-cancel">Termina el ${fmtDate(sub.current_period_end)}</span>`;
+      return `<span class="status active">Activa</span>`;
+    }
+
+    function renderList(subs) {
+      if (!subs.length) {
+        listEl.innerHTML = `<div class="empty">Aún no sigues a ningún creador con suscripción.<br><a href="./creators.html">Explorar creadores →</a></div>`;
+        return;
+      }
+
+      listEl.innerHTML = subs.map(sub => {
+        const avatar = sub.creator.avatar_url || './assets/brand/peekpay-mark.svg';
+        const handle = sub.creator.handle ? '@' + sub.creator.handle : '';
+        const canAct = sub.status === 'active';
+        let actionBtn = '';
+        if (canAct && !sub.cancel_at_period_end) {
+          actionBtn = `<button class="btn" data-id="${sub.id}" data-action="cancel">Cancelar</button>`;
+        } else if (canAct && sub.cancel_at_period_end) {
+          actionBtn = `<button class="btn resume" data-id="${sub.id}" data-action="resume">Reactivar</button>`;
+        }
+        return `
+          <div class="sub-card" data-card="${sub.id}">
+            <img class="sub-avatar" src="${avatar}" alt="${sub.creator.name}">
+            <div class="sub-info">
+              <div class="sub-name">${sub.creator.name}</div>
+              <div class="sub-handle">${handle}</div>
+              <div class="sub-meta">${statusBadge(sub)}</div>
+            </div>
+            <div class="sub-actions">
+              <span class="price">$${Number(sub.price_usd).toFixed(2)}/mes</span>
+              ${actionBtn}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      listEl.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => onActionClick(btn.dataset.id, btn.dataset.action, btn));
+      });
+    }
+
+    async function loadSubscriptions() {
+      const r = await fetch('/api/subscriptions/list', { headers: await authHeaders(), cache: 'no-store' });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || 'No se pudo cargar');
+      return j.subscriptions || [];
+    }
+
+    async function onActionClick(subscriptionId, action, btn) {
+      const confirmMsg = action === 'cancel'
+        ? '¿Cancelar esta suscripción? Mantendrás el acceso hasta el final del período ya pagado.'
+        : '¿Reactivar esta suscripción antes de que termine?';
+      if (!confirm(confirmMsg)) return;
+
+      btn.disabled = true;
+      msgEl.textContent = 'Procesando...';
+      msgEl.className = 'msg muted';
+      try {
+        const r = await fetch('/api/subscriptions/cancel', {
+          method: 'POST',
+          headers: await authHeaders(),
+          body: JSON.stringify({ subscription_id: subscriptionId, action }),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) throw new Error(j.error || 'No se pudo actualizar la suscripción');
+
+        const subs = await loadSubscriptions();
+        renderList(subs);
+
+        msgEl.textContent = action === 'cancel'
+          ? '✓ Cancelación programada. Mantienes el acceso hasta el final del período.'
+          : '✓ Suscripción reactivada.';
+        msgEl.className = 'msg ok';
+      } catch (err) {
+        btn.disabled = false;
+        msgEl.textContent = 'Error: ' + err.message;
+        msgEl.className = 'msg err';
+      }
+    }
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      try {
+        const subs = await loadSubscriptions();
+        renderList(subs);
+      } catch (err) {
+        console.error('Error loading subscriptions:', err);
+        listEl.innerHTML = `<p class="muted" style="padding:16px 0">No se pudo cargar tus suscripciones.</p>`;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -8,6 +8,7 @@
   
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
   
   <style>
     :root{
@@ -172,11 +173,13 @@
       <div class="nav">
         <button class="btn secondary" onclick="location.href='./creator-profile.html'">Perfil</button>
         <button class="btn secondary" onclick="location.href='./creator-wallet.html'">Ganancias</button>
+        <button class="btn secondary" onclick="location.href='./creator-subscribers.html'">Suscriptores</button>
         <button class="btn secondary" id="btnLogout">Cerrar sesión</button>
         <button class="btn primary" onclick="location.href='./upload-teaser.html'">+ Subir contenido</button>
       </div>
     </div>
 
+    <div id="statusBanner" style="display:none"></div>
     <div id="loadingMsg" class="loading">Cargando tu contenido...</div>
     <div id="errorMsg" class="error" style="display:none"></div>
     <div id="contentArea" style="display:none">
@@ -192,9 +195,9 @@
         </div>
 
         <div class="chips">
-          <div class="chip"><span>❤️ Favoritos</span><b id="statFavs">0</b></div>
-          <div class="chip"><span>💌 Pedidos especiales</span><b id="statOrders">0</b></div>
-          <div class="chip"><span>⭐ Reviews 5 estrellas</span><b id="statFive">0</b></div>
+          <div class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-9.5-8.8C.7 8 2 4.5 5.5 4c2-.3 3.6.8 4.5 2.2C10.9 4.8 12.5 3.7 14.5 4c3.5.5 4.8 4 3 7.2C15 15.6 12 20 12 20z"/></svg><span>Favoritos</span><b id="statFavs">0</b></div>
+          <div class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><span>Pedidos especiales</span><b id="statOrders">0</b></div>
+          <div class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg><span>Reviews 5 estrellas</span><b id="statFive">0</b></div>
         </div>
       </div>
 
@@ -228,6 +231,15 @@
               <button id="savePrice" class="btn small secondary">Guardar precio</button>
             </div>
             <div class="hint">Es el precio que los usuarios pagan para desbloquear tu set completo.</div>
+          </div>
+
+          <div class="box">
+            <strong>Precio de suscripción mensual (USD)</strong>
+            <div class="row">
+              <input id="subPrice" type="number" min="1" step="0.50" placeholder="9.99" style="max-width:140px">
+              <button id="saveSubPrice" class="btn small secondary">Guardar precio</button>
+            </div>
+            <div class="hint">Un suscriptor obtiene acceso ilimitado a todo tu catálogo mientras la suscripción esté activa, sin gastar créditos.</div>
           </div>
 
           <div class="box">
@@ -348,14 +360,30 @@
       contentArea.style.display = 'none';
     }
 
-    // ✅ CORREGIDO: Leer de tabla SETS con campos correctos
+    // sets.creator_id apunta a creators.id, no al id de auth del usuario —
+    // hay que resolver esa fila primero (server-side, evita depender de RLS).
+    async function resolveCreatorRowId() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return null;
+      const r = await fetch('/api/creators/resolve', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.creator_id) { console.warn('No se pudo resolver creator_id:', j.error); return null; }
+      return j.creator_id;
+    }
+
     async function loadCreatorContent(userId) {
       console.log('🔍 Loading content for user:', userId);
-      
+
+      const creatorRowId = await resolveCreatorRowId();
+      if (!creatorRowId) return null;
+
       const { data, error } = await supabase
         .from('sets')
         .select('*')
-        .eq('creator_id', userId)
+        .eq('creator_id', creatorRowId)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -367,6 +395,26 @@
 
       console.log('✅ Content loaded:', data);
       return data;
+    }
+
+    async function renderStatusBanner(userId) {
+      const { data: creator } = await supabase
+        .from('creators')
+        .select('status, rejection_reason')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      const banner = $('statusBanner');
+      if (!creator || creator.status === 'approved') { banner.style.display = 'none'; return; }
+
+      banner.style.display = 'block';
+      if (creator.status === 'pending') {
+        banner.style.cssText = 'display:block;margin-bottom:16px;padding:14px 16px;border-radius:12px;background:#fef3c7;border:1px solid #fde68a;color:#92400e;font-size:14px';
+        banner.innerHTML = '<strong>Tu cuenta está en revisión.</strong> Nuestro equipo está evaluando tus fotos de muestra — usualmente toma menos de 24h. Mientras tanto puedes preparar tu contenido, pero tu perfil no será público hasta que se apruebe.';
+      } else if (creator.status === 'rejected') {
+        banner.style.cssText = 'display:block;margin-bottom:16px;padding:14px 16px;border-radius:12px;background:#fee2e2;border:1px solid #fecaca;color:#991b1b;font-size:14px';
+        banner.innerHTML = `<strong>Tu solicitud no fue aprobada.</strong>${creator.rejection_reason ? ' Motivo: ' + creator.rejection_reason : ''} Escríbenos si crees que es un error.`;
+      }
     }
 
     async function loadProfile(userId) {
@@ -452,18 +500,39 @@
         return;
       }
 
-      const { error } = await supabase
-        .from('sets')
-        .update({ price: newPrice })
-        .eq('id', creatorContent.id);
+      // Server-side: el UPDATE directo del cliente no tira error bajo RLS
+      // pero tampoco toca la fila (falso positivo silencioso).
+      const { data: { session } } = await supabase.auth.getSession();
+      const r = await fetch('/api/sets/update-price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token || ''}` },
+        body: JSON.stringify({ set_id: creatorContent.id, price: newPrice })
+      });
+      const result = await r.json().catch(() => ({}));
 
-      if (error) {
-        alert('Error al guardar: ' + error.message);
+      if (!r.ok || !result.ok) {
+        alert('Error al guardar: ' + (result.detail || result.error || 'desconocido'));
       } else {
         alert('Precio guardado correctamente');
         creatorContent.price = newPrice;
         $('calcPrice').value = String(newPrice);
       }
+    };
+
+    $('saveSubPrice').onclick = async () => {
+      const newPrice = Number($('subPrice').value || 0);
+      if (!newPrice || newPrice < 1) {
+        alert('Ingresa un precio válido');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ subscription_price_usd: newPrice })
+        .eq('id', currentUser.id);
+
+      if (error) alert('Error al guardar: ' + error.message);
+      else alert('Precio de suscripción guardado correctamente');
     };
 
     function calc() {
@@ -512,7 +581,8 @@
 
         const [profile, content] = await Promise.all([
           loadProfile(currentUser.id),
-          loadCreatorContent(currentUser.id)
+          loadCreatorContent(currentUser.id),
+          renderStatusBanner(currentUser.id)
         ]);
 
         creatorContent = content;
@@ -523,6 +593,10 @@
 
         if (profile.avatar_url) {
           $('creatorAvatar').src = profile.avatar_url;
+        }
+
+        if (profile.subscription_price_usd) {
+          $('subPrice').value = profile.subscription_price_usd;
         }
 
         if (content) {

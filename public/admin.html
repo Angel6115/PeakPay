@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>PeekPay — Admin</title>
+  <link rel="icon" href="./favicon.ico">
+  <meta name="robots" content="noindex, nofollow">
+
+  <style>
+    :root{
+      --bg:#FFFAF5; --text:#040A3F; --muted:#64748b; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c; --warn:#b45309;
+      --indigo:#0732EF; --blue:#5E17EB; --pink:#FF66C4;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+      margin:0; background:var(--bg); color:var(--text);
+    }
+    h1,h2,.h2{font-family:'Space Grotesk',system-ui,sans-serif}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 56px}
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+      margin-bottom:16px; padding-bottom:16px; border-bottom:2px solid var(--ring); flex-wrap:wrap;
+    }
+    .logo-row{display:flex;align-items:center;gap:10px}
+    .logo{ height:auto; width:clamp(150px, 26%, 210px); filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15)); }
+    .admin-badge{
+      font-size:11px;font-weight:800;background:linear-gradient(135deg,var(--indigo),var(--blue));
+      color:#fff;padding:4px 10px;border-radius:999px;letter-spacing:.04em;text-transform:uppercase;
+    }
+    .who{display:flex;align-items:center;gap:10px}
+    .who .email{font-size:12px;color:var(--muted)}
+    .btn-logout{
+      border:1px solid var(--ring);background:#fff;color:var(--text);border-radius:10px;
+      padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;
+    }
+
+    nav.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+    .tab-btn{
+      padding:10px 18px;background:#fff;border:1px solid var(--ring);border-radius:999px;
+      font-weight:700;font-size:13px;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:6px;
+    }
+    .tab-btn.active{ background:linear-gradient(135deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; border-color:transparent; }
+    .badge-count{background:rgba(0,0,0,.08);border-radius:999px;padding:1px 8px;font-size:11px}
+    .tab-btn.active .badge-count{background:rgba(255,255,255,.25)}
+    .badge-count.alert{background:var(--err);color:#fff}
+
+    .panel{
+      border:1px solid var(--ring); background: var(--card); border-radius:24px;
+      padding:18px; box-shadow: 0 6px 14px rgba(7,50,239,.06);
+    }
+    .muted{color:var(--muted);font-size:12px}
+    .loading{ text-align:center; padding:36px; color:var(--muted) }
+    .empty{ text-align:center; padding:36px 16px; color:var(--muted) }
+
+    /* Resumen */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+    .kpi-card{background:#fff;border:1px solid var(--ring);border-radius:16px;padding:16px}
+    .kpi-card .v{font-size:26px;font-weight:900;font-family:'Space Grotesk',system-ui,sans-serif}
+    .kpi-card .l{font-size:12px;color:var(--muted);margin-top:2px}
+    .kpi-card.warn .v{color:var(--warn)}
+    .kpi-card.ok .v{color:var(--ok)}
+    .kpi-card.indigo .v{color:var(--indigo)}
+
+    .launch-box{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      background:#fff;border:1px solid var(--ring);border-radius:16px;padding:14px 16px;margin-bottom:16px;
+    }
+    .launch-box.live{border-color:#a7f3d0;background:#ecfdf5}
+    .launch-box .label{font-weight:800;font-size:14px}
+    .launch-box .sub{font-size:12px;color:var(--muted)}
+    .switch-btn{border:0;border-radius:999px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;color:#fff}
+    .switch-btn.launch{background:linear-gradient(135deg,var(--ok),#34d399)}
+    .switch-btn.pause{background:linear-gradient(135deg,var(--err),#f87171)}
+
+    .recent-list{margin-top:18px}
+    .recent-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--ring);font-size:13px}
+    .recent-item:last-child{border-bottom:0}
+    .pill-sm{font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--indigo-soft,#F4F1FF);color:var(--indigo)}
+
+    /* Creadoras nuevas */
+    .app-card{background:#fff;border:1px solid var(--ring);border-radius:18px;padding:16px;margin-top:12px}
+    .app-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+    .app-name{font-weight:800;font-size:16px}
+    .app-meta{font-size:12px;color:var(--muted)}
+    .app-photos{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .app-photos img{width:160px;height:160px;object-fit:cover;border-radius:14px;border:1px solid var(--ring)}
+    .app-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+    .btn{
+      border:0;background: linear-gradient(135deg, var(--indigo) 0%, var(--blue) 100%);
+      color:#fff;border-radius:999px;padding:9px 18px;cursor:pointer;font-weight:700;font-size:13px;
+    }
+    .btn.reject{background:#fff;color:var(--err);border:1px solid #fecaca}
+    .btn[disabled]{opacity:.5;cursor:not-allowed}
+    .reject-form{display:none;margin-top:10px;gap:8px;flex-wrap:wrap;align-items:center}
+    .reject-form.open{display:flex}
+    .reject-form input{flex:1;min-width:180px;border:1px solid var(--ring);border-radius:10px;padding:8px 10px;font-family:inherit;font-size:13px}
+    .app-msg{font-size:12px;margin-top:8px}
+    .ok-text{color:var(--ok)} .err-text{color:var(--err)}
+
+    /* Payouts (reuses similar structure) */
+    .summary-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+    .summary-card{flex:1;min-width:150px;background:#fff;border:1px solid var(--ring);border-radius:16px;padding:14px}
+    .summary-card .v{font-size:22px;font-weight:900;font-family:'Space Grotesk',system-ui,sans-serif}
+    .summary-card .l{font-size:12px;color:var(--muted)}
+    .creator-card{background:#fff;border:1px solid var(--ring);border-radius:18px;padding:16px;margin-top:12px}
+    .creator-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+    .creator-name{font-weight:800;font-size:15px}
+    .amounts{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
+    .amount .v{font-weight:900;font-size:16px}
+    .amount .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+    .amount.pending .v{color:var(--indigo)}
+    .amount.paid .v{color:var(--ok)}
+    .bank-box{margin-top:12px;background:var(--card);border:1px solid var(--ring);border-radius:12px;padding:12px;font-size:13px}
+    .bank-box .row{display:flex;justify-content:space-between;gap:8px;padding:3px 0}
+    .bank-box .row b{font-weight:700}
+    .no-bank{margin-top:12px;font-size:13px;color:var(--err)}
+    .payout-form{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--ring)}
+    .payout-form.open{display:block}
+    .payout-form .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .payout-form input, .payout-form select{border:1px solid var(--ring);border-radius:10px;padding:8px 10px;font-family:inherit;font-size:13px}
+    .payout-form input[type=number]{width:110px}
+    .payout-form input[type=text]{flex:1;min-width:140px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo-row">
+        <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
+        <span class="admin-badge">Admin</span>
+      </div>
+      <div class="who">
+        <span class="email" id="whoEmail"></span>
+        <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" id="tabResumen" onclick="switchTab('resumen')">Resumen</button>
+      <button class="tab-btn" id="tabApps" onclick="switchTab('apps')">Creadoras nuevas <span class="badge-count" id="appsCount">0</span></button>
+      <button class="tab-btn" id="tabPayouts" onclick="switchTab('payouts')">Pagos</button>
+    </nav>
+
+    <section class="panel" id="panelResumen"><div class="loading">Cargando...</div></section>
+    <section class="panel" id="panelApps" style="display:none"><div class="loading">Cargando...</div></section>
+    <section class="panel" id="panelPayouts" style="display:none"><div class="loading">Cargando...</div></section>
+  </div>
+
+  <script type="module">
+    const supabase = window.supabase.createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
+    );
+
+    const $ = id => document.getElementById(id);
+    let accessToken = null;
+    const loaded = { resumen: false, apps: false, payouts: false };
+
+    async function api(path, opts = {}) {
+      const r = await fetch(path, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`, ...(opts.headers || {}) },
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error === 'forbidden' ? 'forbidden' : (j.detail || j.error || 'Error de red'));
+      return j;
+    }
+
+    function fmt(n) { return `$${Number(n || 0).toFixed(2)}`; }
+    function fmtDate(d) { return new Date(d).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }); }
+
+    window.switchTab = async function (tab) {
+      ['resumen', 'apps', 'payouts'].forEach(t => {
+        $(`tab${t[0].toUpperCase()}${t.slice(1)}`).classList.toggle('active', t === tab);
+        $(`panel${t[0].toUpperCase()}${t.slice(1)}`).style.display = t === tab ? 'block' : 'none';
+      });
+      if (!loaded[tab]) {
+        if (tab === 'resumen') await loadResumen();
+        if (tab === 'apps') await loadApps();
+        if (tab === 'payouts') await loadPayouts();
+      }
+    };
+
+    // ---------- Resumen ----------
+    async function toggleLaunch(nextLaunched) {
+      try {
+        await api('/api/admin/set-launched', { method: 'POST', body: JSON.stringify({ launched: nextLaunched }) });
+        loaded.resumen = false;
+        await loadResumen();
+      } catch (err) {
+        alert('Error al cambiar el estado: ' + err.message);
+      }
+    }
+
+    async function loadResumen() {
+      try {
+        const [d, statusResp] = await Promise.all([
+          api('/api/admin/overview'),
+          fetch('/api/platform-status', { cache: 'no-store' }).then(r => r.json()),
+        ]);
+        loaded.resumen = true;
+        $('appsCount').textContent = d.pending_applications;
+        if (d.pending_applications > 0) $('appsCount').classList.add('alert');
+
+        const launched = !!statusResp.launched;
+        const launchBox = launched
+          ? `<div class="launch-box live">
+               <div><div class="label">🟢 Plataforma en vivo</div><div class="sub">Todos pueden explorar, comprar y suscribirse con normalidad.</div></div>
+               <button class="switch-btn pause" id="btnToggleLaunch">Pausar plataforma</button>
+             </div>`
+          : `<div class="launch-box">
+               <div><div class="label">🟡 Modo sala de espera</div><div class="sub">El registro está abierto, pero nadie (excepto admin) puede usar la plataforma todavía.</div></div>
+               <button class="switch-btn launch" id="btnToggleLaunch">🚀 Lanzar plataforma</button>
+             </div>`;
+
+        $('panelResumen').innerHTML = launchBox + `
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="v">${d.total_users}</div><div class="l">Usuarios totales</div></div>
+            <div class="kpi-card"><div class="v">${d.total_creators}</div><div class="l">Creadoras aprobadas</div></div>
+            <div class="kpi-card warn"><div class="v">${d.pending_applications}</div><div class="l">Aplicaciones pendientes</div></div>
+            <div class="kpi-card ok"><div class="v">${d.active_subscriptions}</div><div class="l">Suscripciones activas</div></div>
+            <div class="kpi-card indigo"><div class="v">${fmt(d.total_pending_payouts_usd)}</div><div class="l">Pendiente de pagar</div></div>
+            <div class="kpi-card"><div class="v">${fmt(d.total_creator_earnings_usd)}</div><div class="l">Ganado por creadoras (total)</div></div>
+          </div>
+          <div class="recent-list">
+            <p class="h2" style="font-size:15px;margin-bottom:6px">Últimos registros</p>
+            ${(d.recent_signups || []).map(u => `
+              <div class="recent-item">
+                <span>${u.email || u.handle || 'Usuario'}</span>
+                <span class="muted">${u.is_creator ? '<span class="pill-sm">Creadora</span> · ' : ''}${fmtDate(u.created_at)}</span>
+              </div>
+            `).join('') || '<p class="muted">Sin registros todavía.</p>'}
+          </div>
+        `;
+
+        $('btnToggleLaunch').onclick = () => {
+          const confirmMsg = launched
+            ? '¿Pausar la plataforma? Nadie (excepto admin) podrá seguir usándola hasta que la lances de nuevo.'
+            : '¿Lanzar la plataforma? Todos los usuarios y creadoras registradas podrán empezar a usarla de inmediato.';
+          if (confirm(confirmMsg)) toggleLaunch(!launched);
+        };
+      } catch (err) {
+        $('panelResumen').innerHTML = err.message === 'forbidden'
+          ? `<div class="empty">No autorizado. Esta página es solo para administradores.</div>`
+          : `<div class="empty">Error al cargar: ${err.message}</div>`;
+      }
+    }
+
+    // ---------- Creadoras nuevas ----------
+    function photoUrl(path) {
+      return path ? `${window.PP_ENV.sb_url}/storage/v1/object/public/creator-content/${path}` : null;
+    }
+
+    async function loadApps() {
+      try {
+        const { applications } = await api('/api/admin/applications');
+        loaded.apps = true;
+        $('appsCount').textContent = applications.length;
+        $('appsCount').classList.toggle('alert', applications.length > 0);
+
+        if (!applications.length) {
+          $('panelApps').innerHTML = `<div class="empty">No hay aplicaciones pendientes por revisar.</div>`;
+          return;
+        }
+
+        $('panelApps').innerHTML = applications.map((a, i) => {
+          const name = a.display_name || a.name || a.handle;
+          const p1 = photoUrl(a.sample_photo_1);
+          const p2 = photoUrl(a.sample_photo_2);
+          return `
+            <div class="app-card">
+              <div class="app-head">
+                <div>
+                  <div class="app-name">${name} <span class="muted">@${a.handle}</span></div>
+                  <div class="app-meta">${a.email || ''} · Categoría: ${a.main_category || '—'} · Aplicó ${fmtDate(a.created_at)}</div>
+                </div>
+              </div>
+              <div class="app-photos">
+                ${p1 ? `<img src="${p1}">` : '<div class="muted">Sin foto 1</div>'}
+                ${p2 ? `<img src="${p2}">` : '<div class="muted">Sin foto 2</div>'}
+              </div>
+              <div class="app-actions">
+                <button class="btn" id="approve-${i}">✓ Aprobar</button>
+                <button class="btn reject" id="rejectToggle-${i}">✕ Rechazar</button>
+              </div>
+              <div class="reject-form" id="rejectForm-${i}">
+                <input type="text" id="rejectReason-${i}" placeholder="Motivo (opcional)">
+                <button class="btn reject" id="rejectConfirm-${i}">Confirmar rechazo</button>
+              </div>
+              <div class="app-msg" id="appMsg-${i}"></div>
+            </div>
+          `;
+        }).join('');
+
+        applications.forEach((a, i) => {
+          $(`approve-${i}`).onclick = () => reviewCreator(a.id, 'approve', null, i);
+          $(`rejectToggle-${i}`).onclick = () => $(`rejectForm-${i}`).classList.toggle('open');
+          $(`rejectConfirm-${i}`).onclick = () => reviewCreator(a.id, 'reject', $(`rejectReason-${i}`).value.trim(), i);
+        });
+      } catch (err) {
+        $('panelApps').innerHTML = err.message === 'forbidden'
+          ? `<div class="empty">No autorizado.</div>`
+          : `<div class="empty">Error al cargar: ${err.message}</div>`;
+      }
+    }
+
+    async function reviewCreator(creatorId, action, reason, i) {
+      const msgEl = $(`appMsg-${i}`);
+      try {
+        await api('/api/admin/review-creator', {
+          method: 'POST',
+          body: JSON.stringify({ creator_id: creatorId, action, reason }),
+        });
+        msgEl.textContent = action === 'approve' ? '✓ Aprobada' : '✓ Rechazada';
+        msgEl.className = 'app-msg ok-text';
+        loaded.apps = false;
+        loaded.resumen = false;
+        setTimeout(loadApps, 600);
+      } catch (err) {
+        msgEl.textContent = 'Error: ' + err.message;
+        msgEl.className = 'app-msg err-text';
+      }
+    }
+
+    // ---------- Payouts ----------
+    const BANK_NAMES = {
+      popular: 'Banco Popular', bpd: 'BPD', reservas: 'Banco de Reservas',
+      progreso: 'Banco del Progreso', bhd: 'BHD León', 'santa-cruz': 'Banco Santa Cruz', otros: 'Otro',
+    };
+    const ACCOUNT_TYPE_NAMES = { corriente: 'Corriente', ahorro: 'Ahorro' };
+
+    function bankRows(info) {
+      if (!info) return `<p class="no-bank">Sin datos bancarios registrados todavía.</p>`;
+      const rows = [
+        ['Titular', info.account_name],
+        ['Banco', BANK_NAMES[info.bank] || info.bank],
+        ['Cuenta', info.account_number],
+        ['Tipo', ACCOUNT_TYPE_NAMES[info.account_type] || info.account_type],
+        ['Email de pago', info.payment_email],
+      ];
+      return `<div class="bank-box">${rows.map(([label, value]) =>
+        `<div class="row"><span>${label}</span><b>${value || '—'}</b></div>`
+      ).join('')}</div>`;
+    }
+
+    async function loadPayouts() {
+      try {
+        const { creators } = await api('/api/admin/payouts');
+        loaded.payouts = true;
+        renderPayouts(creators);
+      } catch (err) {
+        $('panelPayouts').innerHTML = err.message === 'forbidden'
+          ? `<div class="empty">No autorizado.</div>`
+          : `<div class="empty">Error al cargar: ${err.message}</div>`;
+      }
+    }
+
+    function renderPayouts(creators) {
+      const totalPending = creators.reduce((s, c) => s + c.pending_usd, 0);
+      const totalPaid = creators.reduce((s, c) => s + c.paid_usd, 0);
+
+      const summary = `
+        <div class="summary-row">
+          <div class="summary-card"><div class="v">${fmt(totalPending)}</div><div class="l">Total pendiente</div></div>
+          <div class="summary-card"><div class="v">${fmt(totalPaid)}</div><div class="l">Total ya pagado</div></div>
+          <div class="summary-card"><div class="v">${creators.length}</div><div class="l">Creadoras con ganancias</div></div>
+        </div>
+      `;
+
+      if (!creators.length) {
+        $('panelPayouts').innerHTML = summary + `<div class="empty">Ninguna creadora tiene ganancias registradas todavía.</div>`;
+        return;
+      }
+
+      $('panelPayouts').innerHTML = summary + creators.map((c, i) => `
+        <div class="creator-card">
+          <div class="creator-head">
+            <div>
+              <div class="creator-name">${c.name} <span class="muted">@${c.handle}</span></div>
+              <div class="muted">${c.email || ''}</div>
+            </div>
+            <button class="btn" id="ptoggle-${i}" ${c.pending_usd <= 0 ? 'disabled' : ''}>Marcar pago</button>
+          </div>
+          <div class="amounts">
+            <div class="amount pending"><div class="v">${fmt(c.pending_usd)}</div><div class="l">Pendiente</div></div>
+            <div class="amount paid"><div class="v">${fmt(c.paid_usd)}</div><div class="l">Pagado</div></div>
+            <div class="amount"><div class="v">${fmt(c.earned_usd)}</div><div class="l">Ganado total</div></div>
+          </div>
+          ${bankRows(c.bank_info)}
+          <div class="payout-form" id="pform-${i}">
+            <div class="row">
+              <input type="number" step="0.01" min="0.01" id="pamount-${i}" value="${c.pending_usd.toFixed(2)}">
+              <select id="pmethod-${i}">
+                <option value="Transferencia bancaria">Transferencia bancaria</option>
+                <option value="Wise">Wise</option>
+                <option value="PayPal">PayPal</option>
+                <option value="Otro">Otro</option>
+              </select>
+              <input type="text" id="pnote-${i}" placeholder="Nota (opcional)">
+              <button class="btn" id="pconfirm-${i}">Confirmar</button>
+            </div>
+            <div class="app-msg" id="pmsg-${i}"></div>
+          </div>
+        </div>
+      `).join('');
+
+      creators.forEach((c, i) => {
+        const toggleBtn = $(`ptoggle-${i}`);
+        if (toggleBtn) toggleBtn.onclick = () => $(`pform-${i}`).classList.toggle('open');
+        const confirmBtn = $(`pconfirm-${i}`);
+        if (confirmBtn) {
+          confirmBtn.onclick = async () => {
+            const amount = Number($(`pamount-${i}`).value);
+            const method = $(`pmethod-${i}`).value;
+            const note = $(`pnote-${i}`).value.trim();
+            const msgEl = $(`pmsg-${i}`);
+            if (!amount || amount <= 0) { msgEl.textContent = 'Monto inválido'; msgEl.className = 'app-msg err-text'; return; }
+            confirmBtn.disabled = true;
+            try {
+              await api('/api/admin/mark-paid', {
+                method: 'POST',
+                body: JSON.stringify({ creator_id: c.id, amount_usd: amount, method, note }),
+              });
+              msgEl.textContent = '✓ Pago registrado';
+              msgEl.className = 'app-msg ok-text';
+              loaded.payouts = false;
+              loaded.resumen = false;
+              await loadPayouts();
+            } catch (err) {
+              msgEl.textContent = 'Error: ' + err.message;
+              msgEl.className = 'app-msg err-text';
+              confirmBtn.disabled = false;
+            }
+          };
+        }
+      });
+    }
+
+    (async function init() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { location.href = './login.html?next=admin.html'; return; }
+        const { data: { session } } = await supabase.auth.getSession();
+        accessToken = session?.access_token;
+        $('whoEmail').textContent = user.email;
+
+        $('logoutBtn').onclick = async () => {
+          await supabase.auth.signOut();
+          location.href = './login.html';
+        };
+
+        const hashTab = location.hash.replace('#', '');
+        if (['resumen', 'apps', 'payouts'].includes(hashTab) && hashTab !== 'resumen') {
+          await switchTab(hashTab);
+        } else {
+          await loadResumen();
+        }
+      } catch (err) {
+        console.error('[admin init] error:', err);
+        $('panelResumen').innerHTML = `<div class="empty">Error al iniciar: ${err.message}</div>`;
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -8,6 +8,7 @@
   
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
   
   <style>
     :root{
@@ -245,7 +246,7 @@
       border:2px dashed var(--ring);
     }
     .empty-icon{
-      font-size:48px;
+      display:flex; align-items:center; justify-content:center;
       margin-bottom:12px;
       opacity:0.5;
     }
@@ -260,6 +261,7 @@
         <a href="./creator-dashboard.html" class="nav-btn">Dashboard</a>
         <a href="./creator-profile.html" class="nav-btn">Perfil</a>
         <a href="./creator-wallet.html" class="nav-btn active">Ganancias</a>
+        <a href="./creator-subscribers.html" class="nav-btn">Suscriptores</a>
         <a href="./settings.html" class="nav-btn">Ajustes</a>
       </div>
     </div>
@@ -267,19 +269,19 @@
     <!-- Earnings Summary -->
     <div class="earnings-grid">
       <div class="earning-card">
-        <div class="earning-label">💰 Ganancias del mes</div>
+        <div class="earning-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 2.5-1.5c1.5 0 2.5.8 2.5 1.8 0 2.4-5 1.6-5 4 0 1 1 1.8 2.5 1.8s2.5-.6 2.5-1.5"/></svg> Ganancias del mes</div>
         <div class="earning-value" id="monthly">$0.00</div>
-        <div class="earning-note">Octubre 2024</div>
+        <div class="earning-note" id="monthlyLabel">Este mes</div>
       </div>
       
       <div class="earning-card">
-        <div class="earning-label">📊 Total acumulado</div>
+        <div class="earning-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M4 19V10M10 19V5M16 19v-7M21 19H3"/></svg> Total acumulado</div>
         <div class="earning-value" id="total">$0.00</div>
         <div class="earning-note">Desde el inicio</div>
       </div>
       
       <div class="earning-card">
-        <div class="earning-label">⏳ Próximo pago</div>
+        <div class="earning-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg> Próximo pago</div>
         <div class="earning-value" id="next">$0.00</div>
         <div class="earning-note">15 de cada mes</div>
       </div>
@@ -288,13 +290,13 @@
     <!-- Commission Info -->
     <div class="card">
       <div class="info-box">
-        💡 <strong>Comisión:</strong> Recibes el <strong>70%</strong> de cada venta. PeekPay retiene 30% por procesamiento de pagos, hosting y operación de la plataforma. Los pagos se procesan el día 15 de cada mes vía transferencia bancaria.
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg> <strong>Comisión:</strong> Recibes el <strong>85%</strong> de cada venta. PeekPay retiene 15% por procesamiento de pagos, hosting y operación de la plataforma. Los pagos se procesan el día 15 de cada mes vía transferencia bancaria.
       </div>
     </div>
 
     <!-- Bank Info -->
     <div class="card">
-      <h2 class="section-title">🏦 Información bancaria</h2>
+      <h2 class="section-title" style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9"/><path d="M3 19h18"/></svg> Información bancaria</h2>
       <p style="color:var(--muted);font-size:14px;margin-bottom:20px">
         Completa tu información bancaria para recibir tus pagos mensualmente.
       </p>
@@ -347,15 +349,21 @@
       </form>
     </div>
 
+    <!-- Payouts recibidos -->
+    <div class="card">
+      <h2 class="section-title" style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Pagos recibidos</h2>
+      <div id="payoutsHistory" class="history-list"></div>
+    </div>
+
     <!-- Payment History -->
     <div class="card">
-      <h2 class="section-title">📋 Historial de pagos</h2>
-      
+      <h2 class="section-title" style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M9.5 13h5M9.5 16.5h5"/></svg> Historial de ingresos</h2>
+
       <div id="historyList" class="history-list">
         <div class="empty">
-          <div class="empty-icon">💸</div>
-          <p><strong>Aún no hay pagos procesados</strong></p>
-          <p style="margin-top:8px;font-size:13px">Los pagos se procesan el día 15 de cada mes</p>
+          <div class="empty-icon"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="13" rx="2"/><circle cx="12" cy="12.5" r="3"/><path d="M6 6V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v10"/></svg></div>
+          <p><strong>Aún no tienes ingresos registrados</strong></p>
+          <p style="margin-top:8px;font-size:13px">Aparecerán aquí en cuanto alguien desbloquee o se suscriba a tu contenido</p>
         </div>
       </div>
     </div>
@@ -372,10 +380,55 @@
     const form = $('bankForm');
     const msg = $('msg');
     let currentUser = null;
+    let accessToken = null;
 
     function setMsg(text, isOk){
       msg.textContent = text;
       msg.className = 'msg show ' + (isOk ? 'ok' : 'err');
+    }
+
+    async function api(path, opts = {}) {
+      const r = await fetch(path, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`, ...(opts.headers || {}) },
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.detail || j.error || 'Error de red');
+      return j;
+    }
+
+    function renderHistory(earnings){
+      const list = $('historyList');
+      if (!earnings.length) return; // deja el estado vacío que ya está en el HTML
+
+      const sourceLabel = { unlock: 'Desbloqueo de contenido', subscription: 'Nueva suscripción' };
+      list.innerHTML = earnings.map(e => `
+        <div class="history-item">
+          <div class="history-left">
+            <div class="history-title">${sourceLabel[e.meta?.source] || 'Ingreso'}</div>
+            <div class="history-date">${new Date(e.created_at).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+          </div>
+          <div class="history-amount">+$${Number(e.usd_delta || 0).toFixed(2)}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderPayouts(payouts){
+      const box = $('payoutsHistory');
+      if (!box) return;
+      if (!payouts || !payouts.length) {
+        box.innerHTML = `<p style="color:var(--muted);font-size:13px">Aún no se te ha procesado ningún pago.</p>`;
+        return;
+      }
+      box.innerHTML = payouts.map(p => `
+        <div class="history-item">
+          <div class="history-left">
+            <div class="history-title">Pago recibido${p.method ? ' — ' + p.method : ''}</div>
+            <div class="history-date">${new Date(p.created_at).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })}${p.note ? ' · ' + p.note : ''}</div>
+          </div>
+          <div class="history-amount">$${Number(p.amount_usd).toFixed(2)}</div>
+        </div>
+      `).join('');
     }
 
     async function loadData(){
@@ -386,16 +439,13 @@
           return;
         }
         currentUser = user;
+        const { data: { session } } = await supabase.auth.getSession();
+        accessToken = session?.access_token;
 
-        // Load profile with bank info
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('bank_info')
-          .eq('id', user.id)
-          .single();
+        const bankData = await api('/api/creators/bank-info');
 
-        if (profile && profile.bank_info) {
-          const info = profile.bank_info;
+        if (bankData.bank_info) {
+          const info = bankData.bank_info;
           $('accountName').value = info.account_name || '';
           $('bank').value = info.bank || '';
           $('accountNumber').value = info.account_number || '';
@@ -405,10 +455,32 @@
           $('paymentEmail').value = user.email;
         }
 
-        // Mock earnings (por ahora)
-        $('monthly').textContent = '$0.00';
-        $('total').textContent = '$0.00';
-        $('next').textContent = '$0.00';
+        const fmt = (n) => `$${Number(n || 0).toFixed(2)}`;
+
+        // Ganancias reales: cada unlock/suscripción que paga este creador
+        // queda como una fila type='earning' en wallet_txns (ver
+        // api/_lib/earnings.mjs).
+        const { data: earnings } = await supabase
+          .from('wallet_txns')
+          .select('*')
+          .eq('user_key', user.id)
+          .eq('type', 'earning')
+          .order('created_at', { ascending: false });
+
+        const monthStart = new Date();
+        monthStart.setDate(1);
+        monthStart.setHours(0, 0, 0, 0);
+        const monthly = (earnings || [])
+          .filter(e => new Date(e.created_at) >= monthStart)
+          .reduce((sum, e) => sum + Number(e.usd_delta || 0), 0);
+
+        $('monthly').textContent = fmt(monthly);
+        $('monthlyLabel').textContent = new Date().toLocaleDateString('es', { month: 'long', year: 'numeric' });
+        $('total').textContent = fmt(bankData.earned_usd);
+        $('next').textContent = fmt(bankData.pending_usd);
+
+        renderHistory(earnings || []);
+        renderPayouts(bankData.payouts);
 
       } catch (err) {
         console.error('Error loading data:', err);
@@ -430,12 +502,10 @@
         $('saveBtn').disabled = true;
         $('saveBtn').textContent = 'Guardando...';
 
-        const { error } = await supabase
-          .from('profiles')
-          .update({ bank_info: bankInfo })
-          .eq('id', currentUser.id);
-
-        if (error) throw error;
+        await api('/api/creators/bank-info', {
+          method: 'POST',
+          body: JSON.stringify(bankInfo),
+        });
 
         setMsg('✓ Información bancaria guardada correctamente', true);
         $('saveBtn').textContent = 'Guardar información bancaria';

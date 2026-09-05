@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>PeekPay — Ya casi</title>
+  <link rel="icon" href="./favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <style>
+    :root{ --bg:#FFFAF5; --text:#040A3F; --muted:#64748b; --ring:#e2e8f0; --indigo:#0732EF; --blue:#5E17EB; --pink:#FF66C4; }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+      font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+      background:var(--bg); color:var(--text);
+    }
+    .card{
+      max-width:480px; width:100%; text-align:center; background:#fff; border:1px solid var(--ring);
+      border-radius:24px; padding:44px 32px; box-shadow:0 10px 30px rgba(7,50,239,.08);
+    }
+    .logo{ width:clamp(160px,50%,220px); margin-bottom:24px; filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15)); }
+    h1{ font-family:'Space Grotesk',system-ui,sans-serif; font-size:24px; margin:0 0 12px; }
+    p{ color:var(--muted); line-height:1.6; margin:0 0 24px; font-size:15px }
+    .btn{
+      border:1px solid var(--ring); background:#fff; color:var(--text); border-radius:999px;
+      padding:10px 20px; font-weight:700; font-size:13px; cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
+    <h1>Ya estás registrado 🎉</h1>
+    <p>Estamos afinando la plataforma antes de abrirla. Te avisaremos por email en cuanto esté lista — no tienes que hacer nada más por ahora.</p>
+    <button class="btn" id="logoutBtn">Cerrar sesión</button>
+  </div>
+
+  <script>
+    (function () {
+      const E = window.PP_ENV || {};
+      if (!E.sb_url || !E.sb_anon || !window.supabase?.createClient) return;
+      const sb = window.supabase.createClient(E.sb_url, E.sb_anon, { auth: { persistSession: true, storageKey: 'pp-auth' } });
+      document.getElementById('logoutBtn').onclick = async () => {
+        await sb.auth.signOut();
+        location.href = './index.html';
+      };
+    })();
+  </script>
+</body>
+</html>

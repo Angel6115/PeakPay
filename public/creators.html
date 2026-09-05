@@ -54,6 +54,7 @@
   </script>
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
 
   <style>
     :root{
@@ -194,7 +195,7 @@
     <!-- Page Title -->
     <div class="page-title">
       <h1>🔥 Explora Creadores</h1>
-      <p>Descubre contenido exclusivo de nuestros creadores founders</p>
+      <p id="pageSubtitle">Descubre contenido exclusivo de nuestros creadores founders</p>
     </div>
 
     <!-- Filters -->
@@ -246,6 +247,11 @@
       let allSets = [];
       let currentFilter = 'all';
 
+      const CATEGORY_NAMES = {
+        arte: 'Arte', artistico: 'Artístico', cosplay: 'Cosplay',
+        fitness: 'Fitness', lenceria: 'Lencería',
+      };
+
       // Load sets from database
       async function loadSets() {
         try {
@@ -253,22 +259,36 @@
           creatorsGrid.style.display = 'none';
           empty.style.display = 'none';
 
+          // sets.creator_id apunta a creators.id (no a profiles.id) — el
+          // embed tiene que resolver contra `creators`, no `profiles`.
           const { data: sets, error } = await supabase
             .from('sets')
             .select(`
               *,
-              profiles:creator_id (
+              creators:creator_id!inner (
                 id,
                 display_name,
+                name,
                 handle,
-                avatar_url
+                avatar_url,
+                main_category,
+                status
               )
             `)
+            .eq('creators.status', 'approved')
             .order('created_at', { ascending: false });
 
           if (error) throw error;
 
           allSets = sets || [];
+
+          const catParam = new URLSearchParams(location.search).get('cat');
+          if (catParam) {
+            allSets = allSets.filter(s => (s.creators?.main_category || '') === catParam);
+            const subtitle = $('pageSubtitle');
+            const label = CATEGORY_NAMES[catParam] || catParam;
+            subtitle.innerHTML = `Categoría: <strong>${label}</strong> · <a href="./creators.html" style="color:var(--indigo,#0732EF)">Quitar filtro</a>`;
+          }
           loading.style.display = 'none';
 
           if (allSets.length === 0) {
@@ -295,11 +315,16 @@
         empty.style.display = 'none';
 
         creatorsGrid.innerHTML = sets.map(set => {
-          const creator = set.profiles || {};
-          const creatorName = creator.display_name || creator.handle || 'Creador';
+          const creator = set.creators || {};
+          const creatorName = creator.display_name || creator.name || creator.handle || 'Creador';
           const creatorHandle = (creator.handle || 'creador').toString().replace(/^@/, '');
           const avatarUrl = creator.avatar_url || './assets/brand/peekpay-mark.svg';
-          const imageUrl = set.image_url || '';
+          // `sets` no tiene columna image_url; la imagen real vive en
+          // full_path/path. El contenido subido por creadores vive en
+          // Supabase Storage (bucket creator-content), no en /public
+          // local, así que hay que armar la URL pública del bucket.
+          const rawPath = (set.full_path || set.path || '').replace(/^\/+/, '');
+          const imageUrl = rawPath ? `${ENV.sb_url}/storage/v1/object/public/creator-content/${rawPath}` : '';
           const price = Number(set.price || 5);
           const freeTiles = Array.isArray(set.free_tiles) ? set.free_tiles : [0, 5, 11];
 
@@ -309,8 +334,12 @@
             const row = Math.floor(i / 4);
             const col = i % 4;
             const isFree = freeTiles.includes(i);
+            // Con background-size:400%, el signo POSITIVO es el que revela
+            // el cuadrante correcto (col/row) de la imagen — el negativo
+            // desplaza la imagen hacia el lado contrario y deja casi todos
+            // los tiles en blanco.
             const step = 33.333;
-            const bgPosition = `${-col * step}% ${-row * step}%`;
+            const bgPosition = `${col * step}% ${row * step}%`;
             tilesHtml += `
               <div class="mosaic-tile ${isFree ? 'free' : ''}"
                    style="background-image:url(${imageUrl});background-position:${bgPosition}">
@@ -319,7 +348,7 @@
           }
 
           return `
-            <div class="creator-card" data-set-id="${set.id}">
+            <div class="creator-card" data-set-id="${set.id}" onclick="goToPeek('${creatorHandle}', '${set.id}')" style="cursor:pointer">
               <div class="creator-header">
                 <img src="${avatarUrl}" alt="${creatorName}" class="creator-avatar" loading="lazy">
                 <div class="creator-info">
@@ -336,7 +365,7 @@
 
               <div class="creator-footer">
                 <div class="price-tag">$${price.toFixed(2)}</div>
-                <button class="unlock-btn" onclick="handleUnlock('${set.id}', ${price})">
+                <button class="unlock-btn" onclick="event.stopPropagation(); goToPeek('${creatorHandle}', '${set.id}')">
                   Desbloquear →
                 </button>
               </div>
@@ -345,9 +374,10 @@
         }).join('');
       }
 
-      // Handle unlock (mock)
-      window.handleUnlock = async function(setId, price) {
-        alert(`🎯 Sistema de unlock próximamente!\n\nEste set cuesta: $${Number(price).toFixed(2)}\n\nEn la siguiente fase podrás desbloquearlo con tus Peak Credits.`);
+      // Lleva a la página real del creador, donde vive el flujo de unlock
+      // (créditos o suscripción) contra /api/unlock — aquí solo navegamos.
+      window.goToPeek = function(creatorHandle, setId) {
+        location.href = `./peek.html?creator=${encodeURIComponent(creatorHandle)}&s=${encodeURIComponent(setId)}`;
       };
 
       // Filters

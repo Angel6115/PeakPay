@@ -2,33 +2,36 @@
 <html lang="es">
 <head>
   <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
   <title>PeekPay — Wallet</title>
   <link rel="icon" href="./favicon.ico">
-  
+
   <style>
     :root{
-      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --bg:#FFFAF5; --text:#040A3F; --muted:#64748b; --card:#f8fafc; --ring:#e2e8f0;
       --ok:#059669; --err:#b91c1c;
-      --indigo:#4f46e5; --indigo-ink:#3730a3; --indigo-soft:#eef2ff;
-      --blue:#2563eb; --mint:#10b981; --mint-soft:#ecfdf5; --pink:#ec4899;
+      --indigo:#0732EF; --indigo-ink:#0526C4; --indigo-soft:#F4F1FF;
+      --blue:#5E17EB; --mint:#B6FF3D; --mint-soft:#F4FFE0; --pink:#FF66C4;
       --cta: var(--indigo);
       --cta-text:#fff;
       --badge-bg: var(--indigo-soft);
-      --badge-ring:#c7d2fe;
-      --badge-text:#1e1b4b;
+      --badge-ring:#ddd6fe;
+      --badge-text:#040A3F;
     }
 
     *{box-sizing:border-box}
     body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
+      font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
       margin:0;
       background:var(--bg);
       color:var(--text);
     }
+    h1,h2,h3,.h2,.pack-amount{font-family:'Space Grotesk',system-ui,sans-serif}
     .wrap{max-width:940px;margin:0 auto;padding:28px 16px 56px}
 
     /* Header con logo horizontal */
@@ -66,28 +69,28 @@
     .panel{
       border:1px solid var(--ring);
       background: var(--card);
-      border-radius:16px;
+      border-radius:24px;
       padding:16px;
       margin-top:12px;
-      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+      box-shadow: 0 6px 14px rgba(7,50,239,.06);
     }
 
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
     .badge{
       font-size:12px;border:1px solid var(--badge-ring);background:var(--badge-bg);color:var(--badge-text);
-      border-radius:10px;padding:6px 10px;line-height:1
+      border-radius:999px;padding:6px 12px;line-height:1;font-weight:700
     }
     .muted{color:var(--muted);font-size:12px}
-    .h2{font-weight:700;margin:0 0 8px 0}
+    .h2{font-weight:800;margin:0 0 8px 0}
 
     .btn{
-      border:0;background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);
-      color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;
-      box-shadow: 0 6px 16px rgba(79,70,229,.25);
+      border:0;background: linear-gradient(135deg, var(--indigo) 0%, var(--blue) 100%);
+      color:#fff;border-radius:999px;padding:11px 18px;cursor:pointer;font-weight:700;
+      box-shadow: 0 6px 16px rgba(7,50,239,.25);
       transition: all 0.3s;
     }
-    .btn:hover{ transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79,70,229,.35); }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 8px 20px rgba(7,50,239,.35); }
     .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
     .btn[disabled]{opacity:.6;cursor:not-allowed}
 
@@ -111,14 +114,14 @@
     
     /* Pack card mejorado */
     .pack{
-      border:1px solid var(--ring);
+      border:2px solid var(--ring);
       background:#fff;
       color:var(--text);
-      border-radius:14px;
+      border-radius:20px;
       padding:20px 16px;
       cursor:pointer;
       text-align:center;
-      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+      box-shadow: 0 6px 14px rgba(7,50,239,.06);
       transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease;
       display:flex;
       flex-direction:column;
@@ -128,15 +131,15 @@
     }
     .pack:hover{ 
       transform: translateY(-2px); 
-      box-shadow: 0 12px 32px rgba(79,70,229,.12); 
+      box-shadow: 0 12px 32px rgba(7,50,239,.12); 
       border-color: var(--indigo); 
     }
     
     .pack-amount{
       font-size:32px;
-      font-weight:900;
+      font-weight:800;
       line-height:1;
-      background:linear-gradient(135deg, var(--indigo), var(--blue));
+      background:linear-gradient(135deg, var(--blue), var(--pink));
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
       background-clip:text;
@@ -160,12 +163,12 @@
     .pack-badge{
       display:inline-block;
       font-size:11px;
-      background:var(--badge-bg);
-      color:var(--badge-text);
-      border:1px solid var(--badge-ring);
-      border-radius:8px;
-      padding:4px 8px;
-      font-weight:700;
+      background:linear-gradient(135deg, var(--blue), var(--pink));
+      color:#fff;
+      border:none;
+      border-radius:999px;
+      padding:4px 10px;
+      font-weight:800;
       margin-top:4px;
     }
 
@@ -176,8 +179,8 @@
     .hist{display:flex;flex-direction:column;gap:8px;margin-top:8px}
     .item{
       display:flex;justify-content:space-between;align-items:center;gap:12px;
-      border:1px solid var(--ring); background:#fff; border-radius:12px; padding:12px;
-      box-shadow: 0 6px 14px rgba(79,70,229,.06);
+      border:1px solid var(--ring); background:#fff; border-radius:16px; padding:12px;
+      box-shadow: 0 6px 14px rgba(7,50,239,.06);
     }
     .left{display:flex;flex-direction:column;gap:2px}
     .title{font-weight:600}
@@ -192,22 +195,25 @@
   <div class="wrap">
     <header>
       <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
-      <a href="./profile.html" class="back">← Volver</a>
+      <div class="row" style="gap:8px">
+        <a href="./subscriptions.html" class="back">Mis suscripciones</a>
+        <a href="./profile.html" class="back">← Volver</a>
+      </div>
     </header>
 
     <section class="panel">
-      <p class="h2">💎 Balance actual</p>
+      <p class="h2" style="display:flex;align-items:center;gap:8px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--indigo)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 2.5-1.5c1.5 0 2.5.8 2.5 1.8 0 2.4-5 1.6-5 4 0 1 1 1.8 2.5 1.8s2.5-.6 2.5-1.5"/></svg> Balance actual</p>
       <p style="font-size:clamp(36px,8vw,52px);font-weight:900;margin:4px 0 10px;letter-spacing:-1px">
         <span id="balance">0</span> <span style="font-size:24px;color:var(--muted)">Peak Credits</span>
       </p>
       <div class="row">
-        <span class="badge">⭐ Founder</span>
+        <span class="badge" style="display:inline-flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg> Founder</span>
         <span class="muted">• Acceso de por vida • Sin anuncios</span>
       </div>
     </section>
 
     <section class="panel">
-      <p class="h2">🎁 Comprar más créditos</p>
+      <p class="h2" style="display:flex;align-items:center;gap:8px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--indigo)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M4 13h16M12 9v11"/><path d="M12 9C10 6 6.5 5.5 6.5 7.8 6.5 9 8 9 12 9zM12 9c2-3 5.5-3.5 5.5-1.2 0 1.2-1.5 1.2-5.5 1.2z"/></svg> Comprar más créditos</p>
       <p class="muted">Elige un paquete para desbloquear más contenido</p>
       <div class="grid" style="margin-top:16px">
         <div class="pack" data-amt="100" data-usd="0.99">
@@ -234,7 +240,7 @@
     </section>
 
     <section class="panel">
-      <p class="h2">📊 Historial reciente</p>
+      <p class="h2" style="display:flex;align-items:center;gap:8px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--indigo)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M21 19H3"/></svg> Historial reciente</p>
       <div id="hist" class="hist">
         <p class="muted">Cargando actividad...</p>
       </div>
@@ -275,6 +281,46 @@
       return data;
     }
 
+    function timeAgo(date) {
+      const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+      if (seconds < 60) return 'Hace un momento';
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `Hace ${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `Hace ${hours}h`;
+      const days = Math.floor(hours / 24);
+      if (days < 7) return `Hace ${days}d`;
+      return new Date(date).toLocaleDateString('es', { day: 'numeric', month: 'short' });
+    }
+
+    async function loadHistory(userId) {
+      const { data: txns, error } = await supabase
+        .from('wallet_txns')
+        .select('*')
+        .eq('user_key', userId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error || !txns || !txns.length) {
+        histEl.innerHTML = `<p class="muted">Aún no tienes actividad. Desbloquea un peek para empezar.</p>`;
+        return;
+      }
+
+      histEl.innerHTML = txns.map(t => {
+        const isTopup = t.type === 'topup';
+        const title = isTopup ? (t.meta?.description || 'Recarga de créditos') : 'Desbloqueaste contenido';
+        return `
+          <div class="item">
+            <div class="left">
+              <span class="title">${title}</span>
+              <span class="sub">${timeAgo(t.created_at)}</span>
+            </div>
+            <span class="${isTopup ? 'cr-pos' : 'cr-neg'}">${isTopup ? '+' : ''}${t.credits_delta}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
     async function init() {
       try {
         currentUser = await checkAuth();
@@ -283,26 +329,36 @@
         const profile = await loadProfile(currentUser.id);
         balanceEl.textContent = (profile.credits || 0).toLocaleString();
 
-        // Mock history
-        histEl.innerHTML = `
-          <div class="item">
-            <div class="left">
-              <span class="title">Bono de Early Access</span>
-              <span class="sub">Hoy · Bienvenida</span>
-            </div>
-            <span class="cr-pos">+1000</span>
-          </div>
-        `;
+        await loadHistory(currentUser.id);
 
-        // Pack selection (mock Stripe for now)
+        async function onTopupClick(pack){
+          msgEl.textContent = 'Redirigiendo al pago...';
+          msgEl.className = 'msg muted';
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const r = await fetch('/api/create-topup-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token || ''}` },
+              body: JSON.stringify({ pack })
+            });
+            const j = await r.json().catch(() => ({}));
+            if (!r.ok || !j.url) throw new Error(j.error || 'No se pudo iniciar el pago');
+            window.location.href = j.url;
+          } catch (err) {
+            msgEl.textContent = 'Error: ' + err.message;
+            msgEl.className = 'msg err';
+          }
+        }
+
         document.querySelectorAll('.pack').forEach(pack => {
-          pack.addEventListener('click', () => {
-            const amt = pack.dataset.amt;
-            const usd = pack.dataset.usd;
-            msgEl.textContent = `Función de compra próximamente. Paquete: ${amt} créditos por $${usd}`;
-            msgEl.className = 'msg muted';
-          });
+          pack.addEventListener('click', () => onTopupClick(pack.dataset.amt));
         });
+
+        const params = new URLSearchParams(location.search);
+        if (params.get('topup') === 'success') {
+          msgEl.textContent = '✓ Pago recibido, tus créditos se acreditan en unos segundos.';
+          msgEl.className = 'msg ok';
+        }
 
       } catch (error) {
         console.error('Error loading wallet:', error);

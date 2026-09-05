@@ -6,47 +6,49 @@
   <title>Crear cuenta — PeekPay Early Access</title>
   <meta name="description" content="Únete a PeekPay con Early Access. Crea tu cuenta y obtén beneficios exclusivos para usuarios o creadores." />
   <link rel="canonical" href="https://peek-pay.com/signup.html" />
-  <meta name="theme-color" content="#4f46e5" />
+  <meta name="theme-color" content="#0732EF" />
 
   <!-- Favicons -->
   <link rel="icon" href="./favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="alternate icon" href="./favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="./favicon-32.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 
   <!-- Carga de env.js (en /public y producción) -->
   <script src="./env.js" defer></script>
 
   <style>
     :root{
-      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      --bg: #FFFAF5;
       --text:#0f172a; --muted:#64748b; --card:#ffffff; --ring:#e2e8f0;
-      --accent:#667eea; --indigo:#4f46e5; --purple:#764ba2;
+      --accent:#0732EF; --indigo:#0732EF; --purple:#5E17EB;
       --ok:#10b981; --err:#b91c1c; --warn:#9a3412;
     }
     *{ box-sizing:border-box; margin:0; padding:0 }
     body{
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+      font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg); color: var(--text);
       min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
     }
     .container{ max-width: 520px; width: 100%; }
     .card{
-      background: var(--card); border: 1px solid var(--ring); border-radius: 24px;
-      padding: 40px 32px; box-shadow: 0 20px 60px rgba(102,126,234,0.12);
+      background: var(--card); border: 1px solid var(--ring); border-radius: 26px;
+      padding: 40px 32px; box-shadow: 0 24px 60px -18px rgba(4,10,63,0.4);
     }
     .logo-area{ text-align:center; margin-bottom: 16px; }
-    .logo{ width: 140px; height: auto; display:block; margin: 0 auto 8px; filter: drop-shadow(0 6px 16px rgba(102,126,234,0.20)); }
-    h1{ font-size: 26px; font-weight: 900; text-align:center; margin: 4px 0 6px; }
+    .logo{ width: 140px; height: auto; display:block; margin: 0 auto 8px; filter: drop-shadow(0 6px 16px rgba(94,23,235,0.25)); }
+    h1{ font-family:'Space Grotesk',system-ui,sans-serif; font-size: 26px; font-weight: 800; text-align:center; margin: 4px 0 6px; }
     .subtitle{ text-align:center; color:var(--muted); font-size: 15px; margin-bottom: 18px; }
 
     .price-box{
-      border: 2px solid var(--ring); border-radius: 16px; padding: 16px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-      text-align:center; box-shadow: 0 10px 30px rgba(102,126,234,.08); margin-bottom: 18px;
+      border: 2px solid var(--ring); border-radius: 18px; padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #F4F1FF 100%);
+      text-align:center; box-shadow: 0 10px 30px rgba(94,23,235,.1); margin-bottom: 18px;
     }
     .price{
-      font-size: 48px; line-height: 1; font-weight: 900;
+      font-family:'Space Grotesk',system-ui,sans-serif;
+      font-size: 48px; line-height: 1; font-weight: 800;
       background: linear-gradient(135deg, var(--accent), var(--purple));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       margin-bottom: 6px;
@@ -56,18 +58,18 @@
     .form-group{ margin-top: 14px; }
     label{ display:block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
     input, select{
-      width: 100%; padding: 12px 14px; border: 2px solid var(--ring); border-radius: 12px; font-size: 15px; outline: none;
-      transition: border-color .2s, box-shadow .2s; background:#fff;
+      width: 100%; padding: 12px 14px; border: 2px solid var(--ring); border-radius: 14px; font-size: 15px; outline: none;
+      transition: border-color .2s, box-shadow .2s; background:#fff; font-family:'Plus Jakarta Sans';
     }
-    input:focus, select:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(102,126,234,0.12); }
+    input:focus, select:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(7,50,239,0.12); }
 
     .btn{
-      width: 100%; margin-top: 16px; padding: 14px 18px; border: 0; border-radius: 14px;
+      width: 100%; margin-top: 16px; padding: 15px 18px; border: 0; border-radius: 999px;
       background: linear-gradient(135deg, var(--indigo), var(--purple)); color: #fff;
-      font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 10px 24px rgba(79,70,229,.25);
+      font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 14px 26px -10px rgba(7,50,239,.5);
       transition: transform .15s, box-shadow .15s;
     }
-    .btn:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(79,70,229,.3); }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 16px 30px -8px rgba(7,50,239,.55); }
     .btn:disabled{ opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
 
     .error, .warn{
@@ -99,13 +101,13 @@
     <div class="card">
       <div class="logo-area">
         <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
-        <h1>Early Access</h1>
-        <p class="subtitle">Únete a los primeros 2,000 usuarios de PeekPay</p>
+        <h1>Crea tu cuenta</h1>
+        <p class="subtitle">Gratis — únete a PeekPay en segundos</p>
       </div>
 
       <div class="price-box">
-        <div id="price" class="price">$9.99</div>
-        <div id="priceNote" class="price-note">Pago único • Acceso de por vida</div>
+        <div id="price" class="price">Gratis</div>
+        <div id="priceNote" class="price-note">10 Peak Credits de regalo al registrarte</div>
       </div>
 
       <div id="errorMsg" class="error" role="alert"></div>
@@ -133,7 +135,7 @@
           <div class="password-hint">Mínimo 8 caracteres</div>
         </div>
 
-        <button id="submitBtn" type="submit" class="btn">Crear cuenta y continuar al pago</button>
+        <button id="submitBtn" type="submit" class="btn">Crear cuenta gratis</button>
       </form>
 
       <div class="benefits">
@@ -155,56 +157,33 @@
     const E = (window.PP_ENV || {});
     const WARN = document.getElementById('warnMsg');
 
-    // Normaliza dominios/base (quita / final; agrega protocolo si hace falta)
-    const normBase = (u) => {
-      if (!u) return '';
-      let base = String(u).trim().replace(/\/+$/, '');
-      if (/^https?:\/\//i.test(base)) return base;
-      return window.location.protocol + '//' + base;
-    };
-
-    // 1) Permite override por query: ?api=http://localhost:8788
-    const qApi = new URLSearchParams(location.search).get('api');
-    // 2) Si no hay override, usa E.api_base si existe; si no, misma-origin (cadena vacía)
-    let API_ROOT = qApi ? normBase(qApi) : (E.api_base ? normBase(E.api_base) : '');
-    // Nota: cadena vacía => usa mismo origen (mejor para CORS)
-
-    const PRICE_IDS = {
-      user: E.price_user || '',
-      creator: E.price_creator || ''
-    };
-
     if (!E.sb_url || !E.sb_anon) {
       WARN.style.display = 'block';
       WARN.textContent = 'Falta configuración de Supabase en env.js (sb_url / sb_anon).';
     }
 
-    // ==== Inicializar Supabase ====
+    // ==== Inicializar Supabase (solo para el login post-registro) ====
     const supabase = (E.sb_url && E.sb_anon)
-      ? createClient(E.sb_url, E.sb_anon)
+      ? createClient(E.sb_url, E.sb_anon, { auth: { persistSession: true, storageKey: 'pp-auth' } })
       : null;
 
     // --- Datos por rol (UI) ---
     const ROLE_DATA = {
       usuario: {
-        price: 9.99,
-        note: 'Pago único • Acceso de por vida',
-        cta: 'Crear cuenta y continuar al pago',
+        cta: 'Crear cuenta gratis',
         benefits: [
-          '1,000 Peak Credits ($10 valor)',
-          'Acceso de por vida',
-          'Badge "Founder"',
+          '10 Peak Credits de regalo',
+          'Explora todos los creadores',
+          'Suscríbete a tus creadores favoritos',
           'Comunidad VIP',
           'Early access a features'
         ]
       },
       creador: {
-        price: 4.99,
-        note: 'Pago único • Sin comisiones iniciales',
-        cta: 'Crear cuenta y continuar al pago (Creador)',
+        cta: 'Crear cuenta de creador gratis',
         benefits: [
-          '0% comisión mes 1 (5 contenidos)',
-          '10% comisión mes 2 (con rostro) • 15% (sin rostro)',
+          'Tú pones el precio de tu suscripción mensual',
+          'Recibes el 85% de cada suscripción y unlock',
           'Pagos semanales directos',
           'Dashboard de analytics',
           'Sin límite de uploads'
@@ -214,8 +193,6 @@
 
     // ==== DOM ====
     const roleSel = document.getElementById('role');
-    const priceEl = document.getElementById('price');
-    const priceNoteEl = document.getElementById('priceNote');
     const benefitsList = document.getElementById('benefitsList');
     const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('signupForm');
@@ -223,31 +200,16 @@
     const passwordInput = document.getElementById('password');
     const errorMsg = document.getElementById('errorMsg');
 
-    const priceFor = (k) => (k === 'creator' ? PRICE_IDS.creator : PRICE_IDS.user);
-
     function showError(msg){
       errorMsg.textContent = msg;
       errorMsg.style.display = 'block';
     }
     function hideError(){ errorMsg.style.display = 'none'; }
 
-    const formatPrice = n => `$${n.toFixed(2)}`;
-
     function renderRole(role){
       const data = ROLE_DATA[role] || ROLE_DATA.usuario;
-      priceEl.textContent = formatPrice(data.price);
-      priceNoteEl.textContent = data.note;
       submitBtn.textContent = data.cta;
       benefitsList.innerHTML = data.benefits.map(b => `<li>${b}</li>`).join('');
-
-      const roleKey = (role === 'creador') ? 'creator' : 'user';
-      const pid = priceFor(roleKey);
-      if (!pid || !pid.startsWith('price_')) {
-        WARN.style.display = 'block';
-        WARN.textContent = `Falta configurar PP_ENV.price_${roleKey} en env.js (Stripe Price ID).`;
-      } else if (WARN.textContent.startsWith('Falta configurar PP_ENV.price_')) {
-        WARN.style.display = 'none';
-      }
     }
 
     // Init UI
@@ -262,75 +224,46 @@
       const email = emailInput.value.trim();
       const password = passwordInput.value.trim();
       const roleHuman = roleSel.value; // 'usuario' | 'creador'
-      const roleKey = roleHuman === 'creador' ? 'creator' : 'user';
-      const priceId = priceFor(roleKey);
 
-      // Validaciones
+      // El registro de creadoras vive en creator-signup.html — ahí piden las
+      // 2 fotos de muestra para la cola de revisión. Este formulario genérico
+      // no las pide, así que si eligen "Creador" los mandamos allá en vez de
+      // crear una cuenta que se salte la revisión.
+      if (roleHuman === 'creador') {
+        window.location.href = './creator-signup.html';
+        return;
+      }
+
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email) return showError('Por favor ingresa tu email.');
       if (!emailRegex.test(email)) return showError('Email inválido.');
       if (!password || password.length < 8) return showError('La contraseña debe tener al menos 8 caracteres.');
       if (!supabase) return showError('Supabase no está configurado (revisa env.js).');
-      if (!priceId || !priceId.startsWith('price_')) return showError('Falta configurar el precio (env.js).');
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Creando cuenta...';
 
       try {
-        // 1) Crear cuenta
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              role: roleHuman === 'creador' ? 'creador' : 'usuario',
-              is_creator: roleHuman === 'creador'
-            }
-          }
-        });
-        if (signUpError) {
-          if (signUpError.message?.includes('already registered')) {
-            throw new Error('Este email ya está registrado. Usa otro o inicia sesión.');
-          }
-          throw signUpError;
-        }
-        if (!authData?.user?.id) throw new Error('Error al crear cuenta. Intenta nuevamente.');
-
-        // 2) Perfil (best-effort)
-        await supabase
-          .from('profiles')
-          .update({ role: roleHuman === 'creador' ? 'creador' : 'usuario', is_creator: roleHuman === 'creador' })
-          .eq('id', authData.user.id);
-
-        // 3) Checkout (con **barra final** para evitar redirect del preflight)
-        submitBtn.textContent = 'Redirigiendo al pago...';
-
-        const apiBase = API_ROOT; // '' = mismo origen (ideal en prod)
-        const endpoint = '/api/create-checkout-session';
-
-        const resp = await fetch(endpoint, {
+        // 1) Crear + activar cuenta gratis (server-side, sin Stripe)
+        const resp = await fetch('/api/auth/signup-free', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            role: roleKey,            // 'user' | 'creator'
-            userId: authData.user.id, // usado por webhook
-            priceId                   // ¡clave!
-          })
+          body: JSON.stringify({ email, password, role: roleHuman })
         });
 
         if (!resp.ok) {
-          let msg = 'Error al crear sesión de pago';
-          try {
-            const err = await resp.json();
-            msg = err?.error || err?.message || msg;
-          } catch {}
-          throw new Error(msg);
+          const err = await resp.json().catch(() => ({}));
+          if (err.error === 'email_in_use') throw new Error('Este email ya está registrado. Usa otro o inicia sesión.');
+          throw new Error(err.detail || err.error || 'Error al crear la cuenta.');
         }
 
-        const { url } = await resp.json();
-        if (!url) throw new Error('Respuesta inválida del servidor.');
-        window.location.href = url;
+        // 2) Iniciar sesión con las mismas credenciales
+        submitBtn.textContent = 'Iniciando sesión...';
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) throw signInError;
+
+        // 3) Redirigir según el rol
+        window.location.href = roleHuman === 'creador' ? './creator-dashboard.html' : './profile.html';
 
       } catch (err) {
         console.error('❌ Error signup:', err);

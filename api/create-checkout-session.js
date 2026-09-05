@@ -1,4 +1,6 @@
 // /api/create-checkout-session.js
+// ⚠️ Migrar a un procesador de alto riesgo antes de aceptar el primer pago
+// real — ver la nota completa en api/stripe-webhook.js.
 import Stripe from 'stripe';
 import { URL } from 'url';
 

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
   <title>PeekPay — Categorías</title>
 
   <link rel="icon" href="./favicon.ico">
@@ -124,38 +125,62 @@
     <p class="footer">Fase 0 — SFW · Las tarjetas usan <i>placeholder</i> si aún no subiste un cover.</p>
   </div>
 
-  <script>
-    const CATEGORIES = [
-      { slug:'arte', name:'Arte', count:1, cover:'./peak1.png' },
-      { slug:'artistico', name:'Artístico', count:1, cover:'./peak1.png' },
-      { slug:'cosplay', name:'Cosplay', count:2, cover:'./peak1.png' },
-      { slug:'fitness', name:'Fitness', count:2, cover:'./photos/fitness/lina-fit/linafit.jpg' },
-      { slug:'lenceria', name:'Lencería', count:4, cover:'./photos/lenceria/noa-lace/sets/set-01/full.jpg' }
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/+esm';
+
+    const supabase = createClient(window.PP_ENV.sb_url, window.PP_ENV.sb_anon);
+
+    // Taxonomía fija (nombre + cover ilustrativo); el conteo por categoría
+    // viene de creators.main_category, que se llena desde creator-signup.html.
+    const TAXONOMY = [
+      { slug:'arte', name:'Arte', cover:'./peak1.png' },
+      { slug:'artistico', name:'Artístico', cover:'./peak1.png' },
+      { slug:'cosplay', name:'Cosplay', cover:'./peak1.png' },
+      { slug:'fitness', name:'Fitness', cover:'./peak1.png' },
+      { slug:'lenceria', name:'Lencería', cover:'./peak1.png' }
     ];
 
     const grid = document.getElementById('grid');
     const empty = document.getElementById('empty');
 
-    async function exists(url){
-      try{ const r=await fetch(url,{method:'HEAD'}); return r.ok; }catch{ return false; }
+    async function loadCounts(){
+      const { data, error } = await supabase
+        .from('creators')
+        .select('main_category')
+        .eq('is_active', true)
+        .eq('status', 'approved')
+        .not('main_category', 'is', null);
+
+      if (error) { console.warn('Error cargando categorías:', error); return {}; }
+
+      const counts = {};
+      for (const row of data || []) {
+        counts[row.main_category] = (counts[row.main_category] || 0) + 1;
+      }
+      return counts;
     }
 
     async function render(){
       grid.innerHTML='';
-      if(!CATEGORIES.length){ empty.hidden=false; return; }
+      const counts = await loadCounts();
+      const categories = TAXONOMY.map(cat => ({ ...cat, count: counts[cat.slug] || 0 }));
+
+      if(!categories.length){ empty.hidden=false; return; }
       empty.hidden=true;
 
-      for(const cat of CATEGORIES){
-        const coverOk = await exists(cat.cover);
+      for(const cat of categories){
         const a = document.createElement('a');
         a.href=`./creators.html?cat=${cat.slug}`;
         a.className='card';
+        const countLabel = cat.count > 0
+          ? `${cat.count} creador${cat.count>1?'es':''}`
+          : 'Próximamente';
         a.innerHTML=`
-          <img class="thumb" src="${coverOk ? cat.cover : './peak1.png'}" alt="${cat.name}" loading="lazy">
+          <img class="thumb" src="${cat.cover}" alt="${cat.name}" loading="lazy">
           <div class="overlay"></div>
           <div class="info">
             <div class="name">${cat.name}</div>
-            <div class="examples"><span class="dot"></span>${cat.count} creador${cat.count>1?'es':''}</div>
+            <div class="examples"><span class="dot"></span>${countLabel}</div>
           </div>
         `;
         grid.appendChild(a);

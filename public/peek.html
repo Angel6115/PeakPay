@@ -7,6 +7,7 @@
 
   <script src="./env.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
   <script src="./_header.js" defer></script>
 
   <link rel="icon" href="./favicon.ico">
@@ -16,17 +17,18 @@
 
   <style>
     :root{
-      --bg:#ffffff; --text:#0b1020; --muted:#475569; --card:#f8fafc; --ring:#e2e8f0;
+      --bg:#FFFAF5; --text:#040A3F; --muted:#64748b; --card:#f8fafc; --ring:#e2e8f0;
       --ok:#059669; --err:#b91c1c;
-      --indigo:#4f46e5; --indigo-ink:#3730a3; --blue:#2563eb; --mint:#10b981; --pink:#ec4899;
-      --indigo-soft:#eef2ff;
+      --indigo:#0732EF; --indigo-ink:#0526C4; --blue:#5E17EB; --mint:#0EA968; --pink:#FF66C4;
+      --indigo-soft:#F4F1FF;
       --cta: var(--indigo); --cta-text:#fff;
-      --shimmer1:#eef2f7; --shimmer2:#e6ebf2; --shimmer3:#f4f6fa;
-      --toast:#111827; --toast-text:#fff;
+      --shimmer1:#F4F1FF; --shimmer2:#ECE7FA; --shimmer3:#F8F6FF;
+      --toast:#040A3F; --toast-text:#fff;
       --bleed:.5px;
     }
     *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    .name,#credits{font-family:'Space Grotesk',system-ui,sans-serif}
     a{color:inherit}
     .wrap{max-width:1024px;margin:0 auto;padding:28px 16px 56px}
     
@@ -43,7 +45,7 @@
     .logo{
       height:auto;
       width:clamp(160px, 30%, 240px);
-      filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15));
+      filter: drop-shadow(0 4px 12px rgba(7,50,239,0.15));
     }
     .brand{font-size:12px;color:var(--muted);flex:1;min-width:200px}
     .brand .crumbs a{opacity:.95}
@@ -52,39 +54,39 @@
       border:1px solid var(--ring);
       background:#fff;
       color:#111827;
-      border-radius:10px;
+      border-radius:999px;
       padding:10px 16px;
       text-decoration:none;
       font-weight:700;
-      box-shadow:0 4px 14px rgba(102,126,234,.15);
+      box-shadow:0 4px 14px rgba(7,50,239,.15);
       transition: all 0.3s;
       white-space:nowrap;
     }
     .btn-back:hover{
-      background:rgba(102,126,234,0.05);
+      background:rgba(7,50,239,0.05);
       border-color:var(--indigo);
     }
     
-    .panel{border:1px solid var(--ring);background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 6px 14px rgba(79,70,229,.06)}
+    .panel{border:1px solid var(--ring);background:var(--card);border-radius:22px;padding:16px;margin-top:12px;box-shadow:0 6px 14px rgba(7,50,239,.06)}
     .h-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-    .avatar{width:64px;height:64px;border-radius:14px;object-fit:cover;border:1px solid var(--ring);background:#fff}
-    .name{font-size:18px;font-weight:700}
-    .badge-verified{font-size:11px;background:var(--indigo-soft);color:#1e1b4b;border:1px solid #c7d2fe;border-radius:999px;padding:3px 8px;margin-left:8px}
+    .avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 4px 12px rgba(4,10,63,.15);background:linear-gradient(135deg,var(--indigo),var(--pink))}
+    .name{font-size:18px;font-weight:800}
+    .badge-verified{font-size:11px;background:var(--indigo-soft);color:#040A3F;border:1px solid #ddd6fe;border-radius:999px;padding:3px 8px;margin-left:8px}
     .meta-line{font-size:12px;color:var(--muted)}
     .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
     .chip{font-size:12px;border:1px solid var(--ring);background:#fff;padding:6px 10px;border-radius:999px}
     .chip b{font-weight:700}
     .wallet{margin-left:auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
-    .badge-wallet{border:1px solid #c7d2fe; background:var(--indigo-soft); color:#1e1b4b; border-radius:10px; padding:6px 10px; font-size:12px; line-height:1}
-    .wallet a{border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:8px 12px; border-radius:10px; text-decoration:none; font-size:12px; box-shadow:0 6px 16px rgba(79,70,229,.25)}
+    .badge-wallet{border:1px solid #ddd6fe; background:var(--indigo-soft); color:#040A3F; border-radius:999px; padding:6px 12px; font-size:12px; line-height:1; font-weight:600}
+    .wallet a{border:0; background: linear-gradient(135deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:8px 14px; border-radius:999px; text-decoration:none; font-size:12px; font-weight:700; box-shadow:0 6px 16px rgba(7,50,239,.25)}
     .hint{border:1px solid #fecaca; background:#fee2e2; color:#7f1d1d; border-radius:999px; padding:4px 10px; font-size:12px; display:none}
     .hint.show{display:inline-block; animation: fade 2.2s ease}
     @keyframes fade{0%{opacity:0;transform:translateY(-2px)}10%{opacity:1;transform:none}90%{opacity:1}100%{opacity:0}}
     .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .btn{border:0; background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:10px 14px; border-radius:10px; cursor:pointer; box-shadow:0 6px 16px rgba(79,70,229,.25);transition:all 0.3s}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(79,70,229,.35)}
+    .btn{border:0; background: linear-gradient(135deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; padding:11px 18px; border-radius:999px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(7,50,239,.25);transition:all 0.3s}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(7,50,239,.35)}
     .btn.secondary{background:#fff;color:var(--indigo);border:1px solid var(--ring);box-shadow:none}
-    .btn.secondary:hover{background:rgba(102,126,234,0.05);border-color:var(--indigo)}
+    .btn.secondary:hover{background:rgba(7,50,239,0.05);border-color:var(--indigo)}
     .progress{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
     .bar{flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
     .bar span{display:block;height:100%;background: linear-gradient(90deg, var(--indigo) 0%, var(--blue) 100%);width:0%}
@@ -116,6 +118,7 @@
     .cell.unlocking{ animation: pop .18s ease-out }
     @keyframes pop{ 0%{transform:scale(.98)} 100%{transform:scale(1)} }
   </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <link rel="preconnect" href="https://plausible.io">
 </head>
 <body>
@@ -144,19 +147,27 @@
             · <span id="c-country">—</span>
           </div>
           <div class="chips">
-            <span class="chip">Rating <b id="c-rating">4.9</b> (<span id="c-reviews">200</span>)</span>
             <span class="chip">Peeks revelados: <b id="c-revealed">0</b></span>
             <span class="chip">Subs: <b id="c-subs">0</b></span>
             <span class="chip">Posts: <b id="c-posts">0</b></span>
-            <span class="chip">Likes: <b id="c-likes">0</b></span>
           </div>
         </div>
 
         <div class="wallet" style="margin-left:auto">
           <div class="badge-wallet" aria-live="polite">Peak Credits: <b id="credits">0</b> <span id="creditsUsd" style="opacity:.7;margin-left:6px">≈ $0.00</span></div>
-          <div class="badge-wallet">Puntos: <b id="points">0</b></div>
           <span id="walletHint" class="hint" role="status" aria-live="polite"></span>
+          <button id="subscribeBtn" style="display:none;border:0;background:linear-gradient(135deg,var(--blue) 0%,var(--pink) 100%);color:#fff;padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(255,102,196,.3)"></button>
+          <button id="requestBtn" style="border:1px solid var(--ring);background:#fff;color:var(--text);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer">✉ Enviar pedido</button>
+          <a href="./messages.html">Mensajes</a>
           <a href="./wallet.html">Wallet</a>
+        </div>
+      </div>
+
+      <div id="requestBox" style="display:none;margin-top:12px;padding:14px;border:1px solid var(--ring);border-radius:14px;background:#fff">
+        <textarea id="requestText" placeholder="Escríbele a la creadora: un pedido especial, una pregunta, o solo para agradecerle..." style="width:100%;min-height:70px;padding:10px;border:1px solid var(--ring);border-radius:10px;font-family:inherit;font-size:13px;resize:vertical"></textarea>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <button id="requestSend" class="btn">Enviar</button>
+          <span id="requestStatus" style="font-size:12px"></span>
         </div>
       </div>
 
@@ -185,11 +196,6 @@
     </section>
   </div>
 
-  <div id="toast" class="toast" role="status" aria-live="polite">
-    <span class="pill" id="toastPill">+1</span>
-    <span id="toastText">Punto de racha conseguido</span>
-  </div>
-
   <script>
     const $ = (s)=>document.querySelector(s);
     const params = new URLSearchParams(location.search);
@@ -216,60 +222,157 @@
       ''
     ).replace(/\/+$/,'');
 
-    let PP_UID = localStorage.getItem('pp_uid') || 'test-user-123';
-    localStorage.setItem('pp_uid', PP_UID);
+    function getSB(){
+      if (window.__SB) return window.__SB;
+      const E = window.PP_ENV || {};
+      if (!E.sb_url || !E.sb_anon || !window.supabase?.createClient) return null;
+      window.__SB = window.supabase.createClient(E.sb_url, E.sb_anon, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'pp-auth' }
+      });
+      return window.__SB;
+    }
+
+    async function getAuthHeaders(){
+      const sb = getSB();
+      if (!sb) throw new Error('supabase_unavailable');
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session?.access_token) throw new Error('no_session');
+      return { 'Authorization': `Bearer ${session.access_token}` };
+    }
+
+    let creatorUserId = null;
+
+    async function refreshSubscribeButton(){
+      const btn = document.getElementById('subscribeBtn');
+      try{
+        let headers = {};
+        try { headers = await getAuthHeaders(); } catch { /* sin sesión: solo consulta pública */ }
+        const url = `${API_BASE}/api/subscription-status?creator_handle=${encodeURIComponent(slug)}`;
+        const r = await fetch(url, { headers });
+        if (!r.ok) { btn.style.display = 'none'; return; }
+        const j = await r.json();
+        creatorUserId = j.creator_user_id || null;
+        const subsEl = document.getElementById('c-subs');
+        if (subsEl) subsEl.textContent = (j.subscriber_count ?? 0).toLocaleString('en-US');
+        if (!j.subscribable) { btn.style.display = 'none'; return; }
+        if (j.subscribed) {
+          btn.style.display = 'inline-block';
+          btn.textContent = '✓ Suscrito';
+          btn.disabled = true;
+          btn.style.opacity = '.85';
+          btn.style.cursor = 'default';
+        } else {
+          btn.style.display = 'inline-block';
+          btn.textContent = `Suscribirse — $${Number(j.price_usd).toFixed(2)}/mes`;
+          btn.disabled = false;
+          btn.onclick = async () => {
+            btn.disabled = true;
+            btn.textContent = 'Redirigiendo...';
+            try{
+              const authHeaders = await getAuthHeaders();
+              const resp = await fetch(`${API_BASE}/api/create-subscription-session`, {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json', ...authHeaders },
+                body: JSON.stringify({ creator_handle: slug })
+              });
+              const data = await resp.json().catch(()=>({}));
+              if (!resp.ok || !data.url) throw new Error(data.error || 'No se pudo iniciar la suscripción');
+              window.location.href = data.url;
+            }catch(e){
+              alert(e.message || 'No se pudo iniciar la suscripción. Inicia sesión primero.');
+              btn.disabled = false;
+              refreshSubscribeButton();
+            }
+          };
+        }
+      }catch(e){ console.warn('[subscribe] estado no disponible:', e.message||e); btn.style.display = 'none'; }
+    }
+
+    async function loadPostsCount(){
+      const el = document.getElementById('c-posts');
+      if (!el) return;
+      try{
+        const sb = getSB();
+        if (!sb) return;
+        const { count, error } = await sb
+          .from('sets')
+          .select('id, creators!inner(handle)', { count: 'exact', head: true })
+          .eq('creators.handle', slug);
+        if (error) throw error;
+        el.textContent = count ?? 0;
+      }catch(e){ console.warn('[posts] conteo no disponible:', e.message||e); }
+    }
+
+    document.getElementById('requestBtn').onclick = () => {
+      document.getElementById('requestBox').style.display =
+        document.getElementById('requestBox').style.display === 'none' ? 'block' : 'none';
+    };
+
+    document.getElementById('requestSend').onclick = async () => {
+      const text = document.getElementById('requestText').value.trim();
+      const statusEl = document.getElementById('requestStatus');
+      if (!text) return;
+      if (!creatorUserId) { statusEl.textContent = 'Esta creadora todavía no tiene cuenta vinculada.'; statusEl.style.color = 'var(--err)'; return; }
+
+      const sendBtn = document.getElementById('requestSend');
+      sendBtn.disabled = true;
+      try {
+        const authHeaders = await getAuthHeaders();
+        const r = await fetch(`${API_BASE}/api/messages/send`, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', ...authHeaders },
+          body: JSON.stringify({ to_user: creatorUserId, body: text })
+        });
+        const j = await r.json().catch(()=>({}));
+        if (!r.ok || !j.ok) throw new Error(j.error || 'No se pudo enviar');
+        statusEl.textContent = '✓ Enviado';
+        statusEl.style.color = 'var(--ok)';
+        document.getElementById('requestText').value = '';
+      } catch (e) {
+        statusEl.textContent = e.message === 'no_session' ? 'Inicia sesión para enviar un pedido.' : ('Error: ' + (e.message||e));
+        statusEl.style.color = 'var(--err)';
+      } finally {
+        sendBtn.disabled = false;
+      }
+    };
 
     const $crea = document.getElementById('creatorsLink');
     if ($crea) $crea.href = './creators.html?cat=' + encodeURIComponent(cat);
 
     function pickCredits(obj){ if (!obj) return 0; if (typeof obj.credits==='number') return obj.credits; if (typeof obj.balance==='number') return obj.balance; if (obj.balance && typeof obj.balance.credits==='number') return obj.balance.credits; return 0; }
-    function pickPoints(obj){ if (!obj) return 0; if (typeof obj.points==='number') return obj.points; if (obj.balance && typeof obj.balance.points==='number') return obj.balance.points; return 0; }
-    const CREDIT_KEY='pp_demo_balance', POINTS_KEY='pp_points';
+    const CREDIT_KEY='pp_demo_balance';
     const getLocalCredits = ()=> Number(localStorage.getItem(CREDIT_KEY)||'0')||0;
     const setLocalCredits = (n)=>{ const v=Math.max(0,Math.floor(Number(n||0))); localStorage.setItem(CREDIT_KEY,String(v)); updateCreditsUI(); }
-    const getLocalPoints = ()=> Number(localStorage.getItem(POINTS_KEY)||0);
-    const setLocalPoints = (n)=>{ const v=Math.max(0,Math.floor(Number(n||0))); localStorage.setItem(POINTS_KEY,String(v)); updatePointsUI(); }
     const fmtMoney = (v)=> Number(v).toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
 
     async function fetchBalance(){
-      if (!API_BASE) return getLocalCredits();
       try{
-        const r = await fetch(`${API_BASE}/api/credits/balance`, { headers:{ 'X-PP-UID': PP_UID }});
+        const authHeaders = await getAuthHeaders();
+        const r = await fetch(`${API_BASE}/api/credits/balance`, { headers: authHeaders });
         if(!r.ok) throw new Error('balance http '+r.status);
         const j = await r.json();
         setLocalCredits(pickCredits(j));
-        setLocalPoints(pickPoints(j));
         return pickCredits(j);
       }catch(e){ console.warn('balance fallback local:', e.message||e); return getLocalCredits(); }
     }
     function updateCreditsUI(){ const cr=getLocalCredits(); $('#credits').textContent=cr.toLocaleString('en-US'); $('#creditsUsd').textContent='≈ '+fmtMoney(cr*0.25); }
-    function updatePointsUI(){ $('#points').textContent=getLocalPoints().toLocaleString('en-US'); }
     function showDeficit(def){ const n=Math.max(1, def|0); const el=$('#walletHint'); el.textContent=`Faltan ${n} crédito${n>1?'s':''}`; el.classList.add('show'); clearTimeout(showDeficit._t); showDeficit._t=setTimeout(()=>el.classList.remove('show'),2100); }
-    function showToast(pillText, bodyText){ const t=$('#toast'); $('#toastPill').textContent=pillText||'+1'; $('#toastText').textContent=bodyText||'Punto de racha conseguido'; t.classList.add('show'); clearTimeout(showToast._t); showToast._t=setTimeout(()=> t.classList.remove('show'), 2000); }
-    async function tryGrantStreakBonus(){
-      if (!API_BASE) return;
-      try{
-        const r = await fetch(`${API_BASE}/api/credits/streak-bonus`, { method:'POST', headers:{ 'X-PP-UID': PP_UID }});
-        if (r.ok){ const j=await r.json().catch(()=>null); const awarded=Number(j?.points_awarded ?? j?.points ?? 1); setLocalPoints(getLocalPoints()+awarded); showToast(`+${awarded}`,'Punto de racha conseguido'); }
-      }catch(e){ console.warn('[streak-bonus] error', e.message||e); }
-    }
 
     async function chargeServer(count, pack=count, mode='button'){
-      if (!API_BASE) {
-        const have=getLocalCredits();
-        if (have < count) { showDeficit(count-have); return {ok:false, balance:have}; }
-        setLocalCredits(have-count);
-        tryGrantStreakBonus();
-        return {ok:true, balance:getLocalCredits(), revealed:null};
-      }
-      const url = `${API_BASE}/api/unlock?set_id=${encodeURIComponent(SET_ID)}&count=${count}&pack=${pack}&mode=${mode}&idem=web-${Date.now()}`;
-      const r = await fetch(url, { headers:{ 'X-PP-UID': PP_UID }});
+      let authHeaders;
+      try { authHeaders = await getAuthHeaders(); }
+      catch(e){ console.warn('[unlock] sin sesión activa:', e.message||e); return {ok:false, balance:getLocalCredits(), err:'no_session'}; }
+
+      const r = await fetch(`${API_BASE}/api/unlock`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', ...authHeaders },
+        body: JSON.stringify({ set_id: SET_ID, count })
+      });
       if (r.status===402){ await r.json().catch(()=>{}); showDeficit(count); return {ok:false, balance:getLocalCredits(), err:'insufficient'}; }
       if (!r.ok){ console.warn('unlock error', r.status); return {ok:false, balance:getLocalCredits()}; }
       const j = await r.json();
       const newBal = pickCredits(j);
       if (Number.isFinite(newBal)) setLocalCredits(newBal);
-      tryGrantStreakBonus();
       return {ok:true, balance:newBal, revealed:j.revealed};
     }
 
@@ -315,17 +418,14 @@
       $('#c-desc').textContent = setInfo?.blurb || (detail?.desc || 'Peeks que insinúan más de lo que muestran. Desbloquea y arma la historia.');
       $('#gridN').textContent = `${GRID}×${GRID}`;
 
-      $('#c-rating').textContent = Number(stats.rating ?? 4.9).toFixed(1);
-      $('#c-reviews').textContent = stats.reviews ?? 0;
-      $('#c-subs').textContent = (stats.subs ?? 0).toLocaleString('en-US');
-      $('#c-posts').textContent = stats.posts ?? 0;
-      $('#c-likes').textContent = (stats.likes ?? 0).toLocaleString('en-US');
       $('#c-revealed').textContent = (stats.revealed ?? 0).toLocaleString('en-US');
 
       if (verified) $('#c-verified').style.display = 'inline-block';
 
-      const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
-      const avatar = (isLocal ? (setInfo?.coverLocal || setInfo?.cover) : (setInfo?.cover || setInfo?.coverLocal)) || `${PUBLIC_PREFIX}/photos/${cat}/${slug}/cover.webp`;
+      // *Local (coverLocal/fullLocal) solo aplica cuando el sitio se sirve
+      // bajo un prefijo /public (viejo setup de dev); con vercel dev o en
+      // producción los archivos cuelgan de la raíz, igual que `cover`/`full`.
+      const avatar = (PUBLIC_PREFIX ? (setInfo?.coverLocal || setInfo?.cover) : (setInfo?.cover || setInfo?.coverLocal)) || `${PUBLIC_PREFIX}/photos/${cat}/${slug}/cover.webp`;
       const i=new Image();
       i.onload=()=>$('#avatar').src=avatar;
       i.onerror=()=>$('#avatar').src='./peak1.png';
@@ -353,7 +453,7 @@
         url.searchParams.set('cat',  cat);
         if (ext) url.searchParams.set('ext', ext);
         url.searchParams.set('ttl',  '900');
-        const r = await fetch(url.toString(), { headers:{ 'X-PP-UID': PP_UID }});
+        const r = await fetch(url.toString());
         if (!r.ok) return null;
         const j = await r.json().catch(()=>null);
         return j?.url || null;
@@ -463,7 +563,9 @@
 
         const r = await chargeServer(1,1,'tap');
         if (!r.ok){
-          $msg.innerHTML = `No tienes créditos suficientes. <a href="./wallet.html">Ir a Wallet</a>`;
+          $msg.innerHTML = (r.err === 'no_session')
+            ? `Inicia sesión para desbloquear. <a href="./login.html?next=${encodeURIComponent(location.pathname+location.search)}">Iniciar sesión</a>`
+            : `No tienes créditos suficientes. <a href="./wallet.html">Ir a Wallet</a>`;
           $msg.className='msg err';
           return;
         }
@@ -485,7 +587,9 @@
           const toOpen = Math.min(want, candidates.length);
           const r = await chargeServer(toOpen,toOpen,'button');
           if (!r.ok){
-            $msg.innerHTML = `No tienes créditos suficientes para este pack. <a href="./wallet.html">Recargar</a>`;
+            $msg.innerHTML = (r.err === 'no_session')
+              ? `Inicia sesión para desbloquear. <a href="./login.html?next=${encodeURIComponent(location.pathname+location.search)}">Iniciar sesión</a>`
+              : `No tienes créditos suficientes para este pack. <a href="./wallet.html">Recargar</a>`;
             $msg.className='msg err'; return;
           }
           for (let i=0;i<toOpen;i++){
@@ -503,7 +607,7 @@
       });
 
       function afterUnlock(n,source,pack=1){
-        updateCreditsUI(); updatePointsUI(); updateProgress();
+        updateCreditsUI(); updateProgress();
         const $msg=$('#msg'); $msg.textContent=`Desbloqueaste ${n} Peek${n>1?'s':''}.`; $msg.className='msg ok';
         const base = Number(($('#c-revealed').textContent||'0').replace(/,/g,'')) || 0;
         $('#c-revealed').textContent = (base + n).toLocaleString('en-US');
@@ -564,8 +668,10 @@
     })();
 
     (async function init(){
-      updateCreditsUI(); updatePointsUI();
-      await fetchBalance().then(()=>{ updateCreditsUI(); updatePointsUI(); });
+      updateCreditsUI();
+      refreshSubscribeButton();
+      loadPostsCount();
+      await fetchBalance().then(updateCreditsUI);
 
       let signedFull = null;
       if (params.get('sid')) signedFull = await getSignedFull();
@@ -579,8 +685,7 @@
             if (!params.get('g')) GRID = Number(setInfo.grid || GRID) || 4;
             $('#grid').style.setProperty('--cols', GRID);
             setHeader(detail, setInfo);
-            const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
-            const fullForEnv = isLocal ? (setInfo.fullLocal || setInfo.full) : (setInfo.full || setInfo.fullLocal);
+            const fullForEnv = PUBLIC_PREFIX ? (setInfo.fullLocal || setInfo.full) : (setInfo.full || setInfo.fullLocal);
             buildGrid(fullForEnv);
             try{ window.plausible && plausible('preview_shown',{props:{u:slug,set:setInfo.slug,grid:String(GRID)}});}catch{}
             return;

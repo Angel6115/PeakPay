@@ -9,3 +9,4 @@ dist
 public/*.bak
 
 public-backup/
+.env*.local

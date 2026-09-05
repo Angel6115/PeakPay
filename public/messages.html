@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <link rel="preload" as="style" href="./styles.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="./styles.min.css"></noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="./env.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./platform-gate.js"></script>
+  <title>PeekPay — Mensajes</title>
+  <link rel="icon" href="./favicon.ico">
+
+  <style>
+    :root{
+      --bg:#FFFAF5; --text:#040A3F; --muted:#64748b; --card:#f8fafc; --ring:#e2e8f0;
+      --ok:#059669; --err:#b91c1c;
+      --indigo:#0732EF; --indigo-ink:#0526C4; --indigo-soft:#F4F1FF;
+      --blue:#5E17EB; --pink:#FF66C4;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+      margin:0; background:var(--bg); color:var(--text);
+    }
+    h1,h2,h3,.h2{font-family:'Space Grotesk',system-ui,sans-serif}
+    .wrap{max-width:760px;margin:0 auto;padding:28px 16px 56px}
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+      margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--ring); flex-wrap:wrap;
+    }
+    .logo{ height:auto; width:clamp(160px, 30%, 240px); filter: drop-shadow(0 4px 12px rgba(102,126,234,0.15)); }
+    header .back{
+      border:1px solid var(--ring); background:#fff; color:var(--indigo); border-radius:10px;
+      padding:10px 16px; text-decoration:none; font-weight:700;
+      box-shadow:0 4px 14px rgba(102,126,234,.15); transition: all 0.3s;
+    }
+    header .back:hover{ background:rgba(102,126,234,0.05); border-color:var(--indigo); }
+
+    .panel{
+      border:1px solid var(--ring); background: var(--card); border-radius:24px;
+      padding:16px; margin-top:12px; box-shadow: 0 6px 14px rgba(7,50,239,.06);
+    }
+    .h2{font-weight:800;margin:0 0 8px 0;display:flex;align-items:center;gap:8px}
+    .muted{color:var(--muted);font-size:12px}
+
+    .tabs{display:flex;gap:8px;margin-top:10px}
+    .tab-btn{
+      padding:9px 16px;background:#fff;border:1px solid var(--ring);border-radius:999px;
+      font-weight:700;font-size:13px;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:6px;
+    }
+    .tab-btn.active{ background:linear-gradient(135deg, var(--indigo) 0%, var(--blue) 100%); color:#fff; border-color:transparent; }
+    .badge-count{background:rgba(0,0,0,.08);border-radius:999px;padding:1px 7px;font-size:11px}
+    .tab-btn.active .badge-count{background:rgba(255,255,255,.25)}
+
+    .msg-item{
+      background:#fff; border:1px solid var(--ring); border-radius:16px; padding:14px; margin-top:10px;
+      box-shadow: 0 6px 14px rgba(7,50,239,.06);
+    }
+    .msg-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+    .msg-from{font-weight:700;font-size:14px}
+    .msg-date{font-size:12px;color:var(--muted)}
+    .msg-body{font-size:14px;line-height:1.5;white-space:pre-wrap}
+    .msg-image{max-width:220px;border-radius:12px;margin-top:8px;display:block}
+
+    .btn{
+      border:0;background: linear-gradient(135deg, var(--indigo) 0%, var(--blue) 100%);
+      color:#fff;border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:700;font-size:13px;
+      box-shadow: 0 6px 16px rgba(7,50,239,.25);
+    }
+    .btn.secondary{ background:#fff; color:var(--indigo); border:1px solid var(--ring); box-shadow:none }
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+
+    .composer{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--ring)}
+    .composer.open{display:block}
+    .composer textarea{width:100%;min-height:64px;padding:10px;border:1px solid var(--ring);border-radius:10px;font-family:inherit;font-size:13px;resize:vertical}
+    .composer .row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+
+    .empty{ text-align:center; padding:36px 16px; color:var(--muted) }
+    .loading{ text-align:center; padding:24px; color:var(--muted) }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo">
+      <a href="./profile.html" class="back">← Volver</a>
+    </header>
+
+    <section class="panel">
+      <p class="h2"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--indigo)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> Mensajes</p>
+      <p class="muted">Fotos y notas de las creadoras que sigues, y tus propios pedidos</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" id="tabInbox" onclick="switchTab('inbox')">
+          Recibidos <span class="badge-count" id="inboxCount">0</span>
+        </button>
+        <button class="tab-btn" id="tabSent" onclick="switchTab('sent')">
+          Enviados <span class="badge-count" id="sentCount">0</span>
+        </button>
+      </div>
+
+      <div id="inboxPanel">
+        <div class="loading" id="inboxLoading">Cargando mensajes...</div>
+        <div id="inboxList"></div>
+        <div class="empty" id="inboxEmpty" style="display:none">
+          <p><strong>Sin mensajes todavía</strong></p>
+          <p style="margin-top:6px;font-size:13px">Cuando una creadora que sigues te escriba, aparecerá aquí.</p>
+        </div>
+      </div>
+
+      <div id="sentPanel" style="display:none">
+        <div class="loading" id="sentLoading">Cargando...</div>
+        <div id="sentList"></div>
+        <div class="empty" id="sentEmpty" style="display:none">
+          <p><strong>No has enviado pedidos</strong></p>
+          <p style="margin-top:6px;font-size:13px">Envía un pedido especial desde la página de cualquier creadora.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    const supabase = window.supabase.createClient(
+      window.PP_ENV.sb_url,
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
+    );
+
+    const $ = id => document.getElementById(id);
+    let accessToken = null;
+
+    window.switchTab = function (tab) {
+      $('tabInbox').classList.toggle('active', tab === 'inbox');
+      $('tabSent').classList.toggle('active', tab === 'sent');
+      $('inboxPanel').style.display = tab === 'inbox' ? 'block' : 'none';
+      $('sentPanel').style.display = tab === 'sent' ? 'block' : 'none';
+    };
+
+    function fmtDate(d) { return new Date(d).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }); }
+
+    async function api(path, opts = {}) {
+      const r = await fetch(path, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`, ...(opts.headers || {}) },
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.detail || j.error || 'Error de red');
+      return j;
+    }
+
+    async function sendMessage(toUserId, text, statusEl) {
+      try {
+        await api('/api/messages/send', {
+          method: 'POST',
+          body: JSON.stringify({ to_user: toUserId, body: text }),
+        });
+        statusEl.textContent = '✓ Enviado';
+        statusEl.style.color = 'var(--ok)';
+        return true;
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + err.message;
+        statusEl.style.color = 'var(--err)';
+        return false;
+      }
+    }
+
+    function imgSrcFor(path) {
+      return path ? `${window.PP_ENV.sb_url}/storage/v1/object/public/creator-content/${path}` : null;
+    }
+
+    async function loadInbox() {
+      try {
+        const { messages } = await api('/api/messages/list?direction=inbox');
+        $('inboxLoading').style.display = 'none';
+        $('inboxCount').textContent = messages.length;
+
+        if (!messages.length) { $('inboxEmpty').style.display = 'block'; return; }
+
+        $('inboxList').innerHTML = messages.map((m, i) => {
+          const name = m.person?.display_name || m.person?.handle || m.person?.email || 'Creadora';
+          const img = imgSrcFor(m.image_path);
+          return `
+            <div class="msg-item">
+              <div class="msg-head">
+                <span class="msg-from">${name}</span>
+                <span class="msg-date">${fmtDate(m.created_at)}</span>
+              </div>
+              <div class="msg-body">${m.body.replace(/</g, '&lt;')}</div>
+              ${img ? `<img class="msg-image" src="${img}">` : ''}
+              <div class="row" style="margin-top:8px">
+                <button class="btn secondary" onclick="document.getElementById('reply-${i}').classList.toggle('open')">Responder</button>
+              </div>
+              <div class="composer" id="reply-${i}">
+                <textarea id="rtext-${i}" placeholder="Escribe tu respuesta..."></textarea>
+                <div class="row">
+                  <button class="btn" id="rsend-${i}">Enviar</button>
+                  <span id="rstatus-${i}" style="font-size:12px"></span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        messages.forEach((m, i) => {
+          $(`rsend-${i}`).onclick = async () => {
+            const text = $(`rtext-${i}`).value.trim();
+            if (!text) return;
+            $(`rsend-${i}`).disabled = true;
+            const ok = await sendMessage(m.from_user, text, $(`rstatus-${i}`));
+            $(`rsend-${i}`).disabled = false;
+            if (ok) $(`rtext-${i}`).value = '';
+          };
+        });
+      } catch (err) {
+        $('inboxLoading').textContent = 'Error al cargar: ' + err.message;
+      }
+    }
+
+    async function loadSent() {
+      try {
+        const { messages } = await api('/api/messages/list?direction=sent');
+        $('sentLoading').style.display = 'none';
+        $('sentCount').textContent = messages.length;
+
+        if (!messages.length) { $('sentEmpty').style.display = 'block'; return; }
+
+        $('sentList').innerHTML = messages.map(m => {
+          const name = m.person?.display_name || m.person?.handle || m.person?.email || 'Creadora';
+          const img = imgSrcFor(m.image_path);
+          return `
+            <div class="msg-item">
+              <div class="msg-head">
+                <span class="msg-from">Para ${name}</span>
+                <span class="msg-date">${fmtDate(m.created_at)}</span>
+              </div>
+              <div class="msg-body">${m.body.replace(/</g, '&lt;')}</div>
+              ${img ? `<img class="msg-image" src="${img}">` : ''}
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        $('sentLoading').textContent = 'Error al cargar: ' + err.message;
+      }
+    }
+
+    (async function init() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { location.href = './login.html?next=messages.html'; return; }
+      const { data: { session } } = await supabase.auth.getSession();
+      accessToken = session?.access_token;
+
+      await loadInbox();
+      await loadSent();
+    })();
+  </script>
+</body>
+</html>

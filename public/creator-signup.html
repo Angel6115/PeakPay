@@ -82,10 +82,11 @@
     }
     .form-group{ margin-bottom: 20px; }
     label{ display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
-    input[type="email"], input[type="password"]{
+    input[type="email"], input[type="password"], select{
       width: 100%; padding: 14px 16px; border: 2px solid var(--ring); border-radius: 12px; font-size: 16px; transition: all .3s; outline: none;
+      font-family: inherit; background: white; color: var(--text);
     }
-    input[type="email"]:focus, input[type="password"]:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+    input[type="email"]:focus, input[type="password"]:focus, select:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
     .btn{
       width: 100%; padding: 16px;
       background: linear-gradient(135deg, var(--accent), var(--purple));
@@ -115,24 +116,23 @@
     <div class="header">
       <img src="peak1.png" alt="PeekPay" class="logo">
       <h1>Únete como Creador</h1>
-      <p class="subtitle">Monetiza tu contenido con el modelo más justo. Pago único de acceso, sin mensualidades.</p>
+      <p class="subtitle">Monetiza tu contenido con el modelo más justo. Cuenta gratis, tú decides el precio de tu suscripción mensual.</p>
     </div>
 
     <div class="grid">
       <!-- Pricing Card -->
       <div class="card price-card">
-        <div class="badge">💎 LIFETIME ACCESS</div>
+        <div class="badge" style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l-3 6 6 12 6-12-3-6"/></svg> LIFETIME ACCESS</div>
         <div class="price">
-          <div class="price-amount">$4.99</div>
-          <div class="price-note">Pago único • Sin comisiones mes 1</div>
+          <div class="price-amount">Gratis</div>
+          <div class="price-note">Tú pones el precio de tu suscripción mensual</div>
         </div>
         <div class="benefits">
           <h3>Lo que obtienes:</h3>
           <ul>
-            <li>0% comisión primer mes (5 contenidos)</li>
-            <li>10% comisión (con rostro) después</li>
-            <li>15% comisión (sin rostro) después</li>
-            <li>Pagos semanales directos</li>
+            <li>85% de comisión, siempre — sin niveles ni letra chica</li>
+            <li>Tú pones el precio de tu suscripción mensual</li>
+            <li>Pagos mensuales directos</li>
             <li>Dashboard de analytics completo</li>
             <li>Uploads ilimitados</li>
             <li>Badge de "Early Creator"</li>
@@ -140,37 +140,36 @@
           </ul>
         </div>
         <div class="commission-table">
-          <h4>📊 Modelo de comisiones</h4>
-          <div class="commission-row"><span>Mes 1 (primeros 5 peeks)</span><strong style="color: var(--green);">0%</strong></div>
-          <div class="commission-row"><span>Mes 2+ (con rostro visible)</span><strong>10%</strong></div>
-          <div class="commission-row"><span>Mes 2+ (sin rostro)</span><strong>15%</strong></div>
-          <div class="commission-row"><span>Pedidos especiales</span><strong>5%</strong></div>
+          <h4 style="display:flex;align-items:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M21 19H3"/></svg> Modelo de comisiones</h4>
+          <div class="commission-row"><span>Suscripciones</span><strong style="color: var(--green);">85%</strong></div>
+          <div class="commission-row"><span>Unlocks (por peek)</span><strong style="color: var(--green);">85%</strong></div>
+          <div class="commission-row"><span>Pedidos especiales</span><strong style="color: var(--green);">85%</strong></div>
         </div>
       </div>
 
       <!-- Earnings Example Card -->
       <div class="card">
         <div class="benefits">
-          <h3>💰 Ejemplo de ganancias</h3>
+          <h3 style="display:flex;align-items:center;gap:7px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg> Ejemplo de ganancias</h3>
           <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Basado en 100 usuarios activos comprando tus peeks</p>
         </div>
         <div class="earnings-example">
-          <h4>Mes 1 (0% comisión):</h4>
-          <div class="earnings-calc"><span>100 sets @ $5 cada uno</span><strong>$500</strong></div>
-          <div class="earnings-calc"><span>Comisión PeekPay</span><strong style="color: var(--green);">$0</strong></div>
-          <div class="earnings-total"><span>Total mes 1:</span><span>$500</span></div>
+          <h4>Suscripciones:</h4>
+          <div class="earnings-calc"><span>50 suscriptores @ $10/mes</span><strong>$500</strong></div>
+          <div class="earnings-calc"><span>Comisión PeekPay (15%)</span><strong>-$75</strong></div>
+          <div class="earnings-total"><span>Total suscripciones:</span><span>$425</span></div>
         </div>
         <div class="earnings-example" style="background:#e0e7ff;border-color:var(--accent);">
-          <h4>Mes 2+ (con rostro, 10%):</h4>
-          <div class="earnings-calc"><span>200 sets @ $5 cada uno</span><strong>$1,000</strong></div>
-          <div class="earnings-calc"><span>Comisión PeekPay (10%)</span><strong>-$100</strong></div>
-          <div class="earnings-calc"><span>Pedidos especiales (10 @ $20)</span><strong style="color: var(--green);">+$190</strong></div>
-          <div class="earnings-total"><span>Total mes 2:</span><span>$1,090</span></div>
+          <h4>Unlocks + pedidos especiales:</h4>
+          <div class="earnings-calc"><span>200 unlocks @ $5 cada uno</span><strong>$1,000</strong></div>
+          <div class="earnings-calc"><span>Comisión PeekPay (15%)</span><strong>-$150</strong></div>
+          <div class="earnings-calc"><span>Pedidos especiales (10 @ $20, 15%)</span><strong style="color: var(--green);">+$170</strong></div>
+          <div class="earnings-total"><span>Total unlocks + pedidos:</span><span>$1,020</span></div>
         </div>
         <div style="margin-top:20px;padding:16px;background:white;border:1px solid var(--ring);border-radius:12px;">
           <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Ingreso promedio proyectado:</div>
-          <div style="font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">$600-1,200/mes</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px;">*Basado en 100-200 usuarios activos</div>
+          <div style="font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">$600-1,450/mes</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">*Basado en 50-200 suscriptores/compradores activos</div>
         </div>
       </div>
     </div>
@@ -178,7 +177,7 @@
     <!-- Signup Form -->
     <div class="card">
       <h3 style="font-size:24px;margin-bottom:12px;font-weight:800;">Completa tu registro</h3>
-      <p style="color:var(--muted);font-size:15px;margin-bottom:24px;">Crea tu cuenta de creador. Recibirás acceso inmediato después del pago.</p>
+      <p style="color:var(--muted);font-size:15px;margin-bottom:24px;">Crea tu cuenta de creador gratis. Acceso inmediato, sin pago de entrada.</p>
       <div id="errorMsg" class="error"></div>
       <form id="creatorSignupForm">
         <div class="form-group">
@@ -190,14 +189,31 @@
           <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" required autocomplete="new-password">
           <div class="password-hint">Mínimo 8 caracteres para mayor seguridad</div>
         </div>
-        <button type="submit" class="btn" id="submitBtn">Crear cuenta y continuar al pago • $4.99</button>
+        <div class="form-group">
+          <label for="category">Categoría principal</label>
+          <select id="category" name="category" required>
+            <option value="" disabled selected>Elige tu categoría</option>
+            <option value="arte">Arte</option>
+            <option value="artistico">Artístico</option>
+            <option value="cosplay">Cosplay</option>
+            <option value="fitness">Fitness</option>
+            <option value="lenceria">Lencería</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>2 fotos de muestra (para revisión)</label>
+          <p class="password-hint" style="margin-bottom:8px">Nuestro equipo las revisa antes de que tu perfil sea público — usualmente en menos de 24h.</p>
+          <input type="file" id="samplePhoto1" accept="image/*" required style="margin-bottom:8px">
+          <input type="file" id="samplePhoto2" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn" id="submitBtn">Crear cuenta de creador gratis</button>
       </form>
       <div class="info-box">
-        📌 <strong>Nota importante:</strong> El soft launch es en Q1 2025. Al registrarte ahora:
+        📌 <strong>Nota importante:</strong> Al registrarte ahora:
         <ul style="margin:8px 0 0 20px;padding:0;">
-          <li>Aseguras tu lugar como Early Creator</li>
-          <li>Puedes preparar tu contenido</li>
-          <li>Tendrás prioridad en el lanzamiento</li>
+          <li>Acceso inmediato, sin pago de entrada</li>
+          <li>Puedes empezar a subir contenido de una vez</li>
+          <li>Ganas el 85% de cada unlock y suscripción</li>
         </ul>
       </div>
       <div class="back-link"><a href="./index.html">← Volver al inicio</a></div>
@@ -212,13 +228,26 @@
     // Inicializar cliente
     const supabase = createClient(
       window.PP_ENV.sb_url,
-      window.PP_ENV.sb_anon
+      window.PP_ENV.sb_anon,
+      { auth: { persistSession: true, storageKey: 'pp-auth' } }
     );
 
     const form = document.getElementById('creatorSignupForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+    const categoryInput = document.getElementById('category');
+    const photo1Input = document.getElementById('samplePhoto1');
+    const photo2Input = document.getElementById('samplePhoto2');
     const submitBtn = document.getElementById('submitBtn');
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
     const errorMsg = document.getElementById('errorMsg');
 
     function showError(msg){ 
@@ -236,7 +265,8 @@
 
       const email = emailInput.value.trim();
       const password = passwordInput.value.trim();
-      
+      const category = categoryInput.value.trim();
+
       // Validaciones
       if (!email) return showError('Por favor ingresa tu email');
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -244,82 +274,64 @@
       if (!password || password.length < 8) {
         return showError('La contraseña debe tener al menos 8 caracteres');
       }
+      if (!category) return showError('Elige tu categoría principal');
+      const photo1File = photo1Input.files?.[0];
+      const photo2File = photo2Input.files?.[0];
+      if (!photo1File || !photo2File) return showError('Sube las 2 fotos de muestra para revisión');
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Creando cuenta...';
 
       try {
-        // PASO 1: Crear cuenta en Supabase
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              role: 'creador',
-              is_creator: true
-            }
-          }
-        });
-
-        if (signUpError) {
-          if (signUpError.message.includes('already registered')) {
-            throw new Error('Este email ya está registrado. Usa otro o inicia sesión.');
-          }
-          throw signUpError;
-        }
-
-        if (!authData.user) {
-          throw new Error('Error al crear cuenta. Intenta nuevamente.');
-        }
-
-        console.log('✅ Cuenta de creador creada:', authData.user.id);
-
-        // PASO 2: Actualizar perfil con rol de creador
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ 
-            role: 'creador',
-            is_creator: true
-          })
-          .eq('id', authData.user.id);
-
-        if (profileError) {
-          console.warn('⚠️ Error actualizando perfil:', profileError);
-        }
-
-        // PASO 3: Redirigir a Stripe Checkout
-        submitBtn.textContent = 'Redirigiendo al pago...';
-
-        const response = await fetch('/api/create-checkout-session', {
+        // PASO 1: Crear + activar cuenta de creador gratis (server-side, sin Stripe)
+        const response = await fetch('/api/auth/signup-free', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            email, 
-            role: 'creator',
-            userId: authData.user.id  // ← ENVIAR userId al webhook
-          })
+          body: JSON.stringify({ email, password, role: 'creador', main_category: category })
         });
 
         if (!response.ok) {
-          let msg = 'Error al crear sesión de pago';
-          try { 
-            const err = await response.json(); 
-            msg = err.message || err.error || msg; 
-          } catch(_){}
-          throw new Error(msg);
+          const err = await response.json().catch(() => ({}));
+          if (err.error === 'email_in_use') throw new Error('Este email ya está registrado. Usa otro o inicia sesión.');
+          throw new Error(err.detail || err.error || 'Error al crear la cuenta.');
         }
 
-        const { url } = await response.json();
-        if (!url) throw new Error('Respuesta inválida de la API');
+        console.log('✅ Cuenta de creador creada y activada');
 
-        console.log('✅ Sesión de Stripe creada, redirigiendo...');
-        window.location.href = url;
+        // PASO 2: Iniciar sesión con las mismas credenciales
+        submitBtn.textContent = 'Iniciando sesión...';
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) throw signInError;
+
+        // PASO 3: Subir las 2 fotos de muestra para revisión del equipo
+        submitBtn.textContent = 'Subiendo fotos...';
+        const [photo1_base64, photo2_base64] = await Promise.all([
+          fileToBase64(photo1File),
+          fileToBase64(photo2File),
+        ]);
+        const uploadResp = await fetch('/api/creators/submit-application', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${signInData.session.access_token}`,
+          },
+          body: JSON.stringify({
+            photo1_base64, photo1_content_type: photo1File.type || 'image/jpeg',
+            photo2_base64, photo2_content_type: photo2File.type || 'image/jpeg',
+          }),
+        });
+        if (!uploadResp.ok) {
+          const err = await uploadResp.json().catch(() => ({}));
+          console.warn('No se pudieron subir las fotos de muestra:', err);
+        }
+
+        window.location.href = './creator-dashboard.html';
 
       } catch (err) {
         console.error('❌ Error:', err);
         showError(err.message || 'Error al procesar. Intenta de nuevo.');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Crear cuenta y continuar al pago • $4.99';
+        submitBtn.textContent = 'Crear cuenta de creador gratis';
       }
     });
   </script>

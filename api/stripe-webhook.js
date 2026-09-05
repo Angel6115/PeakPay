@@ -1,6 +1,20 @@
 // /api/stripe-webhook.js
+//
+// ⚠️ TODO antes de procesar el primer pago REAL (no test): Stripe prohíbe en
+// sus ToS el contenido sexual/adulto y las plataformas que dan acceso a ese
+// tipo de contenido — es la razón por la que OnlyFans/Fansly/Fanvue NO usan
+// Stripe para cobrar, usan procesadores de "alto riesgo" (CCBill, Segpay,
+// Epoch, Vendo, Corepay). Usar Stripe en LIVE aquí arriesga que congelen la
+// cuenta sin aviso, incluyendo fondos pendientes de pago a creadoras. Migrar
+// create-subscription-session.js / create-checkout-session.js / este archivo
+// al procesador elegido ANTES de aceptar el primer pago real. La lógica de
+// negocio (créditos, ganancias, suscriptores) no depende de Stripe
+// específicamente, así que el resto del sistema no debería cambiar.
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { creditCreatorEarnings } from './_lib/earnings.mjs';
+
+const CREATOR_SHARE = 0.85;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
 
@@ -48,6 +62,36 @@ export default async function handler(req, res) {
   }
 
   console.log('✅ Webhook recibido:', event.type);
+
+  if (event.type === 'checkout.session.completed' && session_is_subscription(event)) {
+    try {
+      await activateSubscription(event.data.object);
+      return res.status(200).json({ received: true, message: 'Suscripción activada' });
+    } catch (err) {
+      console.error('❌ Error activando suscripción:', err);
+      return res.status(500).json({ error: 'Error activando suscripción', message: err?.message });
+    }
+  }
+
+  if (event.type === 'checkout.session.completed' && event.data.object.metadata?.type === 'credit_topup') {
+    try {
+      await grantTopupCredits(event.data.object);
+      return res.status(200).json({ received: true, message: 'Créditos acreditados' });
+    } catch (err) {
+      console.error('❌ Error acreditando créditos:', err);
+      return res.status(500).json({ error: 'Error acreditando créditos', message: err?.message });
+    }
+  }
+
+  if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
+    try {
+      await syncSubscriptionStatus(event.data.object, event.type);
+      return res.status(200).json({ received: true });
+    } catch (err) {
+      console.error('❌ Error sincronizando suscripción:', err);
+      return res.status(500).json({ error: 'Error sincronizando suscripción', message: err?.message });
+    }
+  }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
@@ -137,6 +181,121 @@ export default async function handler(req, res) {
 }
 
 // ---- helpers ----
+
+// Acredita una recarga de créditos comprada con dinero real. Idempotente:
+// revisa si ya existe un wallet_txns para este session.id antes de acreditar
+// (Stripe puede reenviar el mismo evento más de una vez).
+async function grantTopupCredits(session) {
+  const { user_id: userId, credits, usd } = session.metadata || {};
+  if (!UUID_RE.test(userId)) throw new Error('metadata de recarga inválida (user_id no es UUID)');
+
+  const { data: prev } = await supabase
+    .from('wallet_txns')
+    .select('id')
+    .eq('user_key', userId)
+    .eq('type', 'topup')
+    .contains('meta', { session_id: session.id })
+    .limit(1);
+
+  if (prev && prev.length > 0) {
+    console.log('🟰 Recarga repetida (idempotente), no se duplica.');
+    return;
+  }
+
+  const creditsNum = Number(credits) || 0;
+
+  const { data: profile, error: readError } = await supabase
+    .from('profiles')
+    .select('credits')
+    .eq('id', userId)
+    .single();
+  if (readError) throw new Error(`Leyendo profile: ${readError.message}`);
+
+  const newCredits = (Number(profile?.credits) || 0) + creditsNum;
+
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ credits: newCredits })
+    .eq('id', userId);
+  if (updateError) throw new Error(`Actualizando credits: ${updateError.message}`);
+
+  await supabase.from('wallet_txns').insert({
+    user_key: userId,
+    credits_delta: creditsNum,
+    usd_delta: Number(usd) || 0,
+    type: 'topup',
+    meta: { description: `Recarga de ${creditsNum} Peak Credits`, source: 'stripe_topup', session_id: session.id },
+  });
+
+  console.log(`✅ ${creditsNum} créditos acreditados a ${userId}`);
+}
+
+function session_is_subscription(event) {
+  const session = event.data.object;
+  return session.mode === 'subscription' && session.metadata?.type === 'creator_subscription';
+}
+
+// Crea/reactiva la fila en `subscriptions` cuando el checkout de suscripción
+// se completa. Usa upsert sobre (user_id, creator_id) para que re-suscribirse
+// después de cancelar reactive la misma fila en vez de duplicarla.
+async function activateSubscription(session) {
+  const { user_id: userId, creator_id: creatorId, price_usd: priceUsd } = session.metadata || {};
+  if (!UUID_RE.test(userId) || !UUID_RE.test(creatorId)) {
+    throw new Error('metadata de suscripción inválida (user_id/creator_id no son UUID)');
+  }
+
+  const stripeSub = await stripe.subscriptions.retrieve(session.subscription);
+
+  const { error } = await supabase
+    .from('subscriptions')
+    .upsert(
+      {
+        user_id: userId,
+        creator_id: creatorId,
+        status: 'active',
+        price_usd: Number(priceUsd) || 0,
+        stripe_subscription_id: stripeSub.id,
+        stripe_customer_id: session.customer,
+        current_period_end: new Date(stripeSub.current_period_end * 1000).toISOString(),
+        canceled_at: null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,creator_id' }
+    );
+
+  if (error) throw new Error(`Guardando subscription: ${error.message}`);
+  console.log(`✅ Suscripción activa: user=${userId} creator=${creatorId}`);
+
+  const creatorCut = Math.round(Number(priceUsd) * CREATOR_SHARE * 100) / 100;
+  await creditCreatorEarnings(supabase, creatorId, creatorCut, {
+    source: 'subscription',
+    creator_id: creatorId,
+    subscriber_id: userId,
+    stripe_subscription_id: stripeSub.id,
+  });
+}
+
+// Mantiene `subscriptions.status`/`current_period_end` en sync con los
+// eventos de ciclo de vida de Stripe (renovación, cancelación, etc.)
+async function syncSubscriptionStatus(stripeSub, eventType) {
+  const isDeleted = eventType === 'customer.subscription.deleted';
+  const update = {
+    status: isDeleted ? 'canceled' : stripeSub.status,
+    current_period_end: stripeSub.current_period_end
+      ? new Date(stripeSub.current_period_end * 1000).toISOString()
+      : null,
+    updated_at: new Date().toISOString(),
+  };
+  if (isDeleted) update.canceled_at = new Date().toISOString();
+
+  const { error } = await supabase
+    .from('subscriptions')
+    .update(update)
+    .eq('stripe_subscription_id', stripeSub.id);
+
+  if (error) throw new Error(`Sincronizando subscription: ${error.message}`);
+  console.log(`ℹ️ Subscription ${stripeSub.id} -> ${update.status}`);
+}
 
 // Asegura flags/ids en profiles (idempotente)
 async function ensureProfileFlags(userId, session, isCreator) {

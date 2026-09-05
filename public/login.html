@@ -8,13 +8,14 @@
   <meta name="description" content="Accede a tu cuenta PeekPay para continuar donde lo dejaste." />
   <meta name="robots" content="noindex,nofollow" />
   <link rel="canonical" href="https://peek-pay.com/login.html" />
-  <meta name="theme-color" content="#4f46e5" />
+  <meta name="theme-color" content="#0732EF" />
 
   <!-- Favicons (rutas relativas para funcionar en local y prod) -->
   <link rel="icon" href="./favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="alternate icon" href="./favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="./favicon-32.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 
   <!-- Env + Supabase -->
   <script>
@@ -26,9 +27,10 @@
 
   <style>
     :root{
-      --bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-      --indigo:#4f46e5;
-      --blue:#2563eb;
+      --bg: #FFFAF5;
+      --hero-grad: linear-gradient(120deg, #0732EF 0%, #5E17EB 55%, #FF66C4 100%);
+      --indigo:#0732EF;
+      --blue:#5E17EB;
       --ring:#e2e8f0;
       --muted:#64748b;
       --err:#dc2626;
@@ -37,7 +39,7 @@
     }
     * {box-sizing:border-box; margin:0; padding:0}
     body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial,sans-serif;
+      font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
       background:var(--bg);
       color:var(--text);
       min-height:100vh;
@@ -48,44 +50,47 @@
     }
     .container{ max-width:440px; width:100%; }
 
-    .header{ text-align:center; margin-bottom:32px; }
+    .header{
+      text-align:center; margin-bottom:24px;
+      background:var(--hero-grad); border-radius:24px;
+      padding:32px 24px; box-shadow:0 16px 32px -14px rgba(7,50,239,.35);
+    }
     .logo{
-      height:auto; width:clamp(200px, 70%, 300px);
-      filter: drop-shadow(0 4px 16px rgba(102,126,234,0.2));
-      margin:0 auto 20px; display:block;
+      height:auto; width:clamp(180px, 60%, 260px);
+      filter: drop-shadow(0 4px 16px rgba(4,10,63,0.25));
+      margin:0 auto 16px; display:block;
     }
     .header h1{
-      font-size:28px; font-weight:900; margin-bottom:8px;
-      background:linear-gradient(135deg, var(--indigo), var(--blue));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      font-family:'Space Grotesk',system-ui,sans-serif;
+      font-size:24px; font-weight:800; margin-bottom:6px; color:#fff;
     }
-    .header p{ color:var(--muted); font-size:15px; }
+    .header p{ color:rgba(255,255,255,.85); font-size:14px; }
 
     .card{
-      background:white; border:1px solid var(--ring); border-radius:20px;
-      padding:32px; box-shadow:0 10px 40px rgba(102,126,234,.12);
+      background:white; border:1px solid var(--ring); border-radius:26px;
+      padding:32px; box-shadow:0 24px 50px -18px rgba(4,10,63,.4);
     }
 
     .form-group{ margin-bottom:16px; }
     label{
-      display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;
+      display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:6px;
     }
     input{
-      width:100%; padding:12px; border:1px solid var(--ring); border-radius:10px; font-size:14px; transition:all 0.3s;
-      background:#fff;
+      width:100%; padding:12px 14px; border:2px solid var(--ring); border-radius:14px; font-size:14px; transition:all 0.3s;
+      background:#fff; font-family:'Plus Jakarta Sans';
     }
-    input:focus{ outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px rgba(79,70,229,0.1); }
+    input:focus{ outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px rgba(7,50,239,0.12); }
 
     .btn{
-      width:100%; padding:14px; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.3s;
-      background:linear-gradient(135deg, var(--indigo), var(--blue)); color:white; box-shadow:0 4px 14px rgba(79,70,229,.3); margin-top:8px;
+      width:100%; padding:15px; border:none; border-radius:999px; font-size:15px; font-weight:800; cursor:pointer; transition:all 0.3s;
+      background:linear-gradient(135deg, var(--indigo), var(--blue)); color:white; box-shadow:0 14px 26px -10px rgba(7,50,239,.5); margin-top:8px;
     }
-    .btn:hover{ transform:translateY(-2px); box-shadow:0 6px 20px rgba(79,70,229,.4); }
+    .btn:hover{ transform:translateY(-2px); box-shadow:0 16px 30px -8px rgba(7,50,239,.55); }
     .btn:disabled{ opacity:0.6; cursor:not-allowed; transform:none; }
 
     .links{ text-align:center; margin-top:20px; font-size:14px; }
-    .links a{ color:var(--indigo); text-decoration:none; font-weight:600; transition:all 0.3s; }
-    .links a:hover{ text-decoration:underline; }
+    .links a{ color:var(--blue); text-decoration:none; font-weight:700; transition:all 0.3s; }
+    .links a:hover{ color:var(--indigo); text-decoration:underline; }
     .divider{ margin:12px 0; color:var(--muted); }
 
     .msg{ margin-top:12px; padding:10px; border-radius:8px; font-size:13px; text-align:center; display:none; }
@@ -107,7 +112,7 @@
   <div class="container">
     <div class="header">
       <!-- Ruta relativa para evitar 404 en local -->
-      <img src="./assets/brand/peekpay-logo-h.svg" alt="PeekPay" class="logo" />
+      <img src="./assets/brand/peekpay-logo-h-white.svg" alt="PeekPay" class="logo" />
       <h1>Bienvenido de vuelta</h1>
       <p>Inicia sesión para continuar</p>
     </div>
@@ -229,25 +234,42 @@
           // 2) Verificar rol
           const { data: profile, error: profileError } = await sb
             .from('profiles')
-            .select('role, is_creator')
+            .select('role, is_creator, is_admin')
             .eq('id', data.user.id)
             .single();
 
           if (profileError) console.warn('Profile error:', profileError);
 
-          // 3) Destino por rol
+          // 2.5) Si la plataforma no está lanzada y esta cuenta no es admin,
+          // ni el rol ni next= importan — va directo a la sala de espera.
+          if (!profile?.is_admin) {
+            try {
+              const statusResp = await fetch('/api/platform-status', { cache: 'no-store' });
+              const statusJson = await statusResp.json();
+              if (!statusJson.launched) {
+                setMsg('✓ Registrado. Redirigiendo…', true);
+                setTimeout(() => { window.location.href = './waiting-room.html'; }, 600);
+                return;
+              }
+            } catch (_) { /* si falla el check, seguimos el flujo normal */ }
+          }
+
+          // 3) Destino por rol (admin siempre gana, sin importar next=)
           let destination = './profile.html';
-          if (profile && (profile.role === 'creator' || profile.is_creator === true)) {
+          if (profile && profile.is_admin) {
+            destination = './admin.html';
+            setMsg('✓ ¡Bienvenida! Redirigiendo al panel de admin…', true);
+          } else if (profile && (profile.role === 'creator' || profile.is_creator === true)) {
             destination = './creator-dashboard.html';
             setMsg('✓ ¡Bienvenido creador! Redirigiendo…', true);
           } else {
             setMsg('✓ ¡Bienvenido! Redirigiendo…', true);
           }
 
-          // 4) Permitir ?next= sólo si NO es creador
+          // 4) Permitir ?next= sólo si NO es creador ni admin
           const params = new URLSearchParams(window.location.search);
           const next = params.get('next');
-          if (next && (!profile || (profile.role !== 'creator' && !profile.is_creator))) {
+          if (next && (!profile || (profile.role !== 'creator' && !profile.is_creator && !profile.is_admin))) {
             destination = next;
           }
 
@@ -278,12 +300,22 @@
 
         const { data: profile } = await sb
           .from('profiles')
-          .select('role, is_creator')
+          .select('role, is_creator, is_admin')
           .eq('id', session.user.id)
           .single();
 
+        if (!profile?.is_admin) {
+          try {
+            const statusResp = await fetch('/api/platform-status', { cache: 'no-store' });
+            const statusJson = await statusResp.json();
+            if (!statusJson.launched) { window.location.href = './waiting-room.html'; return; }
+          } catch (_) { /* si falla el check, seguimos el flujo normal */ }
+        }
+
         let destination = './profile.html';
-        if (profile && (profile.role === 'creator' || profile.is_creator)) {
+        if (profile && profile.is_admin) {
+          destination = './admin.html';
+        } else if (profile && (profile.role === 'creator' || profile.is_creator)) {
           destination = './creator-dashboard.html';
         } else {
           const params = new URLSearchParams(window.location.search);
